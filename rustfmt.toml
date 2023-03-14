@@ -1,0 +1,4 @@
+hard_tabs = true
+newline_style = "Unix"
+imports_granularity = "One"
+group_imports = "One"

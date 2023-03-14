@@ -17,7 +17,7 @@ module.exports = {
     }]
   },
   entry: {
-    index: "./js/index.js"
+    index: "./static/index.js"
   },
   output: {
     hashFunction: "xxhash64",

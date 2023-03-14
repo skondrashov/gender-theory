@@ -1,14 +1,11 @@
-// native app entry_point
+use {async_std::task::block_on, model::run_app};
 
-use async_std::task::block_on;
+mod model;
+mod notes;
 
-use sketch::{Model, run_app};
-
-mod sketch;
-
+// native app entry point
 fn main() {
-    let model = Model {};
-    block_on(async {
-        run_app(model).await;
-    });
+	block_on(async {
+		run_app().await;
+	});
 }

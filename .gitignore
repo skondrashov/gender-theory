@@ -15,3 +15,4 @@ node_modules
 
 # user intellij configurations
 .idea
+.DS_Store
