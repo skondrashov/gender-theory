@@ -2,12 +2,11 @@
 
 This repository is a template for building [Nannou](https://github.com/nannou-org/nannou) app both for native app and web browser.
 
-Based on Rust-webpack-template repository. https://github.com/rustwasm/rust-webpack-template/tree/master/template
+Based on nannou-web-template repository. https://github.com/rustwasm/rust-webpack-template/tree/master/template
 
 Also referred to Woyten's Microwave for integrating nannou for web. https://woyten.github.io/microwave/launcher.html .
 https://github.com/nannou-org/nannou/pull/811/files .
 
-![](thumbnail.png)
 
 
 ## files
@@ -64,7 +63,7 @@ cargo run
 npm start
 ```
 
-if you encounter the error like below, 
+if you encounter the error like below,
 
 ```js
 ERR_OSSL_EVP_UNSUPPORTED

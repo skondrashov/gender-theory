@@ -1,7 +1,8 @@
 use {async_std::task::block_on, model::run_app};
 
 mod model;
-mod notes;
+mod scenes;
+// mod notes;
 
 // native app entry point
 fn main() {

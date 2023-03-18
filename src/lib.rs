@@ -1,7 +1,8 @@
 use {async_std::task::block_on, model::run_app, wasm_bindgen::prelude::*};
 
 mod model;
-mod notes;
+mod scenes;
+// mod notes;
 
 // web app entry point
 #[wasm_bindgen]

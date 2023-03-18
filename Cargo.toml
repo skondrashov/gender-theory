@@ -23,6 +23,8 @@ crate-type = ["cdylib"]
 # so it's only enabled in release mode.
 # opt-level = 0
 lto = true
+strip = "symbols"
+opt-level = 3
 
 [dependencies]
 # The `wasm-bindgen` crate provides the bare minimum functionality needed

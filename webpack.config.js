@@ -6,7 +6,7 @@ const webpack = require("webpack");
 const dist = path.resolve(__dirname, "dist");
 
 module.exports = {
-  mode: "production",
+  mode: "development",
   experiments: {
     asyncWebAssembly: true,
   },
