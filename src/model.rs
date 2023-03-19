@@ -9,7 +9,7 @@ use {
 		wgpu::{Backends, DeviceDescriptor, Limits},
 	},
 	std::cell::RefCell,
-	web_sys::HtmlAudioElement,
+	web_sys::{AudioContext, HtmlAudioElement},
 };
 
 pub const CANVAS_WIDTH: usize = 20;
@@ -17,6 +17,7 @@ pub const CANVAS_HEIGHT: usize = 10;
 const SCALING: usize = 40;
 
 struct Audio {
+	context: AudioContext,
 	elements: [HtmlAudioElement; 2],
 	current_element: usize,
 }
@@ -29,13 +30,11 @@ impl Model {
 		}
 		if element.paused() {
 			element.set_loop(self.scenes[self.current_scene].loop_);
-			let _ = element.play().unwrap();
+			let _ = element.play();
 		}
 	}
 	fn stop(&self) {
-		self.audio.elements[self.audio.current_element]
-			.pause()
-			.unwrap();
+		let _ = self.audio.elements[self.audio.current_element].pause();
 	}
 }
 
@@ -57,11 +56,21 @@ impl Model {
 		let mut scenes = vec![];
 		scenes.extend_from_slice(for_against::SCENES);
 		scenes.extend_from_slice(terra_firmament::SCENES);
+		let context = AudioContext::new().unwrap();
+		let element1 = HtmlAudioElement::new_with_src(scenes[0].path).unwrap();
+		let element2 = HtmlAudioElement::new_with_src(scenes[1].path).unwrap();
+		let _ = context
+			.create_media_element_source(&element1)
+			.unwrap()
+			.connect_with_audio_node(&context.destination());
+		let _ = context
+			.create_media_element_source(&element2)
+			.unwrap()
+			.connect_with_audio_node(&context.destination());
+
 		let audio = Audio {
-			elements: [
-				HtmlAudioElement::new_with_src(scenes[0].path).unwrap(),
-				HtmlAudioElement::new_with_src(scenes[1].path).unwrap(),
-			],
+			context,
+			elements: [element1, element2],
 			current_element: 0,
 		};
 		Model {
@@ -84,9 +93,7 @@ impl Model {
 
 fn update(_app: &App, model: &mut Model, _update: Update) {
 	let scene = &model.scenes[model.current_scene];
-
 	let element = &model.audio.elements[model.audio.current_element];
-
 	let measure_duration = element.duration() / scene.measures as f64;
 	let mut last_whole = (element.current_time() % measure_duration) / measure_duration;
 	if last_whole < model.last_whole {
@@ -106,14 +113,17 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
 				model.stop();
 				model.current_scene += 1;
 				model.current_measure = 0;
-				model.audio.elements[model.audio.current_element] =
+
+				let element =
 					HtmlAudioElement::new_with_src(model.scenes[model.current_scene + 1].path)
 						.unwrap();
-				model.audio.current_element = if model.audio.current_element == 0 {
-					1
-				} else {
-					0
-				};
+
+				let _ = (model.audio.context)
+					.create_media_element_source(&element)
+					.unwrap()
+					.connect_with_audio_node(&model.audio.context.destination());
+				model.audio.elements[model.audio.current_element] = element;
+				model.audio.current_element = model.audio.current_element ^ 1;
 				model.play();
 				last_whole = 0.0;
 			}
@@ -129,11 +139,11 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
 	draw.text(&format!("Fps: {:?}", app.fps().round()))
 		.x_y(-200.0, 220.0);
+
 	let half = (model.last_whole as f32 % 0.5) * 2.0;
 	let quarter = (half % 0.5) * 2.0;
 	let eighth = (quarter % 0.5) * 2.0;
 	let sixteenth = (eighth % 0.5) * 2.0;
-
 	draw.text(&format!(
 		"1({:.2}) 2({half:.2}) 4({quarter:.2}) 8({eighth:.2}) 16({sixteenth:.2})",
 		model.last_whole
