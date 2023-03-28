@@ -51,15 +51,16 @@ features = [
    "RequestMode",
    "Response",
 
-   'AudioContext',
-   'AudioContextState',
-   'AudioDestinationNode',
-   'AudioNode',
-   'AudioParam',
-   'GainNode',
-   'HtmlAudioElement',
-   'HtmlMediaElement',
-   'MediaElementAudioSourceNode',
+   "AnalyserNode",
+   "AudioContext",
+   "AudioContextState",
+   "AudioDestinationNode",
+   "AudioNode",
+   "AudioParam",
+   "GainNode",
+   "HtmlAudioElement",
+   "HtmlMediaElement",
+   "MediaElementAudioSourceNode",
 ]
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
