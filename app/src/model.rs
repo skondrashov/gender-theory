@@ -10,9 +10,9 @@ use {
 	web_sys::{AnalyserNode, AudioContext, HtmlAudioElement},
 };
 
-pub const CANVAS_WIDTH: usize = 10;
-pub const CANVAS_HEIGHT: usize = 10;
-const SCALING: usize = 50;
+pub const CANVAS_WIDTH: usize = 20;
+pub const CANVAS_HEIGHT: usize = 20;
+const SCALING: usize = 40;
 
 pub struct Audio {
 	pub analyser: AnalyserNode,
@@ -64,10 +64,10 @@ impl Model {
 		Model {
 			scaling: SCALING,
 			noise_matrix: RidgedMulti::new(),
-			noisemap: PlaneMapBuilder::new(&Worley::new())
+			noisemap: PlaneMapBuilder::new(&RidgedMulti::new())
 				.set_size(CANVAS_WIDTH, CANVAS_HEIGHT)
-				.set_x_bounds(-100.0, 100.0)
-				.set_y_bounds(-100.0, 100.0)
+				.set_x_bounds(-10.0, 10.0)
+				.set_y_bounds(-10.0, 10.0)
 				.build(),
 			scenes,
 			queue_next: false,
@@ -78,7 +78,12 @@ impl Model {
 		}
 	}
 
+	pub fn current_scene(&self) -> &Scene {
+		self.scenes[self.current_scene]
+	}
+
 	fn play(&self) {
+		let _ = self.audio.context.resume();
 		let element = &self.audio.elements[self.audio.current_element];
 		if element.ready_state() != 4 {
 			return;

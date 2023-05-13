@@ -44,7 +44,6 @@ pub async fn main_web() {
 				app.new_window()
 					.device_descriptor(device_desc)
 					.size(width as u32, height as u32)
-					.title("Gender Theory")
 					.mouse_pressed(mouse_pressed)
 					.view(view)
 					.build_async()

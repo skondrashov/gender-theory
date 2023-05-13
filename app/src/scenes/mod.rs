@@ -77,5 +77,5 @@ pub struct Scene {
 	pub measures: usize,
 
 	pub render: &'static dyn Fn(&Draw, &Model, usize, usize, f32, [f32; 8]),
-	pub boxes: [Area; 2],
+	pub boxes: &'static [Area],
 }

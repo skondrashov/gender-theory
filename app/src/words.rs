@@ -3,6 +3,7 @@ pub const paired_words: &[&[&'static str]] = &[
 	&["porcelain", "piss"],
 	&["violence", "release"],
 	&["being", "useless"],
+	&["terra", "firmament"],
 	&["adult", "child"],
 	&["anxiety", "depression"],
 	&["apples", "oranges"],
