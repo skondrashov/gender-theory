@@ -76,8 +76,9 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   transitions can be very long, speeding them up by interpolation probably won't work on
   most tracks; don't make the player wait). Owner can supply approximate or exact times.
 - **The first act** (owner's scene list, 2026-11-04; built on sine's five phases):
-  1. "met ends" in point-letters; the e's have an inner skeleton of *lines* parallel to
-     their strokes, half a cell clear. Tap an e → on.
+  1. "met ends" in point-letters, all still (first frame: nothing but points). The e in
+     "met" is blocky — strokes a unit thick, two points wide — the rest one point thick.
+     Tap that e → on.
   2. A square; tap → **Glow**: the whole field breathes on the half-bar (0.35..1), a second
      square breathes in inverse (black at the peak). Tap it → on.
   3. An inverse-glow patch; tap → **Lines**: the field becomes stripes (every other row)

@@ -51,43 +51,38 @@ fn at(map: &str, i: usize, j: usize) -> char {
 		.unwrap_or('.')
 }
 
-/// "met ends", in points. `#` a point; `-` the e's skeleton: a line along the middle of
-/// the letter's gaps, parallel to its strokes and half a cell clear of them. The e's are
-/// the only letters with anything inside — and the only thing to tap.
+/// "met ends", in points. Every letter is a line of points one point thick, except the e
+/// in "met", which is blocky: its strokes are a whole unit thick. That's the one to tap.
 const MET_ENDS: &str = "
 	....................
-	....................
-	....................
-	..#####.####.#####..
-	..#.#.#.#--#...#....
-	..#.#.#.####...#....
-	..#.#.#.#---...#....
-	..#.#.#.####...#....
-	....................
+	.#####.######.#####.
+	.#.#.#.######...#...
+	.#.#.#.##..##...#...
+	.#.#.#.######...#...
+	.#.#.#.######...#...
+	.#.#.#.##.......#...
+	.#.#.#.######...#...
+	.#.#.#.######...#...
 	....................
 	....................
 	####.####....#.####.
-	#--#.#..#....#.#....
+	#..#.#..#....#.#....
 	####.#..#.####.####.
-	#---.#..#.#..#....#.
+	#....#..#.#..#....#.
 	####.#..#.####.####.
 	....................
 	....................
 	....................
 	....................
 ";
-const E_IN_MET: Area = area(8, 12, 12, 17);
-const E_IN_ENDS: Area = area(0, 4, 4, 9);
+const E_IN_MET: Area = area(7, 11, 13, 19);
 
 fn met_ends(draw: &Draw, model: &Model, i: usize, j: usize, _time: f32, modifiers: [f32; 8]) {
 	let [_whole, half, _quarter, _eighth, _sixteenth, _bass, _mid, _treble] = modifiers;
 	let unit = model.scaling as f32;
 	let (x, y) = scale_coordinates(model, i, j);
-	let lit = glow(model, half, false);
-	match at(MET_ENDS, i, j) {
-		'#' => mark(draw, model, x, y, 0.0, 0.0, unit, 0.9 * lit, 0.0),
-		'-' => stroke(draw, model, x - 0.5 * unit, y, 0.0, unit, paint(model, 0.55 * lit, 0.0)),
-		_ => {}
+	if at(MET_ENDS, i, j) == '#' {
+		mark(draw, model, x, y, 0.0, 0.0, unit, 0.9 * glow(model, half, false), 0.0);
 	}
 }
 
@@ -265,22 +260,13 @@ pub const SCENES: &[&Scene] = &[
 		track: &SINE,
 		bars: 0..16,
 		render: &|draw, model, i, j, time, modifiers| met_ends(draw, model, i, j, time, modifiers),
-		hotspots: &[
-			Hotspot {
-				cells: E_IN_MET,
-				needs: NONE,
-				on: Gesture::Tap,
-				then: Action::Go("sine/1"),
-				tag: 0,
-			},
-			Hotspot {
-				cells: E_IN_ENDS,
-				needs: NONE,
-				on: Gesture::Tap,
-				then: Action::Go("sine/1"),
-				tag: 0,
-			},
-		],
+		hotspots: &[Hotspot {
+			cells: E_IN_MET,
+			needs: NONE,
+			on: Gesture::Tap,
+			then: Action::Go("sine/1"),
+			tag: 0,
+		}],
 	},
 	&Scene {
 		id: "sine/1",
