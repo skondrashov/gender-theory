@@ -66,7 +66,7 @@ pub struct Model {
 	scene: &'static Scene,
 	unlocks: Unlocks,
 	/// When each unlock was granted (app time), for easing it in. `-inf` = always had it.
-	revealed: [f32; 5],
+	revealed: [f32; 6],
 	/// App time, as of the last update.
 	time: f32,
 	pending: Option<Pending>,
@@ -131,7 +131,7 @@ impl Model {
 			debug,
 			scene,
 			unlocks,
-			revealed: [f32::NEG_INFINITY; 5],
+			revealed: [f32::NEG_INFINITY; 6],
 			time: 0.0,
 			pending: None,
 			started: false,

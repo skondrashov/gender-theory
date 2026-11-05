@@ -81,15 +81,18 @@ pub enum Unlock {
 	Circles,
 	/// The one colour (see `COLOR`). More colours can be more unlocks.
 	Color,
+	/// Everything breathes in brightness (see `glow`). The first thing there is.
+	Glow,
 }
 
 impl Unlock {
-	pub const ALL: [Unlock; 5] = [
+	pub const ALL: [Unlock; 6] = [
 		Unlock::Lines,
 		Unlock::Length,
 		Unlock::Rotation,
 		Unlock::Circles,
 		Unlock::Color,
+		Unlock::Glow,
 	];
 
 	pub fn name(self) -> &'static str {
@@ -99,6 +102,7 @@ impl Unlock {
 			Unlock::Rotation => "rotation",
 			Unlock::Circles => "circles",
 			Unlock::Color => "color",
+			Unlock::Glow => "glow",
 		}
 	}
 }
@@ -470,6 +474,20 @@ pub fn stroke(_draw: &Draw, model: &Model, x: f32, y: f32, angle: f32, length: f
 		shape: Shape::Line { angle, length },
 		color,
 	});
+}
+
+/// A bare point, whatever the player has unlocked (a `mark` becomes a line). Scenery.
+pub fn dot(draw: &Draw, model: &Model, x: f32, y: f32, color: Rgb) {
+	stroke(draw, model, x, y, PI / 4.0, SQRT_2, color);
+}
+
+/// The glow, once it's unlocked: brightness breathing with the half bar. The field goes
+/// 0.35..1, peaking on the beat; `inverse` cells go 1..0 the other way, so at the peak they
+/// are the only black thing. 1.0 before it's unlocked, so scenes can multiply by it freely.
+pub fn glow(model: &Model, half: f32, inverse: bool) -> f32 {
+	let p = 0.5 + 0.5 * (TAU * half).cos();
+	let lit = if inverse { 1.0 - p } else { 0.35 + 0.65 * p };
+	1.0 + (lit - 1.0) * model.reveal(Unlock::Glow)
 }
 
 /// A ring centred on (x, y). Recorded like `mark`. Scenes gate it on `Unlock::Circles`

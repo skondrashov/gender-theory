@@ -75,10 +75,25 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
 - Real music first, phases → scenes with loops; **transitions later** (the owner: the real
   transitions can be very long, speeding them up by interpolation probably won't work on
   most tracks; don't make the player wait). Owner can supply approximate or exact times.
-- The first draw (owner's design): `sine/0` is stripes — every other row of points joined by
-  a stripe, one stripe missing over 8 points that glow; draw through them → Lines, the
-  points become horizontal lines and the stripes dissolve into them; then the door. A
-  one-row `Area` with `Gesture::Outline` is "draw through these points".
+- **The first act** (owner's scene list, 2026-11-04; built on sine's five phases):
+  1. "met ends" in point-letters; the e's have an inner skeleton of *lines* parallel to
+     their strokes, half a cell clear. Tap an e → on.
+  2. A square; tap → **Glow**: the whole field breathes on the half-bar (0.35..1), a second
+     square breathes in inverse (black at the peak). Tap it → on.
+  3. An inverse-glow patch; tap → **Lines**: the field becomes stripes (every other row)
+     with a gap of bare points; draw through them (one-row `Area` + `Outline`) → on.
+  4. Checkerboard of unit lines (along the grid, still) and dots. The one closed boundary
+     the lines make is a box: tap it → on. A large region glows inverse; hidden in it a box
+     whose cells stay in the greys. **Open: what the hidden box does** (inert for now).
+  5. Same field with a cross; tap the centre → **Length** (lengths move with the music);
+     tap again → on. "Stop here for now."
+  Lines so far: stationary, horizontal/vertical, one cell long — scenes choose angles.
+- Next song (owner): **hexes** as an unlock — the square grid sheared into a triangular
+  lattice (rows slid half a cell, rows squashed by √3/2); regular hexes can't align with a
+  square grid, the shear can. Not started.
+- Glow is `Unlock::Glow` (bit 5, appended after Color so saved progress keeps meaning);
+  `glow(model, half, inverse)` is the multiplier, `dot()`/`stroke()` draw scenery that
+  ignores unlocks (dots stay dots next to lines).
 - Album order for now: sine → sasha grips → pisser → for.against → sine (sine first because
   pisser opens with 8 bars of near silence; agent's call, owner to reorder).
 
