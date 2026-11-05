@@ -11,7 +11,11 @@ use {
 		},
 		prelude::*,
 	},
-	std::{collections::HashSet, ops::Range},
+	std::{
+		cell::{Cell, RefCell},
+		collections::HashSet,
+		ops::Range,
+	},
 };
 
 pub const CANVAS_WIDTH: usize = 20;
@@ -23,16 +27,23 @@ const TRAIL_LIFE: f32 = 1.5;
 const TRAIL_LINGER: f32 = 1.0;
 /// Seconds an unlock takes to ease in.
 const REVEAL: f32 = 2.5;
+/// Seconds a scene takes to morph into the next, ending as it lands: the last `MORPH`
+/// seconds before the switch, or whatever is left of them if it was asked for later.
+const MORPH: f64 = 1.5;
+/// How fast scenes' `time` runs, in units per second (it used to count frames / 100).
+const TIME_RATE: f32 = 0.6;
 
 /// A scene change that has been asked for: scheduled once its track is decoded.
 struct Pending {
 	scene: &'static Scene,
 	via: Option<Range<usize>>,
+	/// Context time it was asked for.
+	asked: f64,
 	/// Context time it's scheduled for (the bar it starts on); `None` until it is.
 	at: Option<f64>,
 	/// Context time the new scene lands: after the via passage, if any.
 	lands: Option<f64>,
-	/// Don't wait for the bar (the scene menu).
+	/// Don't wait for the bar (the scene menu): land in `MORPH` seconds.
 	now: bool,
 }
 
@@ -76,6 +87,12 @@ pub struct Model {
 
 	/// The scene menu (press M) is open.
 	menu: bool,
+
+	/// What the cell being rendered has drawn so far (see `scenes::Mark`).
+	marks: RefCell<Vec<Mark>>,
+	/// While the scene being morphed into is rendered: that scene, so that hints, ticks
+	/// and the like are its own.
+	preview: Cell<Option<&'static Scene>>,
 }
 
 impl Model {
@@ -126,6 +143,8 @@ impl Model {
 			trail: vec![],
 			trace: None,
 			menu: false,
+			marks: RefCell::new(vec![]),
+			preview: Cell::new(None),
 		};
 		model.preload();
 		model
@@ -135,9 +154,26 @@ impl Model {
 		self.scene
 	}
 
+	/// The scene being rendered: the one we're on, or the one being morphed into.
+	fn viewed(&self) -> &'static Scene {
+		self.preview.get().unwrap_or(self.scene)
+	}
+
 	/// How many ticks of `sub` have passed since the scene started.
 	pub fn ticks(&self, sub: Subdivision) -> usize {
+		if self.preview.get().is_some() {
+			return 0;
+		}
 		self.ticks[sub as usize]
+	}
+
+	/// Scenes draw through this (see `scenes::mark`, `scenes::ring`).
+	pub fn record(&self, mark: Mark) {
+		self.marks.borrow_mut().push(mark);
+	}
+
+	fn take_marks(&self) -> Vec<Mark> {
+		std::mem::take(&mut *self.marks.borrow_mut())
 	}
 
 	pub fn has(&self, unlock: Unlock) -> bool {
@@ -168,6 +204,9 @@ impl Model {
 	/// A scene change is underway, and how far along its passage it is (0..1; 0 while it
 	/// waits for the bar, or if there's no passage). Scenes intensify with this.
 	pub fn transition(&self) -> Option<f32> {
+		if self.preview.get().is_some() {
+			return None;
+		}
 		let pending = self.pending.as_ref()?;
 		Some(match (pending.at, pending.lands) {
 			(Some(at), Some(lands)) if lands > at => {
@@ -182,14 +221,30 @@ impl Model {
 		self.pending.is_some()
 	}
 
+	/// The scene is morphing into the next one: how far along (0..1, eased), which scene,
+	/// and the seconds left until it lands. The morph takes the last `MORPH` seconds before
+	/// landing — or what's left of them, if the change was asked for later than that, so a
+	/// late tap gets a quick morph rather than none.
+	pub fn morph(&self) -> Option<(f32, &'static Scene, f32)> {
+		let pending = self.pending.as_ref()?;
+		let lands = pending.lands?;
+		let now = self.audio.now();
+		let start = pending.asked.max(lands - MORPH);
+		if now < start || lands <= start {
+			return None;
+		}
+		let t = ((now - start) / (lands - start)).clamp(0.0, 1.0) as f32;
+		Some((t * t * (3.0 - 2.0 * t), pending.scene, (lands - now).max(0.0) as f32))
+	}
+
 	/// Unlocked, and still has something to do.
 	fn visible(&self, hotspot: &Hotspot) -> bool {
 		self.unlocks.has_all(hotspot.needs) && !hotspot.then.spent(self.unlocks)
 	}
 
-	/// The current scene's hotspots the player can see.
+	/// The viewed scene's hotspots the player can see.
 	fn hotspots(&self) -> impl Iterator<Item = &'static Hotspot> + '_ {
-		self.scene
+		self.viewed()
 			.hotspots
 			.iter()
 			.filter(move |hotspot| self.visible(hotspot))
@@ -244,6 +299,7 @@ impl Model {
 				self.pending = Some(Pending {
 					scene,
 					via,
+					asked: self.audio.now(),
 					at: None,
 					lands: None,
 					now: false,
@@ -262,6 +318,7 @@ impl Model {
 			self.pending = Some(Pending {
 				scene,
 				via: None,
+				asked: self.audio.now(),
 				at: None,
 				lands: None,
 				now: true,
@@ -386,15 +443,15 @@ pub fn update(app: &App, model: &mut Model, _update: Update) {
 		}
 	}
 
-	// Schedule a pending change once its track is decoded: at the next bar, or right now
-	// for the menu. A via passage is bars of the track we're on.
+	// Schedule a pending change once its track is decoded: at the next bar, or a morph
+	// away for the menu. A via passage is bars of the track we're on.
 	if let Some(pending) = &mut model.pending {
 		if pending.at.is_none()
 			&& model.audio.is_playing()
 			&& model.audio.is_loaded(pending.scene.track)
 		{
 			let at = if pending.now {
-				now
+				now + MORPH
 			} else {
 				model.audio.next_bar()
 			};
@@ -429,16 +486,28 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 	let modifiers = get_modifiers(model);
 
 	if model.audio.is_loaded(model.scene.track) {
+		let time = app.time * TIME_RATE;
+		let morph = model.morph();
 		for i in 0..CANVAS_WIDTH {
 			for j in 0..CANVAS_HEIGHT {
-				(model.scene.render)(
-					&draw,
-					model,
-					i,
-					j,
-					app.elapsed_frames() as f32 / 100.0,
-					modifiers,
-				);
+				(model.scene.render)(&draw, model, i, j, time, modifiers);
+				let marks = model.take_marks();
+				match morph {
+					None => marks.iter().for_each(|mark| mark.draw(&draw)),
+					Some((t, next, left)) => {
+						// Where the next scene will be as it lands: the top of its bar,
+						// `left` seconds from now, the music as it is.
+						let mut landing = [0.0; 8];
+						landing[5..].copy_from_slice(&modifiers[5..]);
+						model.preview.set(Some(next));
+						(next.render)(&draw, model, i, j, time + left * TIME_RATE, landing);
+						model.preview.set(None);
+						let into = model.take_marks();
+						for mark in blend(&marks, &into, t) {
+							mark.draw(&draw);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -497,8 +566,9 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 		draw.text(&format!("FFT: {fft}")).x_y(200.0, 160.0);
 
 		let pending = model.pending.as_ref().map(|pending| pending.scene.id);
+		let morph = model.morph().map(|(t, _, _)| t);
 		draw.text(&format!(
-			"scene {} unlocks [{}] pending {pending:?} ticks {:?}",
+			"scene {} unlocks [{}] pending {pending:?} morph {morph:?} ticks {:?}",
 			model.scene.id,
 			model.unlocks.names(),
 			model.ticks

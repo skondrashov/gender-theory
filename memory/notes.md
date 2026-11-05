@@ -6,10 +6,12 @@
   `wasm-experimental` → wgpu 0.11 on WebGL2), wasm-bindgen **0.2.92** in the lockfile (0.2.83
   is refused by current rustc; 0.2.88 is yanked). `wasm-opt = false` in `app/Cargo.toml`
   because wasm-pack 0.11's bundled binaryen can't validate wasm from current rustc.
-- `cd app && wasm-pack build --target web` → ~25 s incremental. Copy the result into
-  `app/pkg` only after checking it in a browser; `app/pkg` is what's committed and deployed.
-  (Until 2026-11-04 `app/.gitignore` ignored `/pkg`, so despite what the old AGENTS.md said it
-  was never in git — only on this machine. It's tracked now, ~2.5 MB of wasm per rebuild.)
+- `cd app && wasm-pack build --target web` → ~25 s incremental, written straight into
+  `app/pkg`, which is what's committed and deployed: check it in a browser before committing,
+  `git checkout app/pkg` if it's bad. (Until 2026-11-04 `app/.gitignore` ignored `/pkg`, so
+  despite what the old AGENTS.md said it was never in git — only on this machine. It's tracked
+  now, ~2.5 MB of wasm per rebuild.) wasm-pack rewrites `app/pkg/.gitignore` to `*` every
+  build; that file is deliberately untracked (tracked files ignore ignore rules).
 - Headless check without a browser session: Edge works —
   `msedge --headless=new --use-angle=swiftshader --enable-unsafe-swiftshader --screenshot=... --virtual-time-budget=8000 URL`
   (segfaults on exit, after writing the screenshot; harmless). No audio, no clicks, so only
@@ -37,6 +39,10 @@
 - Rotation means movement; a still line may point anywhere.
 - `COLOR` in `scenes/mod.rs` is a placeholder orange — owner to choose.
 - Old scenes kept as `old/1`–`old/6`.
+- Scene changes morph rather than snap: the last `MORPH` = 1.5 s before landing (less if
+  asked for later — a late tap gets a quick morph, never none), ending exactly on the switch.
+  Menu jumps land 1.5 s out so they morph too. The old scenes draw on `draw` directly, so
+  they snap; new scenes must go through `mark()`/`ring()` to take part.
 
 ## Structural fact worth remembering
 

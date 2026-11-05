@@ -1,7 +1,7 @@
 use {
 	crate::model::{Model, CANVAS_HEIGHT, CANVAS_WIDTH},
 	nannou::{prelude::*, Draw},
-	std::ops::Range,
+	std::{f32::consts::SQRT_2, ops::Range},
 };
 
 // pub mod being_useless;
@@ -285,6 +285,128 @@ pub fn paint(model: &Model, gray: f32, color: f32) -> Rgb {
 	)
 }
 
+/// Something a cell draws. Scenes make these with `mark` and `ring`; they're recorded
+/// rather than drawn straight away so that, on the way into another scene, each cell's
+/// marks can be morphed into what that scene draws there (see `Model::morph`, `blend`).
+#[derive(Clone, Copy, Debug)]
+pub struct Mark {
+	pub x: f32,
+	pub y: f32,
+	pub shape: Shape,
+	pub color: Rgb,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum Shape {
+	/// From (x, y): `length` px at `angle` radians anticlockwise from right.
+	Line { angle: f32, length: f32 },
+	/// Centred on (x, y).
+	Ring { radius: f32, weight: f32 },
+}
+
+impl Mark {
+	pub fn is_line(&self) -> bool {
+		matches!(self.shape, Shape::Line { .. })
+	}
+
+	pub fn draw(&self, draw: &Draw) {
+		match self.shape {
+			Shape::Line { angle, length } => {
+				draw.line().color(self.color).points(
+					pt2(self.x, self.y),
+					pt2(self.x + length * angle.cos(), self.y + length * angle.sin()),
+				);
+			}
+			Shape::Ring { radius, weight } => {
+				if radius > 0.0 {
+					draw.ellipse()
+						.no_fill()
+						.stroke_weight(weight)
+						.stroke_color(self.color)
+						.x_y(self.x, self.y)
+						.radius(radius);
+				}
+			}
+		}
+	}
+
+	/// This mark shrunk to nothing where it is.
+	fn nothing(&self) -> Mark {
+		Mark {
+			shape: match self.shape {
+				Shape::Line { angle, .. } => Shape::Line { angle, length: 0.0 },
+				Shape::Ring { weight, .. } => Shape::Ring { radius: 0.0, weight },
+			},
+			color: rgb(0.0, 0.0, 0.0),
+			..*self
+		}
+	}
+
+	/// `t` (0..1) of the way from `a` to `b`. Lines turn the short way round. A missing
+	/// side is the other mark shrunk to nothing, so an unpaired mark grows in or shrinks
+	/// away in place.
+	pub fn between(a: Option<&Mark>, b: Option<&Mark>, t: f32) -> Option<Mark> {
+		let (a, b) = match (a, b) {
+			(Some(a), Some(b)) => (*a, *b),
+			(Some(a), None) => (*a, a.nothing()),
+			(None, Some(b)) => (b.nothing(), *b),
+			(None, None) => return None,
+		};
+		let lerp = |p: f32, q: f32| p + (q - p) * t;
+		let shape = match (a.shape, b.shape) {
+			(Shape::Line { angle: a0, length: l0 }, Shape::Line { angle: a1, length: l1 }) => {
+				let mut turn = (a1 - a0).rem_euclid(TAU);
+				if turn > PI {
+					turn -= TAU;
+				}
+				Shape::Line {
+					angle: a0 + turn * t,
+					length: lerp(l0, l1),
+				}
+			}
+			(Shape::Ring { radius: r0, weight: w0 }, Shape::Ring { radius: r1, weight: w1 }) => {
+				Shape::Ring {
+					radius: lerp(r0, r1),
+					weight: lerp(w0, w1),
+				}
+			}
+			// `blend` pairs like with like; should that ever not hold, cut over halfway.
+			_ => {
+				if t < 0.5 {
+					a.shape
+				} else {
+					b.shape
+				}
+			}
+		};
+		Some(Mark {
+			x: lerp(a.x, b.x),
+			y: lerp(a.y, b.y),
+			shape,
+			color: rgb(
+				lerp(a.color.red, b.color.red),
+				lerp(a.color.green, b.color.green),
+				lerp(a.color.blue, b.color.blue),
+			),
+		})
+	}
+}
+
+/// One cell's marks `t` of the way from what one scene draws there to what another does:
+/// lines pair with lines in order, rings with rings; whatever is left over grows in or
+/// shrinks away.
+pub fn blend(from: &[Mark], to: &[Mark], t: f32) -> Vec<Mark> {
+	let mut out = vec![];
+	for lines in [true, false] {
+		let from: Vec<&Mark> = from.iter().filter(|mark| mark.is_line() == lines).collect();
+		let to: Vec<&Mark> = to.iter().filter(|mark| mark.is_line() == lines).collect();
+		for k in 0..from.len().max(to.len()) {
+			out.extend(Mark::between(from.get(k).copied(), to.get(k).copied(), t));
+		}
+	}
+	out
+}
+
 /// A cell's mark, as far as the player can see it. (x, y) is the cell centre; angles are
 /// radians anticlockwise from right.
 ///
@@ -297,8 +419,10 @@ pub fn paint(model: &Model, gray: f32, color: f32) -> Rgb {
 /// Each of these eases in over a couple of seconds from the moment it's unlocked (see
 /// `Model::reveal`): the line grows out of the point, stretches to its length, winds up
 /// to speed, takes on colour.
+///
+/// Recorded, not drawn (see `Mark`); `draw` is here so scenes read naturally.
 pub fn mark(
-	draw: &Draw,
+	_draw: &Draw,
 	model: &Model,
 	x: f32,
 	y: f32,
@@ -310,19 +434,31 @@ pub fn mark(
 ) {
 	let color = paint(model, gray, color);
 	let lines = model.reveal(Unlock::Lines);
-	if lines == 0.0 {
-		draw.line()
-			.color(color)
-			.points(pt2(x, y), pt2(x + 1.0, y + 1.0));
-		return;
-	}
-	let unit = model.scaling as f32;
-	let length = (unit + (length - unit) * model.reveal(Unlock::Length)) * lines;
-	let angle = angle + turn * model.reveal(Unlock::Rotation);
-	draw.line().color(color).points(
-		pt2(x, y),
-		pt2(x + length * angle.cos(), y + length * angle.sin()),
-	);
+	let shape = if lines == 0.0 {
+		// A point: the shortest line that shows.
+		Shape::Line {
+			angle: PI / 4.0,
+			length: SQRT_2,
+		}
+	} else {
+		let unit = model.scaling as f32;
+		Shape::Line {
+			angle: angle + turn * model.reveal(Unlock::Rotation),
+			length: (unit + (length - unit) * model.reveal(Unlock::Length)) * lines,
+		}
+	};
+	model.record(Mark { x, y, shape, color });
+}
+
+/// A ring centred on (x, y). Recorded like `mark`. Scenes gate it on `Unlock::Circles`
+/// themselves (usually by scaling `radius` with `model.reveal(Unlock::Circles)`).
+pub fn ring(_draw: &Draw, model: &Model, x: f32, y: f32, radius: f32, weight: f32, color: Rgb) {
+	model.record(Mark {
+		x,
+		y,
+		shape: Shape::Ring { radius, weight },
+		color,
+	});
 }
 
 fn u8_to_f32(n: u8) -> f32 {

@@ -145,14 +145,15 @@ pub const SCENES: &[&Scene] = &[
 				// Spins, once you can see that.
 				Some(1) => mark(draw, model, x, y, 0.0, time, unit, 1.0, 1.0),
 				// Rings, once you can see those.
-				Some(_) => {
-					draw.ellipse()
-						.no_fill()
-						.stroke_weight(1.5)
-						.stroke_color(paint(model, 0.8, 1.0))
-						.x_y(x, y)
-						.radius(unit * 0.4 * (0.5 + mid) * model.reveal(Unlock::Circles));
-				}
+				Some(_) => ring(
+					draw,
+					model,
+					x,
+					y,
+					unit * 0.4 * (0.5 + mid) * model.reveal(Unlock::Circles),
+					1.5,
+					paint(model, 0.8, 1.0),
+				),
 				None => mark(
 					draw,
 					model,
@@ -298,8 +299,8 @@ pub const SCENES: &[&Scene] = &[
 			// Ease a little around the alignment so it reads, without stopping.
 			let s = cycle - 0.05 * (TAU * cycle).sin();
 			let turns = 1.0 + (noise.abs() * 3.0).floor();
-			let ring = BOX.on_perimeter(i, j);
-			let aligned = box_direction(i, j) + if ring { PI } else { 0.0 };
+			let on_box = BOX.on_perimeter(i, j);
+			let aligned = box_direction(i, j) + if on_box { PI } else { 0.0 };
 			// Without rotation you see one still frame from mid-cycle: no box in it.
 			const STILL: f32 = 0.37;
 			let angle = aligned + turns * TAU * STILL;
@@ -316,15 +317,16 @@ pub const SCENES: &[&Scene] = &[
 				// The box, once you can see circles: the way on. On the way out the
 				// circles spread to every cell and open up.
 				let spread = if model.hint_at(i, j) == Some(2) { 1.0 } else { transition };
-				draw.ellipse()
-					.no_fill()
-					.stroke_weight(1.5)
-					.stroke_color(paint(model, gray * spread, 1.0))
-					.x_y(x, y)
-					.radius(
-						unit * (0.35 + 2.0 * transition * noise.abs())
-							* (0.5 + bass) * model.reveal(Unlock::Circles),
-					);
+				ring(
+					draw,
+					model,
+					x,
+					y,
+					unit * (0.35 + 2.0 * transition * noise.abs())
+						* (0.5 + bass) * model.reveal(Unlock::Circles),
+					1.5,
+					paint(model, gray * spread, 1.0),
+				);
 			}
 			mark(draw, model, x, y, angle, turn, length, gray, s);
 		},
@@ -364,14 +366,15 @@ pub const SCENES: &[&Scene] = &[
 			match model.hint_at(i, j) {
 				// Rings pumping with the bass: only there once you can see circles. They
 				// take the colour first, then lead home.
-				Some(0) | Some(2) => {
-					draw.ellipse()
-						.no_fill()
-						.stroke_weight(2.0)
-						.stroke_color(paint(model, 0.6 + 0.4 * bass, 1.0))
-						.x_y(x, y)
-						.radius(unit * (0.3 + 0.5 * bass) * model.reveal(Unlock::Circles));
-				}
+				Some(0) | Some(2) => ring(
+					draw,
+					model,
+					x,
+					y,
+					unit * (0.3 + 0.5 * bass) * model.reveal(Unlock::Circles),
+					2.0,
+					paint(model, 0.6 + 0.4 * bass, 1.0),
+				),
 				// The top row: back to the start.
 				Some(_) => mark(draw, model, x, y, 0.0, time, unit, 0.9, 0.0),
 				None => mark(
