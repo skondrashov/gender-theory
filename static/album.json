@@ -518,6 +518,20 @@
        },
        "kind": "glow",
        "params": {
+        "level": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "pulse",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
         "mode": "inverse"
        }
       },
@@ -538,6 +552,20 @@
        },
        "kind": "glow",
        "params": {
+        "level": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "pulse",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
         "mode": "bounded",
         "lo": 0.35,
         "hi": 0.65
@@ -712,6 +740,20 @@
        },
        "kind": "glow",
        "params": {
+        "level": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "pulse",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
         "mode": "inverse"
        }
       },
@@ -732,6 +774,20 @@
        },
        "kind": "glow",
        "params": {
+        "level": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "pulse",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
         "mode": "bounded",
         "lo": 0.35,
         "hi": 0.65

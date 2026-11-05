@@ -512,7 +512,7 @@ function layerInspector(l) {
     const glow = l.glow ?? 'region';
     out.push(row('glow', el('select', { onchange: (e) => { snapshotForUndo(); if (e.target.value === 'region') delete l.glow; else l.glow = e.target.value; commit({ silent: true }); } },
       ...['region', 'field', 'inverse', 'bounded', 'off'].map((o) => el('option', { value: o, ...(o === glow ? { selected: '' } : {}) }, o))),
-      el('span', { class: 'doc' }, 'region: as the glow layers covering the cell say (field by default)')));
+      el('span', { class: 'doc' }, 'region: whatever glow layer covers the cell decides (field on the pulse where none); the rest force a mode')));
   }
   // gates
   const gates = el('fieldset', {}, el('legend', {}, 'showing when'));
@@ -545,6 +545,8 @@ function layerInspector(l) {
 }
 
 function paramRow(params, name, spec) {
+  // Missing in the file means the engine's default: show that, not 0.
+  if (params[name] === undefined) params[name] = spec.type === 'param' ? { base: spec.default, chains: [] } : spec.default;
   if (spec.type === 'param') {
     if (typeof params[name] !== 'object' || params[name] === null) params[name] = { base: typeof params[name] === 'number' ? params[name] : spec.default, chains: [] };
     const p = params[name];
