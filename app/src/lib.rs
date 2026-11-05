@@ -15,9 +15,39 @@ mod progress;
 mod scenes;
 // mod notes;
 
+/// The editor page: a command (JSON) for the next update. See `Model::handle`.
 #[wasm_bindgen]
-pub async fn main_web() {
+pub fn editor(command: String) {
+	model::push_command(command);
+}
+
+/// The editor page: the state as of the last update (JSON). See `Model::state`.
+#[wasm_bindgen]
+pub fn state() -> String {
+	model::state_json()
+}
+
+/// The editor page: the spectrum as of the last update, one byte per bin.
+#[wasm_bindgen]
+pub fn spectrum() -> Vec<u8> {
+	model::spectrum_copy()
+}
+
+/// The editor page: what kinds of layer there are and their params (JSON).
+#[wasm_bindgen]
+pub fn catalogue() -> String {
+	scenes::data::CATALOGUE.to_string()
+}
+
+/// `album` is the contents of `static/album.json` (the page fetches it).
+#[wasm_bindgen]
+pub async fn main_web(album: String) {
 	console_error_panic_hook::set_once();
+
+	match scenes::data::install(&album) {
+		Ok(count) => web_sys::console::log_1(&format!("album: {count} scenes").into()),
+		Err(error) => web_sys::console::error_1(&error.into()),
+	}
 
 	block_on(async {
 		// Since ModelFn is not a closure we need this workaround to pass the calculated model
@@ -36,7 +66,20 @@ pub async fn main_web() {
 		let start = query_param(&search, "scene").filter(|id| !id.is_empty());
 		let reset = query_param(&search, "reset").is_some();
 		let unlock = query_param(&search, "unlock");
-		let model = Model::new(debug, start, reset, unlock);
+		// ?editor[=px]: driven by the editor page — a fixed square canvas (800 px, or as
+		// given, a multiple of 20), nothing saved.
+		let editor = query_param(&search, "editor");
+		let size = editor
+			.as_deref()
+			.and_then(|px| px.parse::<u32>().ok())
+			.filter(|px| *px >= 200)
+			.unwrap_or(800);
+		let mut model = Model::new(debug, start, reset, unlock, editor.is_some());
+		if editor.is_some() {
+			model.scaling = size as usize / 20;
+		}
+		let size = (model.scaling * 20) as u32;
+		let editor = editor.is_some();
 		MODEL.with(|m| m.borrow_mut().replace(model));
 
 		app::Builder::new_async(move |app| {
@@ -50,10 +93,14 @@ pub async fn main_web() {
 				};
 
 				let window = web_sys::window().unwrap();
-				let (width, height) = (
-					window.inner_width().unwrap().as_f64().unwrap() as u32,
-					window.inner_height().unwrap().as_f64().unwrap() as u32,
-				);
+				let (width, height) = if editor {
+					(size, size)
+				} else {
+					(
+						window.inner_width().unwrap().as_f64().unwrap() as u32,
+						window.inner_height().unwrap().as_f64().unwrap() as u32,
+					)
+				};
 
 				app.new_window()
 					.device_descriptor(device_desc)

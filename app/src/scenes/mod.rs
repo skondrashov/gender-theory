@@ -4,8 +4,8 @@ use {
 	std::{f32::consts::SQRT_2, ops::Range},
 };
 
+pub mod data;
 // pub mod being_useless;
-pub mod album;
 pub mod for_against;
 // pub mod porcelain_piss;
 pub mod terra_firmament;
@@ -205,10 +205,10 @@ impl Area {
 	}
 }
 
-/// Every scene in the album, in file order. The first one is where a new player starts.
+/// Every scene: the album (`data`, from `static/album.json`) then the demo graph. The first
+/// one is where a new player starts.
 pub fn all() -> Vec<&'static Scene> {
-	let mut scenes = vec![];
-	scenes.extend_from_slice(album::SCENES);
+	let mut scenes = data::scenes();
 	scenes.extend_from_slice(for_against::SCENES);
 	scenes.extend_from_slice(terra_firmament::SCENES);
 	scenes

@@ -17,7 +17,17 @@
   (segfaults on exit, after writing the screenshot; harmless). No audio, no clicks, so only
   rendering and startup console errors can be verified that way.
 - Test server for a scratch build: any static server with Range support (Chrome's media
-  element wants it). Python's `http.server` doesn't do Range; a 30-line handler does.
+  element wants it). Python's `http.server` doesn't do Range; a 30-line handler does. But
+  the editor's save needs the real dev server (`cargo run`, PUT /album.json), so use that.
+- The root crate's lockfile had `time 0.3.21`, which current rustc refuses (E0282); `cargo
+  update -p time` fixed it (2026-11-05). `cargo run --release` builds in ~1 min.
+- The album is `static/album.json`; the wasm exports `editor/state/spectrum/catalogue` for the
+  editor page. Driving the game from a script: open `/?editor=800` (fixed 800 px canvas,
+  nothing saved), click (400, 400) to start, then `import('./app/gender.js').then(m => m.state())`
+  tells you the scene, bar, bands, visible hotspot tags. Cell (i, j) is at
+  (400 + (i − 10) × 40, 400 − (j − 10) × 40).
+- Claude Code's Bash tool chokes on heredocs whose body contains backticks (bash reports an
+  unterminated quote): write patch scripts with the Write tool and run them with python.
 
 ## Tracks
 
@@ -121,6 +131,16 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
 - Glow is `Unlock::Glow` (bit 5, appended after Color so saved progress keeps meaning);
   `glow(model, pulse, inverse)` is the multiplier, `dot()`/`stroke()` draw scenery that
   ignores unlocks (dots stay dots next to lines).
+- **An editor, and sidechains** (owner, 2026-11-05): "select regions, mechanics, enter
+  parameters, and associate each thing with a section of the track measured in measures";
+  then "any number of frequency ranges … a list of frequency ranges in one place, and in
+  another a list of parameters, and you can use like a sidechain toggle to get the input for
+  that parameter from one of the ranges … a depth knob and other sensible knobs". Built as
+  `static/album.json` + `scenes/data.rs` + `static/editor.*`; the first act and the
+  satellites were migrated from Rust into the file (the Rust versions are in git history,
+  `scenes/album.rs` before 2026-11-05). Knobs per sidechain: depth, threshold, width, curve,
+  invert, on; per band: attack, release, gain. The layout is a first draft the owner asked
+  to see; expect to rework it.
 - **Nothing sinusoidal** (owner, 2026-11-05): music is events — each bar/beat/subdivision
   hits and falls away (square, or a maximally slanted sawtooth), never a sine. `hit(phase,
   fall)` and `pulse(modifiers)` in `scenes/mod.rs` are the envelope (beat hits, downbeat

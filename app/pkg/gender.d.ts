@@ -1,15 +1,41 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* The editor page: a command (JSON) for the next update. See `Model::handle`.
+* @param {string} command
+*/
+export function editor(command: string): void;
+/**
+* The editor page: the spectrum as of the last update, one byte per bin.
+* @returns {Uint8Array}
+*/
+export function spectrum(): Uint8Array;
+/**
+* The editor page: the state as of the last update (JSON). See `Model::state`.
+* @returns {string}
+*/
+export function state(): string;
+/**
+* `album` is the contents of `static/album.json` (the page fetches it).
+* @param {string} album
 * @returns {Promise<void>}
 */
-export function main_web(): Promise<void>;
+export function main_web(album: string): Promise<void>;
+/**
+* The editor page: what kinds of layer there are and their params (JSON).
+* @returns {string}
+*/
+export function catalogue(): string;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly main_web: () => number;
+  readonly catalogue: (a: number) => void;
+  readonly editor: (a: number, b: number) => void;
+  readonly main_web: (a: number, b: number) => number;
+  readonly spectrum: (a: number) => void;
+  readonly state: (a: number) => void;
   readonly wgpu_render_pass_begin_pipeline_statistics_query: (a: number, b: number, c: number) => void;
   readonly wgpu_render_pass_draw: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly wgpu_render_pass_draw_indexed: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
@@ -60,6 +86,7 @@ export interface InitOutput {
   readonly __wbindgen_export_2: WebAssembly.Table;
   readonly __wbindgen_export_3: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_4: (a: number, b: number) => void;
+  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_export_5: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_6: (a: number) => void;
   readonly __wbindgen_export_7: (a: number, b: number, c: number, d: number) => void;

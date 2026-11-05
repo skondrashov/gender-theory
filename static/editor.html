@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>gender-theory — editor</title>
+  <link rel="stylesheet" href="editor.css" />
+</head>
+
+<body>
+  <header id="top">
+    <span class="title">gender-theory</span>
+    <select id="track"></select>
+    <button id="play" title="space">▶</button>
+    <span id="where" class="mono">—</span>
+    <span id="unlocks" class="unlocks"></span>
+    <span class="spacer"></span>
+    <button id="undo" title="ctrl+z">undo</button>
+    <button id="redo" title="ctrl+y">redo</button>
+    <button id="save" title="ctrl+s">save</button>
+    <span id="status"></span>
+  </header>
+
+  <main>
+    <section id="stage"></section>
+    <section id="grid-box">
+      <canvas id="grid" width="250" height="250"></canvas>
+      <div id="region-tools"></div>
+    </section>
+    <section id="lists">
+      <div class="panel-title">scenes <button id="add-scene" class="small">+</button></div>
+      <ul id="scene-list"></ul>
+      <div class="panel-title">hotspots <button id="add-hotspot" class="small">+</button></div>
+      <ul id="hotspot-list"></ul>
+      <div class="panel-title">layers <button id="add-layer" class="small">+</button></div>
+      <ul id="layer-list"></ul>
+    </section>
+    <section id="inspector">
+      <div class="hint">select a scene, a layer, a hotspot or a band</div>
+    </section>
+  </main>
+
+  <section id="sources">
+    <div id="spectrum-box">
+      <div class="panel-title">sources <button id="add-band" class="small">+ band</button></div>
+      <canvas id="spectrum" width="640" height="130"></canvas>
+    </div>
+    <div id="source-lists">
+      <div id="bands"></div>
+      <div id="builtins"></div>
+    </div>
+  </section>
+
+  <footer id="timeline">
+    <div id="lanes">
+      <div id="ruler" class="lane"></div>
+      <div id="wave" class="lane"><canvas id="wave-canvas" height="48"></canvas></div>
+      <div id="scene-lane" class="lane"></div>
+      <div id="hotspot-lane" class="lane"></div>
+      <div id="layer-lanes"></div>
+      <div id="playhead"></div>
+    </div>
+  </footer>
+
+  <script type="module" src="editor.js"></script>
+</body>
+
+</html>

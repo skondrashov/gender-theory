@@ -2,7 +2,7 @@ use {
 	crate::{
 		audio::Audio,
 		progress,
-		scenes::{self, *},
+		scenes::{self, data, *},
 	},
 	nannou::{
 		noise::{
@@ -11,9 +11,10 @@ use {
 		},
 		prelude::*,
 	},
+	serde_json::{json, Value},
 	std::{
 		cell::{Cell, RefCell},
-		collections::HashSet,
+		collections::{HashMap, HashSet},
 		ops::Range,
 	},
 };
@@ -62,6 +63,15 @@ pub struct Model {
 	pub scaling: usize,
 	pub audio: Audio,
 	pub debug: bool,
+	/// Driven by the editor page (`?editor`): progress isn't saved, commands come in
+	/// through `push_command`, state goes out through `state_json`.
+	pub editor: bool,
+	/// The editor asked to play a scene from one of its bars: done once the track is decoded.
+	seek: Option<(String, usize)>,
+	/// Cells the editor wants outlined.
+	highlight: Vec<(usize, usize)>,
+	/// The album's frequency bands, followed: id → level 0..1.
+	bands: HashMap<String, f32>,
 
 	scene: &'static Scene,
 	unlocks: Unlocks,
@@ -98,11 +108,17 @@ pub struct Model {
 impl Model {
 	/// `start` is a scene id to begin on (`?scene=`), overriding saved progress; `unlock` is
 	/// unlock names joined by `+` (`?unlock=lines+rotation`) to grant on top of it.
-	pub fn new(debug: bool, start: Option<String>, reset: bool, unlock: Option<String>) -> Self {
+	pub fn new(
+		debug: bool,
+		start: Option<String>,
+		reset: bool,
+		unlock: Option<String>,
+		editor: bool,
+	) -> Self {
 		if reset {
 			progress::clear();
 		}
-		let saved = progress::load();
+		let saved = if editor { None } else { progress::load() };
 		let mut unlocks = saved.as_ref().map_or(NONE, |(_, unlocks)| *unlocks);
 		for name in unlock.as_deref().unwrap_or_default().split('+') {
 			if let Some(unlock) = Unlock::ALL.iter().find(|unlock| unlock.name() == name) {
@@ -129,6 +145,10 @@ impl Model {
 				.build(),
 			audio: Audio::new(),
 			debug,
+			editor,
+			seek: None,
+			highlight: vec![],
+			bands: HashMap::new(),
 			scene,
 			unlocks,
 			revealed: [f32::NEG_INFINITY; 6],
@@ -192,6 +212,140 @@ impl Model {
 		}
 		let t = ((self.time - self.revealed[unlock as usize]) / REVEAL).clamp(0.0, 1.0);
 		t * t * (3.0 - 2.0 * t)
+	}
+
+	/// Is the viewed scene's hotspot with this `tag` showing (unlocked, not spent)?
+	pub fn hint_visible(&self, tag: u8) -> bool {
+		self.hotspots().any(|hotspot| hotspot.tag == tag)
+	}
+
+	/// Where the music is on the viewed scene's track, in bars (fractional). The scene
+	/// being morphed into is seen at its first bar.
+	pub fn bar(&self) -> f32 {
+		if self.preview.get().is_some() {
+			return self.viewed().bars.start as f32;
+		}
+		self.audio
+			.bar()
+			.map_or(self.scene.bars.start as f32, |bar| bar as f32)
+	}
+
+	/// The album's frequency bands as of this frame (see `data::Band`).
+	pub fn bands(&self) -> &HashMap<String, f32> {
+		&self.bands
+	}
+
+	/// Follow every band of the album: its level is the mean of its bins, through a
+	/// one-pole follower with the band's attack and release.
+	fn follow_bands(&mut self, dt: f32) {
+		let bands = data::bands();
+		if bands.is_empty() {
+			self.bands.clear();
+			return;
+		}
+		let spectrum = self.audio.spectrum();
+		let bin_hz = self.audio.bin_hz();
+		for band in &bands {
+			let lo = ((band.lo / bin_hz).floor().max(0.0) as usize).min(spectrum.len());
+			let hi = ((band.hi / bin_hz).ceil().max(0.0) as usize).clamp(lo + 1, spectrum.len().max(lo + 1));
+			let bins = &spectrum[lo..hi.min(spectrum.len())];
+			let level = if bins.is_empty() {
+				0.0
+			} else {
+				bins.iter().map(|&b| b as f32).sum::<f32>() / (255.0 * bins.len() as f32)
+			};
+			let level = (level * band.gain).clamp(0.0, 1.0);
+			let env = self.bands.entry(band.id.clone()).or_insert(0.0);
+			let tau = if level > *env { band.attack } else { band.release };
+			let k = if tau > 0.0 { 1.0 - (-dt / tau).exp() } else { 1.0 };
+			*env += (level - *env) * k;
+		}
+		self.bands.retain(|id, _| bands.iter().any(|band| band.id == *id));
+	}
+
+	/// The album was reinstalled (the editor): point at the same scene again.
+	fn reload(&mut self) {
+		let id = self.scene.id;
+		let bar = self.bar().floor() as usize;
+		let first = *scenes::all().first().expect("no scenes");
+		let scene = scenes::find(id).unwrap_or(first);
+		let bars_changed = scene.bars != self.scene.bars || scene.track.id != self.scene.track.id;
+		self.pending = None;
+		self.scene = scene;
+		self.preload();
+		if bars_changed && self.started {
+			let bar = bar.clamp(scene.bars.start, scene.bars.end.saturating_sub(1));
+			self.seek = Some((scene.id.to_string(), bar));
+		}
+	}
+
+	/// One command from the editor page.
+	fn handle(&mut self, command: Value) {
+		if let Some(album) = command.get("album") {
+			match data::install(&album.to_string()) {
+				Ok(_) => self.reload(),
+				Err(error) => web_sys::console::error_1(&error.into()),
+			}
+		}
+		if let Some(seek) = command.get("seek") {
+			let id = seek.get("scene").and_then(Value::as_str).unwrap_or("");
+			let bar = seek.get("bar").and_then(Value::as_u64).unwrap_or(0) as usize;
+			if scenes::find(id).is_some() {
+				self.seek = Some((id.to_string(), bar));
+				self.started = true;
+				self.audio.resume();
+			}
+		}
+		if let Some(names) = command.get("unlocks").and_then(Value::as_array) {
+			let mut unlocks = NONE;
+			for name in names.iter().filter_map(Value::as_str) {
+				if let Some(unlock) = data::unlock_named(name) {
+					unlocks = unlocks.with(unlock);
+				}
+			}
+			self.set_unlocks(unlocks);
+		}
+		if command.get("pause").is_some() {
+			self.audio.suspend();
+		}
+		if command.get("play").is_some() {
+			self.started = true;
+			self.audio.resume();
+		}
+		if let Some(cells) = command.get("highlight") {
+			self.highlight = cells
+				.as_array()
+				.map(|cells| {
+					cells
+						.iter()
+						.filter_map(|cell| {
+							let i = cell.get(0)?.as_u64()? as usize;
+							let j = cell.get(1)?.as_u64()? as usize;
+							Some((i, j))
+						})
+						.collect()
+				})
+				.unwrap_or_default();
+		}
+	}
+
+	/// What the editor page polls: where the music is, what's showing.
+	fn state(&self) -> Value {
+		let hotspots: Vec<u8> = self.hotspots().map(|hotspot| hotspot.tag).collect();
+		json!({
+			"scene": self.scene.id,
+			"track": self.scene.track.id,
+			"bar": self.bar(),
+			"phase": self.last_whole,
+			"started": self.started,
+			"playing": self.audio.is_playing() && !self.audio.is_suspended(),
+			"loaded": self.audio.is_loaded(self.scene.track),
+			"unlocks": Unlock::ALL.iter().filter(|u| self.has(**u)).map(|u| u.name()).collect::<Vec<_>>(),
+			"bands": self.bands,
+			"hotspots": hotspots,
+			"pending": self.pending.as_ref().map(|pending| pending.scene.id),
+			"binHz": self.audio.bin_hz(),
+		})
 	}
 
 	/// The `tag` of the unlocked hotspot covering cell (i, j), if any. Scenes draw hints with this.
@@ -284,7 +438,9 @@ impl Model {
 			}
 		}
 		self.unlocks = unlocks;
-		progress::save(self.scene.id, self.unlocks);
+		if !self.editor {
+			progress::save(self.scene.id, self.unlocks);
+		}
 		self.preload();
 	}
 
@@ -334,7 +490,9 @@ impl Model {
 		self.phases = [0.0; 5];
 		self.trail.clear();
 		self.trace = None;
-		progress::save(scene.id, self.unlocks);
+		if !self.editor {
+			progress::save(scene.id, self.unlocks);
+		}
 		self.preload();
 	}
 
@@ -422,11 +580,40 @@ impl Model {
 	}
 }
 
-pub fn update(app: &App, model: &mut Model, _update: Update) {
+thread_local! {
+	/// Commands from the editor page, waiting for the next update.
+	static COMMANDS: RefCell<Vec<String>> = RefCell::new(vec![]);
+	/// The state as of the last update, for the editor page.
+	static STATE: RefCell<String> = RefCell::new(String::new());
+	static SPECTRUM: RefCell<Vec<u8>> = RefCell::new(vec![]);
+}
+
+pub fn push_command(command: String) {
+	COMMANDS.with(|commands| commands.borrow_mut().push(command));
+}
+
+pub fn state_json() -> String {
+	STATE.with(|state| state.borrow().clone())
+}
+
+pub fn spectrum_copy() -> Vec<u8> {
+	SPECTRUM.with(|spectrum| spectrum.borrow().clone())
+}
+
+pub fn update(app: &App, model: &mut Model, update: Update) {
 	let now = model.audio.now();
 	model.time = app.time;
 
+	let commands: Vec<String> = COMMANDS.with(|commands| std::mem::take(&mut *commands.borrow_mut()));
+	for command in commands {
+		match serde_json::from_str::<Value>(&command) {
+			Ok(command) => model.handle(command),
+			Err(error) => web_sys::console::error_1(&format!("bad editor command: {error}").into()),
+		}
+	}
+
 	model.audio.advance();
+	model.follow_bands(update.since_last.as_secs_f32().min(0.1));
 	if let Some(pending) = &model.pending {
 		if pending.lands.map_or(false, |lands| now >= lands) {
 			let scene = pending.scene;
@@ -435,8 +622,24 @@ pub fn update(app: &App, model: &mut Model, _update: Update) {
 		}
 	}
 
+	// The editor: play a scene from one of its bars, as soon as its track is here.
+	if let Some((id, bar)) = model.seek.clone() {
+		if let Some(scene) = scenes::find(&id) {
+			if model.audio.is_loaded(scene.track) {
+				model.seek = None;
+				model.pending = None;
+				model.enter(scene);
+				let _ = model.audio.play_from(scene, bar, now + 0.05);
+			}
+		} else {
+			model.seek = None;
+		}
+	}
+
 	if model.started {
-		model.audio.resume();
+		if !model.editor {
+			model.audio.resume();
+		}
 		if !model.audio.is_playing() {
 			// Retried every frame until the track is decoded.
 			let _ = model.audio.play(model.scene, None, now);
@@ -478,6 +681,11 @@ pub fn update(app: &App, model: &mut Model, _update: Update) {
 	model
 		.trail
 		.retain(|segment| segment.locked || time - segment.born < TRAIL_LIFE);
+
+	if model.editor {
+		STATE.with(|state| *state.borrow_mut() = model.state().to_string());
+		SPECTRUM.with(|spectrum| *spectrum.borrow_mut() = model.audio.spectrum());
+	}
 }
 
 pub fn view(app: &App, model: &Model, frame: Frame) {
@@ -525,6 +733,17 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 	}
 
 	let window = app.window_rect();
+
+	// The editor's selection.
+	for &(i, j) in &model.highlight {
+		let (x, y) = scale_coordinates(model, i, j);
+		draw.rect()
+			.no_fill()
+			.stroke_color(rgba(1.0, 1.0, 1.0, 0.35))
+			.stroke_weight(1.0)
+			.x_y(x, y)
+			.w_h(model.scaling as f32 - 2.0, model.scaling as f32 - 2.0);
+	}
 
 	// The track isn't here yet: a bar along the bottom filling up.
 	if !model.audio.is_loaded(model.scene.track) {

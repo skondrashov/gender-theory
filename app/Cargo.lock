@@ -764,6 +764,8 @@ dependencies = [
  "futures",
  "js-sys",
  "nannou",
+ "serde",
+ "serde_json",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-bindgen-test",

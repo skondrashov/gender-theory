@@ -21,7 +21,12 @@
   </style>
   <noscript>This page contains Webassembly and Javascript content. Please make sure that you are using the latest
     version of a modern browser and that Javascript and Webassembly (Wasm) are enabled.</noscript>
-  <script type="module">import init, { main_web } from './app/gender.js'; await init(); main_web();</script>
+  <script type="module">
+    import init, { main_web } from './app/gender.js';
+    const album = await (await fetch('album.json', { cache: 'no-cache' })).text();
+    await init();
+    main_web(album);
+  </script>
 </body>
 
 </html>

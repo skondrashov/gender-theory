@@ -37,7 +37,7 @@ until then.
 
 | song | theme | mechanics it teaches | state |
 |------|-------|----------------------|-------|
-| sine | the first act: words → square → stripes → boxes → cross | glow, lines, length | built (5 phases), 6th placeholder |
+| sine | the first act: words → square → stripes → boxes → cross | glow, lines, length | built (5 phases, in album.json), 6th placeholder |
 | sasha grips | satellites: two points orbit every dot; the bass pulls the line between them | — | the growly part built; rest placeholder |
 | pisser | **open** (opens with 8 bars of near silence, then builds without bass) | **open** | placeholder |
 | for.against | **open** (the project's 'drop' at bar 77; a filtered break at 37) | **open** | placeholder |
@@ -55,6 +55,16 @@ Songs are an illusion; the player browses the album. Paths:
 Transitions — the music of leaving one phase for another — are **deferred**: real
 transitions can be many bars long and the player shouldn't wait; speeding them up by
 interpolation probably won't work on most tracks. Changes land on the next bar, crossfaded.
+
+## How the album is written
+
+The album is data (`static/album.json`), made in the editor (`/editor.html`): per track, the
+scenes (loops), the layers (a region, a mechanic, its parameters, its bars) and the hotspots,
+all in bars. Any parameter can be **sidechained**: it takes a base value plus any number of
+sources — frequency bands the owner defines in one place (Hz range, attack, release, gain)
+or the built-in events (beat, bar, pulse) — each through threshold, width, curve and depth.
+So "length follows the bass" or "gray breathes with the kick" is a knob, not code; code is
+for new *kinds* of mechanic (`scenes/data.rs`).
 
 ## Rules of the drawing
 

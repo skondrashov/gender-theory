@@ -34,6 +34,11 @@ const LOOP_TAIL: f64 = 0.03;
 const CUT_TAIL: f64 = 0.08;
 /// How far ahead of the clock passes are scheduled.
 const LOOKAHEAD: f64 = 1.5;
+/// Analyser window: `FFT_SIZE / 2` bins across 0..sample rate / 2. 2048 at 44.1 kHz is
+/// 1024 bins of 21.5 Hz, fine enough for frequency bands the owner draws by hand.
+const FFT_SIZE: usize = 2048;
+/// The 16 coarse bins the old `modifiers` (bass/mid/treble) are made of.
+pub const COARSE: usize = 16;
 
 type Buffers = Rc<RefCell<HashMap<&'static str, AudioBuffer>>>;
 /// Bytes received and bytes expected, per track being fetched.
@@ -45,6 +50,8 @@ struct Pass {
 	gain: GainNode,
 	/// Context time of its bar line (where it reaches full level).
 	start: f64,
+	/// Seconds it plays (the first pass of a section may skip a lead).
+	length: f64,
 }
 
 /// A section of a track, playing or scheduled: a scene's loop, or a transition passage.
@@ -58,6 +65,9 @@ struct Section {
 	offset: f64,
 	/// Seconds per pass.
 	length: f64,
+	/// Seconds of the first pass skipped (the editor plays from the middle of a scene):
+	/// a whole number of bars, so every pass still starts on a bar line.
+	lead: f64,
 	looping: bool,
 	/// Context time it was cut at by a scene change, if it was.
 	end: Option<f64>,
@@ -67,8 +77,21 @@ struct Section {
 }
 
 impl Section {
+	/// Context time pass `k` starts, and the buffer offset and seconds it plays.
+	fn pass(&self, k: usize) -> (f64, f64, f64) {
+		if k == 0 {
+			(self.start, self.offset + self.lead, self.length - self.lead)
+		} else {
+			(
+				self.start + (self.length - self.lead) + (k - 1) as f64 * self.length,
+				self.offset,
+				self.length,
+			)
+		}
+	}
+
 	fn done(&self, now: f64) -> bool {
-		let last = self.passes.last().map_or(self.start, |pass| pass.start + self.length);
+		let last = self.passes.last().map_or(self.start, |pass| pass.start + pass.length);
 		let more = self.looping && self.end.map_or(true, |end| last < end);
 		!more && last + CUT_TAIL < now
 	}
@@ -91,7 +114,8 @@ impl Audio {
 	pub fn new() -> Self {
 		let context = AudioContext::new().unwrap();
 		let analyser = AnalyserNode::new(&context).unwrap();
-		analyser.set_fft_size(32);
+		analyser.set_fft_size(FFT_SIZE as u32);
+		analyser.set_smoothing_time_constant(0.0);
 		let _ = analyser.connect_with_audio_node(&context.destination());
 		Audio {
 			context,
@@ -114,6 +138,20 @@ impl Audio {
 		if self.context.state() != AudioContextState::Running {
 			let _ = self.context.resume();
 		}
+	}
+
+	/// Pause everything (the editor). `resume` continues.
+	pub fn suspend(&self) {
+		let _ = self.context.suspend();
+	}
+
+	pub fn is_suspended(&self) -> bool {
+		self.context.state() != AudioContextState::Running
+	}
+
+	/// Hz per analyser bin.
+	pub fn bin_hz(&self) -> f32 {
+		self.context.sample_rate() / FFT_SIZE as f32
 	}
 
 	pub fn is_loaded(&self, track: &Track) -> bool {
@@ -173,11 +211,11 @@ impl Audio {
 				if k > 0 && !section.looping {
 					break;
 				}
-				let start = section.start + k as f64 * section.length;
+				let (start, offset, length) = section.pass(k);
 				if start > now + LOOKAHEAD || section.end.map_or(false, |end| start >= end) {
 					break;
 				}
-				match schedule(&context, &analyser, section, start) {
+				match schedule(&context, &analyser, &section.buffer, start, offset, length) {
 					Ok(pass) => section.passes.push(pass),
 					Err(error) => web_sys::console::error_2(
 						&format!("couldn't schedule a pass at {start:.3}").into(),
@@ -188,7 +226,7 @@ impl Audio {
 			}
 			section
 				.passes
-				.retain(|pass| pass.start + section.length + CUT_TAIL >= now);
+				.retain(|pass| pass.start + pass.length + CUT_TAIL >= now);
 		}
 		self.fading.retain(|section| !section.done(now));
 	}
@@ -211,6 +249,23 @@ impl Audio {
 		Some(((self.now() - section.start) / section.bar).rem_euclid(1.0))
 	}
 
+	/// Where on its track what's playing is, in bars (fractional): the section's first bar
+	/// plus how far into it, wrapped if it loops.
+	pub fn bar(&self) -> Option<f64> {
+		let section = self.current.as_ref()?;
+		let first = section.offset / section.bar;
+		let into = (section.lead + (self.now() - section.start).max(0.0)) / section.bar;
+		let bars = section.length / section.bar;
+		Some(first + if section.looping && bars > 0.0 { into.rem_euclid(bars) } else { into })
+	}
+
+	/// The editor: play `scene`'s loop from `bar` (one of its bars) at context time `at`,
+	/// the rest of the pass first, then whole passes. Fails if the track isn't decoded.
+	pub fn play_from(&mut self, scene: &Scene, bar: usize, at: f64) -> Result<f64, ()> {
+		let lead = bar.saturating_sub(scene.bars.start).min(scene.bars.len().saturating_sub(1));
+		self.start(scene, None, at, lead)
+	}
+
 	/// Schedule `scene`'s loop to start at context time `at`, or, with `via`, after those
 	/// bars of that track have played once from `at`. Whatever else is playing fades out
 	/// from `at`. Returns the context time the loop itself starts. Fails if a track isn't
@@ -220,6 +275,16 @@ impl Audio {
 		scene: &Scene,
 		via: Option<(&Track, Range<usize>)>,
 		at: f64,
+	) -> Result<f64, ()> {
+		self.start(scene, via, at, 0)
+	}
+
+	fn start(
+		&mut self,
+		scene: &Scene,
+		via: Option<(&Track, Range<usize>)>,
+		at: f64,
+		lead: usize,
 	) -> Result<f64, ()> {
 		let get = |track: &Track| self.buffers.borrow().get(track.id).cloned().ok_or(());
 		let buffer = get(scene.track)?;
@@ -235,6 +300,7 @@ impl Audio {
 				start,
 				offset: bars.start as f64 * bar,
 				length,
+				lead: 0.0,
 				looping: false,
 				end: None,
 				passes: vec![],
@@ -249,6 +315,7 @@ impl Audio {
 			start,
 			offset: scene.bars.start as f64 * bar,
 			length: scene.bars.len() as f64 * bar,
+			lead: lead as f64 * bar,
 			looping: true,
 			end: None,
 			passes: vec![],
@@ -266,10 +333,15 @@ impl Audio {
 	}
 
 	/// The 16 frequency bins of what's playing right now, 0–255.
-	pub fn fft(&self) -> [u8; 16] {
-		let mut fft = [0; 16];
-		self.analyser.get_byte_frequency_data(&mut fft);
-		fft
+	pub fn fft(&self) -> [u8; COARSE] {
+		coarse(&self.spectrum())
+	}
+
+	/// The whole spectrum, `FFT_SIZE / 2` bins of `bin_hz()` each, 0-255.
+	pub fn spectrum(&self) -> Vec<u8> {
+		let mut bins = vec![0; FFT_SIZE / 2];
+		self.analyser.get_byte_frequency_data(&mut bins);
+		bins
 	}
 }
 
@@ -279,29 +351,32 @@ impl Audio {
 fn schedule(
 	context: &AudioContext,
 	analyser: &AnalyserNode,
-	section: &Section,
+	buffer: &AudioBuffer,
 	start: f64,
+	offset: f64,
+	length: f64,
 ) -> Result<Pass, JsValue> {
-	let pre = FADE_IN.min(section.offset).min(start).max(0.0);
+	let pre = FADE_IN.min(offset).min(start).max(0.0);
 	let source = AudioBufferSourceNode::new(context)?;
-	source.set_buffer(Some(&section.buffer));
+	source.set_buffer(Some(buffer));
 	let gain = GainNode::new(context)?;
 	source.connect_with_audio_node(&gain)?;
 	gain.connect_with_audio_node(analyser)?;
 	let param = gain.gain();
 	param.set_value_at_time(0.0, start - pre)?;
 	param.linear_ramp_to_value_at_time(1.0, start)?;
-	param.set_value_at_time(1.0, start + section.length)?;
-	param.linear_ramp_to_value_at_time(0.0, start + section.length + LOOP_TAIL)?;
+	param.set_value_at_time(1.0, start + length)?;
+	param.linear_ramp_to_value_at_time(0.0, start + length + LOOP_TAIL)?;
 	source.start_with_when_and_grain_offset_and_grain_duration(
 		start - pre,
-		section.offset - pre,
-		pre + section.length + LOOP_TAIL,
+		offset - pre,
+		pre + length + LOOP_TAIL,
 	)?;
 	Ok(Pass {
 		source,
 		gain,
 		start,
+		length,
 	})
 }
 
@@ -363,4 +438,17 @@ async fn decode(
 	let array = Uint8Array::from(bytes.as_slice());
 	let decoded = JsFuture::from(context.decode_audio_data(&array.buffer())?).await?;
 	Ok(decoded.dyn_into()?)
+}
+
+/// The spectrum folded into `COARSE` equal bins (what a 32-point FFT would have given).
+pub fn coarse(bins: &[u8]) -> [u8; COARSE] {
+	let mut out = [0; COARSE];
+	let per = (bins.len() / COARSE).max(1);
+	for (k, slot) in out.iter_mut().enumerate() {
+		let chunk = &bins[k * per..((k + 1) * per).min(bins.len())];
+		if !chunk.is_empty() {
+			*slot = (chunk.iter().map(|&b| b as u32).sum::<u32>() / chunk.len() as u32) as u8;
+		}
+	}
+	out
 }
