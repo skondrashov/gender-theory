@@ -13,10 +13,15 @@
       padding: 0;
       background-color: grey;
     }
+
+    canvas {
+      display: block;
+      touch-action: none;
+    }
   </style>
   <noscript>This page contains Webassembly and Javascript content. Please make sure that you are using the latest
     version of a modern browser and that Javascript and Webassembly (Wasm) are enabled.</noscript>
-  <script type="module">import init from './app/gender.js'; init();</script>
+  <script type="module">import init, { main_web } from './app/gender.js'; await init(); main_web();</script>
 </body>
 
 </html>

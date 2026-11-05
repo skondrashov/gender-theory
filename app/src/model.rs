@@ -1,24 +1,48 @@
 use {
-	crate::scenes::*,
+	crate::{
+		audio::Audio,
+		progress,
+		scenes::{self, *},
+	},
 	nannou::{
 		noise::{
 			utils::{NoiseMap, NoiseMapBuilder, PlaneMapBuilder},
-			OpenSimplex, RidgedMulti, Worley,
+			RidgedMulti,
 		},
 		prelude::*,
 	},
-	web_sys::{AnalyserNode, AudioContext, HtmlAudioElement},
+	std::{collections::HashSet, ops::Range},
 };
 
 pub const CANVAS_WIDTH: usize = 20;
 pub const CANVAS_HEIGHT: usize = 20;
 const SCALING: usize = 40;
+/// Seconds a drawn trail segment takes to fade out.
+const TRAIL_LIFE: f32 = 1.5;
+/// Seconds a completed outline stays lit before fading.
+const TRAIL_LINGER: f32 = 1.0;
+/// Seconds an unlock takes to ease in.
+const REVEAL: f32 = 2.5;
 
-pub struct Audio {
-	pub analyser: AnalyserNode,
-	context: AudioContext,
-	elements: [HtmlAudioElement; 2],
-	current_element: usize,
+/// A scene change that has been asked for: scheduled once its track is decoded.
+struct Pending {
+	scene: &'static Scene,
+	via: Option<Range<usize>>,
+	/// Context time it's scheduled for (the bar it starts on); `None` until it is.
+	at: Option<f64>,
+	/// Context time the new scene lands: after the via passage, if any.
+	lands: Option<f64>,
+	/// Don't wait for the bar (the scene menu).
+	now: bool,
+}
+
+/// One unit step of the line the player is drawing, along the grid.
+struct Segment {
+	a: Point2,
+	b: Point2,
+	born: f32,
+	/// On an outline being traced: stays lit.
+	locked: bool,
 }
 
 pub struct Model {
@@ -26,42 +50,59 @@ pub struct Model {
 	pub noisemap: NoiseMap,
 	pub scaling: usize,
 	pub audio: Audio,
+	pub debug: bool,
 
-	scenes: Vec<&'static Scene>,
-	queue_next: bool,
-	current_scene: usize,
-	current_measure: usize,
+	scene: &'static Scene,
+	unlocks: Unlocks,
+	/// When each unlock was granted (app time), for easing it in. `-inf` = always had it.
+	revealed: [f32; 5],
+	/// App time, as of the last update.
+	time: f32,
+	pending: Option<Pending>,
+	/// The first click has happened (browsers gate audio on a gesture).
+	started: bool,
+	/// Ticks of each `Subdivision` since the current scene started.
+	ticks: [usize; 5],
+	phases: [f32; 5],
 	pub last_whole: f64,
+
+	/// Cell where the pointer went down, for gestures.
+	press: Option<(usize, usize)>,
+	/// Last lattice point of the trail being drawn.
+	trail_at: Option<(usize, usize)>,
+	trail: Vec<Segment>,
+	/// An outline being traced: index of the hotspot in the scene, and the edges drawn so far.
+	trace: Option<(usize, HashSet<Edge>)>,
+
+	/// The scene menu (press M) is open.
+	menu: bool,
 }
 
 impl Model {
-	pub fn new() -> Self {
-		let mut scenes = vec![];
-		scenes.extend_from_slice(for_against::SCENES);
-		scenes.extend_from_slice(terra_firmament::SCENES);
-		let context = AudioContext::new().unwrap();
-		let analyser = AnalyserNode::new(&context).unwrap();
-		analyser.set_fft_size(32);
-		let element1 = HtmlAudioElement::new_with_src(scenes[0].path).unwrap();
-		let element2 = HtmlAudioElement::new_with_src(scenes[1].path).unwrap();
+	/// `start` is a scene id to begin on (`?scene=`), overriding saved progress; `unlock` is
+	/// unlock names joined by `+` (`?unlock=lines+rotation`) to grant on top of it.
+	pub fn new(debug: bool, start: Option<String>, reset: bool, unlock: Option<String>) -> Self {
+		if reset {
+			progress::clear();
+		}
+		let saved = progress::load();
+		let mut unlocks = saved.as_ref().map_or(NONE, |(_, unlocks)| *unlocks);
+		for name in unlock.as_deref().unwrap_or_default().split('+') {
+			if let Some(unlock) = Unlock::ALL.iter().find(|unlock| unlock.name() == name) {
+				unlocks = unlocks.with(*unlock);
+			}
+		}
+		let first = *scenes::all().first().expect("no scenes");
+		let scene = start
+			.as_deref()
+			.or(saved.as_ref().map(|(scene, _)| scene.as_str()))
+			.and_then(scenes::find)
+			.unwrap_or(first);
+		for reference in scenes::dangling() {
+			web_sys::console::error_1(&format!("scene reference goes nowhere: {reference}").into());
+		}
 
-		let _ = context
-			.create_media_element_source(&element1)
-			.unwrap()
-			.connect_with_audio_node(&analyser);
-		let _ = context
-			.create_media_element_source(&element2)
-			.unwrap()
-			.connect_with_audio_node(&analyser);
-		let _ = analyser.connect_with_audio_node(&context.destination());
-
-		let audio = Audio {
-			analyser,
-			context,
-			elements: [element1, element2],
-			current_element: 0,
-		};
-		Model {
+		let mut model = Model {
 			scaling: SCALING,
 			noise_matrix: RidgedMulti::new(),
 			noisemap: PlaneMapBuilder::new(&RidgedMulti::new())
@@ -69,76 +110,317 @@ impl Model {
 				.set_x_bounds(-10.0, 10.0)
 				.set_y_bounds(-10.0, 10.0)
 				.build(),
-			scenes,
-			queue_next: false,
-			current_scene: 0,
-			current_measure: 0,
-			audio,
+			audio: Audio::new(),
+			debug,
+			scene,
+			unlocks,
+			revealed: [f32::NEG_INFINITY; 5],
+			time: 0.0,
+			pending: None,
+			started: false,
+			ticks: [0; 5],
+			phases: [0.0; 5],
 			last_whole: 0.0,
+			press: None,
+			trail_at: None,
+			trail: vec![],
+			trace: None,
+			menu: false,
+		};
+		model.preload();
+		model
+	}
+
+	pub fn current_scene(&self) -> &'static Scene {
+		self.scene
+	}
+
+	/// How many ticks of `sub` have passed since the scene started.
+	pub fn ticks(&self, sub: Subdivision) -> usize {
+		self.ticks[sub as usize]
+	}
+
+	pub fn has(&self, unlock: Unlock) -> bool {
+		self.unlocks.has(unlock)
+	}
+
+	pub fn unlocks(&self) -> Unlocks {
+		self.unlocks
+	}
+
+	/// How far an unlock has come in: 0 without it, easing up to 1 over `REVEAL` seconds
+	/// from the moment it was granted, 1 for anything the player arrived with.
+	pub fn reveal(&self, unlock: Unlock) -> f32 {
+		if !self.has(unlock) {
+			return 0.0;
+		}
+		let t = ((self.time - self.revealed[unlock as usize]) / REVEAL).clamp(0.0, 1.0);
+		t * t * (3.0 - 2.0 * t)
+	}
+
+	/// The `tag` of the unlocked hotspot covering cell (i, j), if any. Scenes draw hints with this.
+	pub fn hint_at(&self, i: usize, j: usize) -> Option<u8> {
+		self.hotspots()
+			.find(|hotspot| hotspot.cells.contains(i, j))
+			.map(|hotspot| hotspot.tag)
+	}
+
+	/// A scene change is underway, and how far along its passage it is (0..1; 0 while it
+	/// waits for the bar, or if there's no passage). Scenes intensify with this.
+	pub fn transition(&self) -> Option<f32> {
+		let pending = self.pending.as_ref()?;
+		Some(match (pending.at, pending.lands) {
+			(Some(at), Some(lands)) if lands > at => {
+				(((self.audio.now() - at) / (lands - at)).clamp(0.0, 1.0)) as f32
+			}
+			_ => 0.0,
+		})
+	}
+
+	/// A scene change is underway: asked for but not landed yet. Input is blocked meanwhile.
+	pub fn transitioning(&self) -> bool {
+		self.pending.is_some()
+	}
+
+	/// Unlocked, and still has something to do.
+	fn visible(&self, hotspot: &Hotspot) -> bool {
+		self.unlocks.has_all(hotspot.needs) && !hotspot.then.spent(self.unlocks)
+	}
+
+	/// The current scene's hotspots the player can see.
+	fn hotspots(&self) -> impl Iterator<Item = &'static Hotspot> + '_ {
+		self.scene
+			.hotspots
+			.iter()
+			.filter(move |hotspot| self.visible(hotspot))
+	}
+
+	/// Start decoding every track reachable from here.
+	fn preload(&mut self) {
+		let mut ids: Vec<&'static str> = vec![];
+		for hotspot in self.hotspots() {
+			scenes::targets(&hotspot.then, &mut ids);
+		}
+		self.audio.load(self.scene.track);
+		for id in ids {
+			if let Some(scene) = scenes::find(id) {
+				self.audio.load(scene.track);
+			}
 		}
 	}
 
-	pub fn current_scene(&self) -> &Scene {
-		self.scenes[self.current_scene]
+	fn act(&mut self, action: &'static Action) {
+		match action {
+			Action::Go(id) => self.go(id, None),
+			Action::GoVia(id, via) => self.go(id, Some(via.clone())),
+			Action::Unlock(unlock) => self.set_unlocks(self.unlocks.with(*unlock)),
+			Action::All(list) => {
+				for action in list.iter() {
+					self.act(action);
+				}
+			}
+		}
 	}
 
-	fn play(&self) {
-		let _ = self.audio.context.resume();
-		let element = &self.audio.elements[self.audio.current_element];
-		if element.ready_state() != 4 {
+	fn set_unlocks(&mut self, unlocks: Unlocks) {
+		for unlock in Unlock::ALL {
+			if unlocks.has(unlock) && !self.unlocks.has(unlock) {
+				self.revealed[unlock as usize] = self.time;
+			}
+		}
+		self.unlocks = unlocks;
+		progress::save(self.scene.id, self.unlocks);
+		self.preload();
+	}
+
+	/// Ask for a scene change. Ignored while one is already scheduled.
+	fn go(&mut self, id: &str, via: Option<Range<usize>>) {
+		if matches!(self.pending, Some(Pending { at: Some(_), .. })) {
 			return;
 		}
-		if element.paused() {
-			element.set_loop(self.scenes[self.current_scene].loop_);
-			let _ = element.play();
+		match scenes::find(id) {
+			Some(scene) => {
+				self.audio.load(scene.track);
+				self.pending = Some(Pending {
+					scene,
+					via,
+					at: None,
+					lands: None,
+					now: false,
+				});
+			}
+			None => web_sys::console::error_1(&format!("no scene {id:?}").into()),
 		}
 	}
 
-	fn stop(&self) {
-		let _ = self.audio.elements[self.audio.current_element].pause();
+	/// Go somewhere right now, bar or no bar (the scene menu).
+	fn jump(&mut self, scene: &'static Scene) {
+		self.started = true;
+		self.audio.resume();
+		self.audio.load(scene.track);
+		if self.audio.is_playing() {
+			self.pending = Some(Pending {
+				scene,
+				via: None,
+				at: None,
+				lands: None,
+				now: true,
+			});
+		} else {
+			self.enter(scene);
+		}
+	}
+
+	fn enter(&mut self, scene: &'static Scene) {
+		self.scene = scene;
+		self.ticks = [0; 5];
+		self.phases = [0.0; 5];
+		self.trail.clear();
+		self.trace = None;
+		progress::save(scene.id, self.unlocks);
+		self.preload();
+	}
+
+	/// Extend the trail from one lattice point to another along grid lines, one unit step at
+	/// a time: across first, then up or down.
+	fn draw_trail(&mut self, from: (usize, usize), to: (usize, usize), now: f32) {
+		let mut at = from;
+		while at != to {
+			let next = if at.0 != to.0 {
+				(if to.0 > at.0 { at.0 + 1 } else { at.0 - 1 }, at.1)
+			} else {
+				(at.0, if to.1 > at.1 { at.1 + 1 } else { at.1 - 1 })
+			};
+			self.step(at, next, now);
+			at = next;
+		}
+	}
+
+	/// One unit step of the trail. If it's on the outline of an `Outline` hotspot the player
+	/// can see, it locks in; stepping off an outline being traced abandons the trace.
+	fn step(&mut self, a: (usize, usize), b: (usize, usize), now: f32) {
+		let edge = edge(a, b);
+		let hotspots: &'static [Hotspot] = self.scene.hotspots;
+		let on = hotspots
+			.iter()
+			.enumerate()
+			.find(|(_, hotspot)| {
+				matches!(hotspot.on, Gesture::Outline)
+					&& self.visible(hotspot)
+					&& hotspot.cells.perimeter().contains(&edge)
+			})
+			.map(|(index, _)| index);
+		let tracing = self.trace.as_ref().map(|(index, _)| *index);
+
+		let locked = match (on, tracing) {
+			(Some(index), Some(current)) if current == index => {
+				self.trace.as_mut().unwrap().1.insert(edge);
+				true
+			}
+			(Some(index), _) => {
+				self.abandon_trace(now);
+				self.trace = Some((index, HashSet::from([edge])));
+				true
+			}
+			(None, Some(_)) => {
+				self.abandon_trace(now);
+				false
+			}
+			(None, None) => false,
+		};
+
+		let (ax, ay) = scale_coordinates(self, a.0, a.1);
+		let (bx, by) = scale_coordinates(self, b.0, b.1);
+		self.trail.push(Segment {
+			a: pt2(ax, ay),
+			b: pt2(bx, by),
+			born: now,
+			locked,
+		});
+
+		if let Some((index, edges)) = &self.trace {
+			let hotspot = &hotspots[*index];
+			if edges.len() == hotspot.cells.perimeter().len() {
+				self.trace = None;
+				for segment in &mut self.trail {
+					if segment.locked {
+						segment.locked = false;
+						segment.born = now + TRAIL_LINGER;
+					}
+				}
+				self.act(&hotspot.then);
+			}
+		}
+	}
+
+	/// Let whatever was locked in fade from now.
+	fn abandon_trace(&mut self, now: f32) {
+		self.trace = None;
+		for segment in &mut self.trail {
+			if segment.locked {
+				segment.locked = false;
+				segment.born = now;
+			}
+		}
 	}
 }
 
-pub fn update(_app: &App, model: &mut Model, _update: Update) {
-	let scene = &model.scenes[model.current_scene];
-	let element = &model.audio.elements[model.audio.current_element];
-	let measure_duration = element.duration() / scene.measures as f64;
-	let mut last_whole = (element.current_time() % measure_duration) / measure_duration;
-	if last_whole < model.last_whole {
-		model.current_measure += 1;
+pub fn update(app: &App, model: &mut Model, _update: Update) {
+	let now = model.audio.now();
+	model.time = app.time;
 
-		if model.current_measure == scene.measures {
-			model.current_measure = 0;
-			if !scene.loop_ {
-				model.queue_next = true;
-			}
+	model.audio.advance();
+	if let Some(pending) = &model.pending {
+		if pending.lands.map_or(false, |lands| now >= lands) {
+			let scene = pending.scene;
+			model.pending = None;
+			model.enter(scene);
 		}
+	}
 
-		if model.queue_next {
-			model.queue_next = false;
+	if model.started {
+		model.audio.resume();
+		if !model.audio.is_playing() {
+			// Retried every frame until the track is decoded.
+			let _ = model.audio.play(model.scene, None, now);
+		}
+	}
 
-			if model.current_scene < model.scenes.len() - 1 {
-				model.stop();
-				model.current_scene += 1;
-				model.current_measure = 0;
-
-				let element =
-					HtmlAudioElement::new_with_src(model.scenes[model.current_scene + 1].path)
-						.unwrap();
-				let _ = (model.audio.context)
-					.create_media_element_source(&element)
-					.unwrap()
-					.connect_with_audio_node(&model.audio.context.destination());
-
-				model.audio.elements[model.audio.current_element] = element;
-				model.audio.current_element = model.audio.current_element ^ 1;
-				model.play();
-				last_whole = 0.0;
+	// Schedule a pending change once its track is decoded: at the next bar, or right now
+	// for the menu. A via passage is bars of the track we're on.
+	if let Some(pending) = &mut model.pending {
+		if pending.at.is_none()
+			&& model.audio.is_playing()
+			&& model.audio.is_loaded(pending.scene.track)
+		{
+			let at = if pending.now {
+				now
+			} else {
+				model.audio.next_bar()
+			};
+			let via = pending.via.clone().map(|bars| (model.scene.track, bars));
+			if let Ok(lands) = model.audio.play(pending.scene, via, at) {
+				pending.at = Some(at);
+				pending.lands = Some(lands);
 			}
 		}
 	}
 
-	model.last_whole = last_whole;
+	if let Some(whole) = model.audio.phase() {
+		model.last_whole = whole;
+		let phases = fold(whole as f32);
+		for k in 0..5 {
+			if phases[k] < model.phases[k] {
+				model.ticks[k] += 1;
+			}
+		}
+		model.phases = phases;
+	}
+
+	let time = app.time;
+	model
+		.trail
+		.retain(|segment| segment.locked || time - segment.born < TRAIL_LIFE);
 }
 
 pub fn view(app: &App, model: &Model, frame: Frame) {
@@ -146,16 +428,58 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 	draw.background().color(BLACK);
 	let modifiers = get_modifiers(model);
 
-	// debug info
-	{
+	if model.audio.is_loaded(model.scene.track) {
+		for i in 0..CANVAS_WIDTH {
+			for j in 0..CANVAS_HEIGHT {
+				(model.scene.render)(
+					&draw,
+					model,
+					i,
+					j,
+					app.elapsed_frames() as f32 / 100.0,
+					modifiers,
+				);
+			}
+		}
+	}
+
+	for segment in &model.trail {
+		let alpha = if segment.locked {
+			1.0
+		} else {
+			1.0 - (app.time - segment.born) / TRAIL_LIFE
+		};
+		draw.line()
+			.weight(if segment.locked { 3.0 } else { 2.0 })
+			.rgba(1.0, 1.0, 1.0, alpha)
+			.points(segment.a, segment.b);
+	}
+
+	let window = app.window_rect();
+
+	// Something has been set in motion: a white border until it lands.
+	if model.transitioning() {
+		draw.rect()
+			.no_fill()
+			.stroke_color(WHITE)
+			.stroke_weight(8.0)
+			.xy(window.xy())
+			.wh(window.wh());
+	}
+
+	if model.menu {
+		draw_menu(&draw, model, window);
+	}
+
+	// debug overlay — enable with ?debug in the URL
+	if model.debug {
 		draw.text(&format!("Fps: {:?}", app.fps().round()))
 			.x_y(-200.0, 220.0);
 
 		let [whole, half, quarter, eighth, sixteenth, bass, mid, treble] = modifiers;
 
 		draw.text(&format!(
-			"1({:.2}) 2({half:.2}) 4({quarter:.2}) 8({eighth:.2}) 16({sixteenth:.2})",
-			model.last_whole
+			"1({whole:.2}) 2({half:.2}) 4({quarter:.2}) 8({eighth:.2}) 16({sixteenth:.2})"
 		))
 		.x_y(-200.0, 180.0);
 
@@ -164,39 +488,205 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 		))
 		.x_y(-200.0, 160.0);
 
-		let mut fft = [0; 16];
-		model.audio.analyser.get_byte_frequency_data(&mut fft);
-		let fft = fft
+		let fft = model
+			.audio
+			.fft()
 			.iter()
 			.map(|&value| format!("{:.2}|", value as f32 / 255.0))
 			.collect::<String>();
 		draw.text(&format!("FFT: {fft}")).x_y(200.0, 160.0);
-	}
 
-	if model.audio.elements[model.audio.current_element].ready_state() != 4 {
-		return;
-	}
-
-	for i in 0..CANVAS_WIDTH {
-		for j in 0..CANVAS_HEIGHT {
-			(model.scenes[model.current_scene].render)(
-				&draw,
-				model,
-				i,
-				j,
-				app.elapsed_frames() as f32 / 100.0,
-				modifiers,
-			);
-		}
+		let pending = model.pending.as_ref().map(|pending| pending.scene.id);
+		draw.text(&format!(
+			"scene {} unlocks [{}] pending {pending:?} ticks {:?}",
+			model.scene.id,
+			model.unlocks.names(),
+			model.ticks
+		))
+		.x_y(-200.0, 140.0)
+		.w(400.0);
 	}
 
 	draw.to_frame(app, &frame).unwrap();
 }
 
-pub fn mouse_pressed(app: &App, model: &mut Model, _button: MouseButton) {
-	model.play();
+// ---- the scene menu (M): the whole graph, click to jump; click an unlock to toggle it ----
 
-	if model.scenes[model.current_scene].boxes[0].inside(app.mouse.x, app.mouse.y) {
-		model.queue_next = true;
+const MENU_MARGIN: f32 = 20.0;
+const MENU_ROW: f32 = 22.0;
+const MENU_UNLOCK_WIDTH: f32 = 90.0;
+
+fn menu_unlocks_y(window: Rect) -> f32 {
+	window.top() - 50.0
+}
+
+fn menu_scene_y(window: Rect, index: usize) -> f32 {
+	window.top() - 90.0 - index as f32 * MENU_ROW
+}
+
+fn draw_menu(draw: &Draw, model: &Model, window: Rect) {
+	draw.rect()
+		.xy(window.xy())
+		.wh(window.wh())
+		.rgba(0.0, 0.0, 0.0, 0.85);
+
+	let left = window.left() + MENU_MARGIN;
+	let width = window.w() - 2.0 * MENU_MARGIN;
+	let row = |text: &str, y: f32, gray: f32| {
+		draw.text(text)
+			.left_justify()
+			.font_size(14)
+			.x_y(left + width / 2.0, y)
+			.w(width)
+			.gray(gray);
+	};
+
+	row("M closes. Click a scene to jump there now; click an unlock to toggle it.", window.top() - 25.0, 0.5);
+
+	let y = menu_unlocks_y(window);
+	for (k, unlock) in Unlock::ALL.iter().enumerate() {
+		let x = left + k as f32 * MENU_UNLOCK_WIDTH;
+		let on = model.has(*unlock);
+		draw.text(unlock.name())
+			.left_justify()
+			.font_size(14)
+			.x_y(x + MENU_UNLOCK_WIDTH / 2.0, y)
+			.w(MENU_UNLOCK_WIDTH)
+			.gray(if on { 1.0 } else { 0.35 });
+	}
+
+	for (index, scene) in scenes::all().iter().enumerate() {
+		let mut edges = vec![];
+		for hotspot in scene.hotspots {
+			let mut targets = vec![];
+			scenes::targets(&hotspot.then, &mut targets);
+			let mut grants = vec![];
+			scenes::grants(&hotspot.then, &mut grants);
+			let gesture = match hotspot.on {
+				Gesture::Tap => "tap",
+				Gesture::Drag { .. } => "drag",
+				Gesture::Outline => "outline",
+			};
+			let mut edge = match &hotspot.then {
+				Action::GoVia(_, bars) => format!("{gesture} via {bars:?}"),
+				_ => format!("{gesture}"),
+			};
+			if hotspot.needs != NONE {
+				edge += &format!(" [{}]", hotspot.needs.names());
+			}
+			for unlock in grants {
+				edge += &format!(" +{}", unlock.name());
+			}
+			for target in targets {
+				edge += &format!(" -> {target}");
+			}
+			edges.push(edge);
+		}
+		let current = if std::ptr::eq(*scene, model.scene) { "> " } else { "  " };
+		let text = format!(
+			"{current}{}   ({} bars {:?})   {}",
+			scene.id,
+			scene.track.id,
+			scene.bars,
+			edges.join("  |  ")
+		);
+		row(&text, menu_scene_y(window, index), if current == "> " { 1.0 } else { 0.7 });
+	}
+}
+
+/// A click while the menu is open. Returns whether it hit something.
+fn menu_click(app: &App, model: &mut Model) {
+	let window = app.window_rect();
+	let (x, y) = (app.mouse.x, app.mouse.y);
+	let left = window.left() + MENU_MARGIN;
+
+	if (y - menu_unlocks_y(window)).abs() < MENU_ROW / 2.0 {
+		let k = ((x - left) / MENU_UNLOCK_WIDTH).floor();
+		if k >= 0.0 && (k as usize) < Unlock::ALL.len() {
+			let unlock = Unlock::ALL[k as usize];
+			let unlocks = if model.has(unlock) {
+				model.unlocks.without(unlock)
+			} else {
+				model.unlocks.with(unlock)
+			};
+			model.set_unlocks(unlocks);
+		}
+		return;
+	}
+
+	let scenes = scenes::all();
+	let k = ((menu_scene_y(window, 0) + MENU_ROW / 2.0 - y) / MENU_ROW).floor();
+	if k >= 0.0 && (k as usize) < scenes.len() {
+		model.menu = false;
+		model.jump(scenes[k as usize]);
+	}
+}
+
+// ---- input ----
+
+pub fn key_pressed(_app: &App, model: &mut Model, key: Key) {
+	match key {
+		Key::M => model.menu = !model.menu,
+		Key::Escape => model.menu = false,
+		_ => {}
+	}
+}
+
+pub fn mouse_pressed(app: &App, model: &mut Model, _button: MouseButton) {
+	if model.menu {
+		menu_click(app, model);
+		return;
+	}
+	if !model.started {
+		// The first click only starts the music.
+		model.started = true;
+		model.audio.resume();
+		return;
+	}
+	if model.transitioning() {
+		return;
+	}
+	let cell = cell_at(model, app.mouse.x, app.mouse.y);
+	model.press = cell;
+	model.trail_at = cell;
+}
+
+pub fn mouse_moved(app: &App, model: &mut Model, position: Point2) {
+	if !app.mouse.buttons.left().is_down() || model.transitioning() || model.menu {
+		return;
+	}
+	let Some(cell) = cell_at(model, position.x, position.y) else {
+		return;
+	};
+	if let Some(last) = model.trail_at {
+		if last != cell {
+			model.draw_trail(last, cell, app.time);
+		}
+	}
+	model.trail_at = Some(cell);
+}
+
+pub fn mouse_released(app: &App, model: &mut Model, _button: MouseButton) {
+	model.trail_at = None;
+	if model.trace.is_some() {
+		// Let go before the outline was closed.
+		model.abandon_trace(app.time);
+	}
+	let Some(press) = model.press.take() else {
+		return;
+	};
+	let Some(release) = cell_at(model, app.mouse.x, app.mouse.y) else {
+		return;
+	};
+	let hit = model.hotspots().find(|hotspot| {
+		hotspot.cells.contains(press.0, press.1)
+			&& match hotspot.on {
+				Gesture::Tap => hotspot.cells.contains(release.0, release.1),
+				Gesture::Drag { to } => to.contains(release.0, release.1),
+				Gesture::Outline => false,
+			}
+	});
+	if let Some(hotspot) = hit {
+		model.act(&hotspot.then);
 	}
 }

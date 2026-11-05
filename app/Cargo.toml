@@ -27,6 +27,9 @@ opt-level = 3
 # to interact with JavaScript.
 wasm-bindgen = "0.2.83"
 wasm-bindgen-futures = "0.4.32"
+js-sys = "0.3.22"
+# Readable panic messages in the browser console (release builds too; the cost is negligible).
+console_error_panic_hook = "0.1.5"
 async-std = { version = "1.10.0", features = ["unstable"] }
 nannou = { version = "0.18.1", git = "https://github.com/nannou-org/nannou.git", rev = "287be8a4d075b17332ca0bf34649f5d25e751c00", features = [
    "wasm-experimental",
@@ -39,6 +42,7 @@ version = "0.3.22"
 features = [
    "console",
    "Window",
+   "Location",
 
    "Headers",
    "Request",
@@ -52,20 +56,23 @@ features = [
    "AudioDestinationNode",
    "AudioNode",
    "AudioParam",
+   "AudioBuffer",
+   "AudioBufferSourceNode",
+   "AudioScheduledSourceNode",
+   "BaseAudioContext",
+   "Storage",
    "GainNode",
    "HtmlAudioElement",
    "HtmlMediaElement",
    "MediaElementAudioSourceNode",
 ]
-# The `console_error_panic_hook` crate provides better debugging of panics by
-# logging them with `console.error`. This is great for development, but requires
-# all the `std::fmt` and `std::panicking` infrastructure, so it's only enabled
-# in debug mode.
-[target."cfg(debug_assertions)".dependencies]
-console_error_panic_hook = "0.1.5"
 
 # # These crates are used for running unit tests.
 [dev-dependencies]
 wasm-bindgen-test = "0.3.33"
 futures = "0.1.27"
 js-sys = "0.3.22"
+
+# wasm-pack 0.11 bundles a binaryen too old to validate wasm from current rustc; skip wasm-opt.
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
