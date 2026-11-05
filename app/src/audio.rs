@@ -125,6 +125,9 @@ impl Audio {
 		spawn_local(async move {
 			match decode(&context, track.path).await {
 				Ok(buffer) => {
+					web_sys::console::log_1(
+						&format!("loaded {}: {:.3} s at {} Hz", track.path, buffer.duration(), buffer.sample_rate()).into(),
+					);
 					buffers.borrow_mut().insert(track.id, buffer);
 				}
 				Err(error) => web_sys::console::error_2(

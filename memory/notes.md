@@ -107,6 +107,14 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   cut). Constants to taste; a longer `CUT_TAIL` means hearing the old track's next downbeat
   under the new one. Headless Chromium (DevTools protocol, `cdp_click.py` in the session
   scratch) ran two wraps and a switch without errors — but only ears can judge the seams.
+- sasha grips' theme (owner, 2026-11-05): **satellites** — two points orbit every dot at
+  their own rates (one near, one far, opposite ways); a line runs dot → near point and is
+  pulled toward the far one as the bass comes up, back as it fades. Built for the growly
+  part (`sasha-grips/2`, bars 33–60); the pull maps bass 0.25..0.75 → 0..1, smoothstepped.
+- Headless screenshots are unreliable for scenes on the bigger tracks: the virtual-time
+  budget races the real decode and the DevTools `captureScreenshot` starves under software
+  GL. The app logs `loaded <path>` on every decode; read that over DevTools (`cdp_click.py`)
+  to confirm loading, and trust the owner's browser for the picture.
 - Next song (owner): **hexes** as an unlock — the square grid sheared into a triangular
   lattice (rows slid half a cell, rows squashed by √3/2); regular hexes can't align with a
   square grid, the shear can. Not started.

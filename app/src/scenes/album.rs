@@ -202,6 +202,48 @@ fn cross(draw: &Draw, model: &Model, i: usize, j: usize, _time: f32, modifiers: 
 	checker(draw, model, i, j, half, length);
 }
 
+// ---- sasha grips ----
+
+/// The growly part. Around every dot two points orbit at their own rates, one near, one
+/// far and the other way round. A line runs from the dot to the near one — until the bass
+/// hits: then it's pulled toward the far one, and eases back as the bass fades.
+fn orbits(draw: &Draw, model: &Model, i: usize, j: usize, time: f32, modifiers: [f32; 8]) {
+	let [whole, half, _quarter, _eighth, _sixteenth, bass, _mid, _treble] = modifiers;
+	let unit = model.scaling as f32;
+	let (x, y) = scale_coordinates(model, i, j);
+	let noise = model.noisemap.get_value(i, j) as f32;
+	let lit = glow(model, half, false);
+
+	let near = (0.8 + 0.4 * noise) * time + noise * TAU;
+	let far = -(1.3 + 0.5 * noise) * time + noise * 7.0;
+	let (x1, y1) = (x + 0.45 * unit * near.cos(), y + 0.45 * unit * near.sin());
+	let (x2, y2) = (x + 0.9 * unit * far.cos(), y + 0.9 * unit * far.sin());
+
+	// The pull: nothing until the bass is really there, all the way at full.
+	let pull = ((bass - 0.25) / 0.5).clamp(0.0, 1.0);
+	let pull = pull * pull * (3.0 - 2.0 * pull);
+	let (ex, ey) = (x1 + (x2 - x1) * pull, y1 + (y2 - y1) * pull);
+
+	let mut gray = 0.6 + 0.3 * pull;
+	if model.hint_at(i, j) == Some(0) {
+		gray = 1.0 - 0.6 * whole;
+	}
+	dot(draw, model, x, y, paint(model, 0.9 * lit, 0.0));
+	dot(draw, model, x1, y1, paint(model, 0.5 * lit, 0.0));
+	dot(draw, model, x2, y2, paint(model, 0.5 * lit, 0.0));
+	mark(
+		draw,
+		model,
+		x,
+		y,
+		(ey - y).atan2(ex - x),
+		0.0,
+		((ex - x).powi(2) + (ey - y).powi(2)).sqrt(),
+		gray * lit,
+		pull,
+	);
+}
+
 // ---- the placeholder phases ----
 
 /// One rendering for every phase still to be designed, varied by `k` (its index in the
@@ -351,7 +393,19 @@ pub const SCENES: &[&Scene] = &[
 	// sasha grips — 147 bpm, 88 bars: full from the first bar, a 4-bar bass drop at 61.
 	phase!("sasha-grips/0", SASHA_GRIPS, 0..8, "sasha-grips/1", 6),
 	phase!("sasha-grips/1", SASHA_GRIPS, 8..32, "sasha-grips/2", 7),
-	phase!("sasha-grips/2", SASHA_GRIPS, 32..60, "sasha-grips/3", 8),
+	&Scene {
+		id: "sasha-grips/2",
+		track: &SASHA_GRIPS,
+		bars: 32..60,
+		render: &|draw, model, i, j, time, modifiers| orbits(draw, model, i, j, time, modifiers),
+		hotspots: &[Hotspot {
+			cells: DOOR,
+			needs: NONE,
+			on: Gesture::Tap,
+			then: Action::Go("sasha-grips/3"),
+			tag: 0,
+		}],
+	},
 	phase!("sasha-grips/3", SASHA_GRIPS, 60..64, "sasha-grips/4", 9),
 	phase!("sasha-grips/4", SASHA_GRIPS, 64..88, "pisser/0", 10),
 	// pisser — 120 bpm, 104 bars: near silence, a build without bass, four 16-bar cycles
