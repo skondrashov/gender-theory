@@ -600,6 +600,12 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 
 const MENU_MARGIN: f32 = 20.0;
 const MENU_ROW: f32 = 22.0;
+
+/// Row height for the scene list: `MENU_ROW`, or less when the list wouldn't fit the canvas.
+fn menu_row(window: Rect) -> f32 {
+	let room = window.h() - 90.0 - MENU_MARGIN;
+	MENU_ROW.min(room / scenes::all().len().max(1) as f32)
+}
 const MENU_UNLOCK_WIDTH: f32 = 90.0;
 
 fn menu_unlocks_y(window: Rect) -> f32 {
@@ -607,7 +613,7 @@ fn menu_unlocks_y(window: Rect) -> f32 {
 }
 
 fn menu_scene_y(window: Rect, index: usize) -> f32 {
-	window.top() - 90.0 - index as f32 * MENU_ROW
+	window.top() - 90.0 - index as f32 * menu_row(window)
 }
 
 fn draw_menu(draw: &Draw, model: &Model, window: Rect) {
@@ -618,10 +624,11 @@ fn draw_menu(draw: &Draw, model: &Model, window: Rect) {
 
 	let left = window.left() + MENU_MARGIN;
 	let width = window.w() - 2.0 * MENU_MARGIN;
+	let font = if menu_row(window) < MENU_ROW { 11 } else { 14 };
 	let row = |text: &str, y: f32, gray: f32| {
 		draw.text(text)
 			.left_justify()
-			.font_size(14)
+			.font_size(font)
 			.x_y(left + width / 2.0, y)
 			.w(width)
 			.gray(gray);
@@ -701,7 +708,8 @@ fn menu_click(app: &App, model: &mut Model) {
 	}
 
 	let scenes = scenes::all();
-	let k = ((menu_scene_y(window, 0) + MENU_ROW / 2.0 - y) / MENU_ROW).floor();
+	let row = menu_row(window);
+	let k = ((menu_scene_y(window, 0) + row / 2.0 - y) / row).floor();
 	if k >= 0.0 && (k as usize) < scenes.len() {
 		model.menu = false;
 		model.jump(scenes[k as usize]);
