@@ -141,6 +141,13 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   `scenes/album.rs` before 2026-11-05). Knobs per sidechain: depth, threshold, width, curve,
   invert, on; per band: attack, release, gain. The layout is a first draft the owner asked
   to see; expect to rework it.
+- **Stretches and stages** (owner, 2026-11-05): "it's probably fine to have a stretch of a
+  track last as long as it takes to get through a few scenes, and then just loop at the end
+  waiting for the trigger into the next part" — so a scene is a stretch (`bars`, `loop`)
+  with `stages`; `Action::Stage` moves between them without touching the music. The first
+  act became one stretch, `sine/act-1` (0–72, loop from 64), five stages. Also: "lock layer
+  and hotspot durations to the scene by default and maybe have an unlock option" — no
+  `bars` on a layer/hotspot means the whole scene; the inspector's "own range" unlocks it.
 - **Nothing sinusoidal** (owner, 2026-11-05): music is events — each bar/beat/subdivision
   hits and falls away (square, or a maximally slanted sawtooth), never a sine. `hit(phase,
   fall)` and `pulse(modifiers)` in `scenes/mod.rs` are the envelope (beat hits, downbeat

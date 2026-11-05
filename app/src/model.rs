@@ -37,6 +37,10 @@ const TIME_RATE: f32 = 0.6;
 /// A scene change that has been asked for: scheduled once its track is decoded.
 struct Pending {
 	scene: &'static Scene,
+	/// The stage of `scene` to land in.
+	stage: usize,
+	/// A new scene, so the music changes; otherwise only the stage does.
+	music: bool,
 	via: Option<Range<usize>>,
 	/// Context time it was asked for.
 	asked: f64,
@@ -74,6 +78,8 @@ pub struct Model {
 	bands: HashMap<String, f32>,
 
 	scene: &'static Scene,
+	/// Which of the scene's stages the player is in.
+	stage: usize,
 	unlocks: Unlocks,
 	/// When each unlock was granted (app time), for easing it in. `-inf` = always had it.
 	revealed: [f32; 6],
@@ -103,6 +109,7 @@ pub struct Model {
 	/// While the scene being morphed into is rendered: that scene, so that hints, ticks
 	/// and the like are its own.
 	preview: Cell<Option<&'static Scene>>,
+	preview_stage: Cell<Option<usize>>,
 }
 
 impl Model {
@@ -150,6 +157,7 @@ impl Model {
 			highlight: vec![],
 			bands: HashMap::new(),
 			scene,
+			stage: 0,
 			unlocks,
 			revealed: [f32::NEG_INFINITY; 6],
 			time: 0.0,
@@ -165,6 +173,7 @@ impl Model {
 			menu: false,
 			marks: RefCell::new(vec![]),
 			preview: Cell::new(None),
+			preview_stage: Cell::new(None),
 		};
 		model.preload();
 		model
@@ -177,6 +186,11 @@ impl Model {
 	/// The scene being rendered: the one we're on, or the one being morphed into.
 	fn viewed(&self) -> &'static Scene {
 		self.preview.get().unwrap_or(self.scene)
+	}
+
+	/// The stage being rendered: the one we're in, or the one being morphed into.
+	pub fn stage(&self) -> usize {
+		self.preview_stage.get().unwrap_or(self.stage)
 	}
 
 	/// How many ticks of `sub` have passed since the scene started.
@@ -305,6 +319,10 @@ impl Model {
 			}
 			self.set_unlocks(unlocks);
 		}
+		if let Some(stage) = command.get("stage").and_then(Value::as_u64) {
+			self.pending = None;
+			self.stage = (stage as usize).min(self.scene.stages.len().saturating_sub(1));
+		}
 		if command.get("pause").is_some() {
 			self.audio.suspend();
 		}
@@ -334,6 +352,8 @@ impl Model {
 		let hotspots: Vec<u8> = self.hotspots().map(|hotspot| hotspot.tag).collect();
 		json!({
 			"scene": self.scene.id,
+			"stage": self.stage,
+			"stages": self.scene.stages,
 			"track": self.scene.track.id,
 			"bar": self.bar(),
 			"phase": self.last_whole,
@@ -379,7 +399,7 @@ impl Model {
 	/// and the seconds left until it lands. The morph takes the last `MORPH` seconds before
 	/// landing — or what's left of them, if the change was asked for later than that, so a
 	/// late tap gets a quick morph rather than none.
-	pub fn morph(&self) -> Option<(f32, &'static Scene, f32)> {
+	pub fn morph(&self) -> Option<(f32, &'static Scene, usize, f32)> {
 		let pending = self.pending.as_ref()?;
 		let lands = pending.lands?;
 		let now = self.audio.now();
@@ -388,12 +408,14 @@ impl Model {
 			return None;
 		}
 		let t = ((now - start) / (lands - start)).clamp(0.0, 1.0) as f32;
-		Some((t * t * (3.0 - 2.0 * t), pending.scene, (lands - now).max(0.0) as f32))
+		Some((t * t * (3.0 - 2.0 * t), pending.scene, pending.stage, (lands - now).max(0.0) as f32))
 	}
 
-	/// Unlocked, and still has something to do.
+	/// In this stage, unlocked, and still has something to do.
 	fn visible(&self, hotspot: &Hotspot) -> bool {
-		self.unlocks.has_all(hotspot.needs) && !hotspot.then.spent(self.unlocks)
+		hotspot.stage.map_or(true, |stage| stage == self.stage())
+			&& self.unlocks.has_all(hotspot.needs)
+			&& !hotspot.then.spent(self.unlocks)
 	}
 
 	/// The viewed scene's hotspots the player can see.
@@ -423,6 +445,7 @@ impl Model {
 			Action::Go(id) => self.go(id, None),
 			Action::GoVia(id, via) => self.go(id, Some(via.clone())),
 			Action::Unlock(unlock) => self.set_unlocks(self.unlocks.with(*unlock)),
+			Action::Stage(stage) => self.go_stage(*stage),
 			Action::All(list) => {
 				for action in list.iter() {
 					self.act(action);
@@ -454,6 +477,8 @@ impl Model {
 				self.audio.load(scene.track);
 				self.pending = Some(Pending {
 					scene,
+					stage: 0,
+					music: true,
 					via,
 					asked: self.audio.now(),
 					at: None,
@@ -465,6 +490,23 @@ impl Model {
 		}
 	}
 
+	/// Ask for another stage of this scene, at the next bar; the music goes on.
+	fn go_stage(&mut self, stage: usize) {
+		if matches!(self.pending, Some(Pending { at: Some(_), .. })) || stage == self.stage {
+			return;
+		}
+		self.pending = Some(Pending {
+			scene: self.scene,
+			stage,
+			music: false,
+			via: None,
+			asked: self.audio.now(),
+			at: None,
+			lands: None,
+			now: false,
+		});
+	}
+
 	/// Go somewhere right now, bar or no bar (the scene menu).
 	fn jump(&mut self, scene: &'static Scene) {
 		self.started = true;
@@ -473,6 +515,8 @@ impl Model {
 		if self.audio.is_playing() {
 			self.pending = Some(Pending {
 				scene,
+				stage: 0,
+				music: true,
 				via: None,
 				asked: self.audio.now(),
 				at: None,
@@ -486,6 +530,7 @@ impl Model {
 
 	fn enter(&mut self, scene: &'static Scene) {
 		self.scene = scene;
+		self.stage = 0;
 		self.ticks = [0; 5];
 		self.phases = [0.0; 5];
 		self.trail.clear();
@@ -616,9 +661,12 @@ pub fn update(app: &App, model: &mut Model, update: Update) {
 	model.follow_bands(update.since_last.as_secs_f32().min(0.1));
 	if let Some(pending) = &model.pending {
 		if pending.lands.map_or(false, |lands| now >= lands) {
-			let scene = pending.scene;
+			let (scene, stage, music) = (pending.scene, pending.stage, pending.music);
 			model.pending = None;
-			model.enter(scene);
+			if music {
+				model.enter(scene);
+			}
+			model.stage = stage;
 		}
 	}
 
@@ -628,7 +676,9 @@ pub fn update(app: &App, model: &mut Model, update: Update) {
 			if model.audio.is_loaded(scene.track) {
 				model.seek = None;
 				model.pending = None;
+				let stage = if std::ptr::eq(scene, model.scene) { model.stage } else { 0 };
 				model.enter(scene);
+				model.stage = stage;
 				let _ = model.audio.play_from(scene, bar, now + 0.05);
 			}
 		} else {
@@ -647,7 +697,8 @@ pub fn update(app: &App, model: &mut Model, update: Update) {
 	}
 
 	// Schedule a pending change once its track is decoded: at the next bar, or a morph
-	// away for the menu. A via passage is bars of the track we're on.
+	// away for the menu. A via passage is bars of the track we're on. A stage change
+	// leaves the music alone.
 	if let Some(pending) = &mut model.pending {
 		if pending.at.is_none()
 			&& model.audio.is_playing()
@@ -658,10 +709,15 @@ pub fn update(app: &App, model: &mut Model, update: Update) {
 			} else {
 				model.audio.next_bar()
 			};
-			let via = pending.via.clone().map(|bars| (model.scene.track, bars));
-			if let Ok(lands) = model.audio.play(pending.scene, via, at) {
+			if !pending.music {
 				pending.at = Some(at);
-				pending.lands = Some(lands);
+				pending.lands = Some(at);
+			} else {
+				let via = pending.via.clone().map(|bars| (model.scene.track, bars));
+				if let Ok(lands) = model.audio.play(pending.scene, via, at) {
+					pending.at = Some(at);
+					pending.lands = Some(lands);
+				}
 			}
 		}
 	}
@@ -702,14 +758,16 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 				let marks = model.take_marks();
 				match morph {
 					None => marks.iter().for_each(|mark| mark.draw(&draw)),
-					Some((t, next, left)) => {
+					Some((t, next, stage, left)) => {
 						// Where the next scene will be as it lands: the top of its bar,
 						// `left` seconds from now, the music as it is.
 						let mut landing = [0.0; 8];
 						landing[5..].copy_from_slice(&modifiers[5..]);
 						model.preview.set(Some(next));
+						model.preview_stage.set(Some(stage));
 						(next.render)(&draw, model, i, j, time + left * TIME_RATE, landing);
 						model.preview.set(None);
+						model.preview_stage.set(None);
 						let into = model.take_marks();
 						for mark in blend(&marks, &into, t) {
 							mark.draw(&draw);
@@ -801,7 +859,7 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 		draw.text(&format!("FFT: {fft}")).x_y(200.0, 160.0);
 
 		let pending = model.pending.as_ref().map(|pending| pending.scene.id);
-		let morph = model.morph().map(|(t, _, _)| t);
+		let morph = model.morph().map(|(t, _, _, _)| t);
 		draw.text(&format!(
 			"scene {} unlocks [{}] pending {pending:?} morph {morph:?} ticks {:?}",
 			model.scene.id,
@@ -881,6 +939,7 @@ fn draw_menu(draw: &Draw, model: &Model, window: Rect) {
 			};
 			let mut edge = match &hotspot.then {
 				Action::GoVia(_, bars) => format!("{gesture} via {bars:?}"),
+				Action::Stage(stage) => format!("{gesture} -> stage {}", scene.stages.get(*stage).copied().unwrap_or("?")),
 				_ => format!("{gesture}"),
 			};
 			if hotspot.needs != NONE {
@@ -896,10 +955,11 @@ fn draw_menu(draw: &Draw, model: &Model, window: Rect) {
 		}
 		let current = if std::ptr::eq(*scene, model.scene) { "> " } else { "  " };
 		let text = format!(
-			"{current}{}   ({} bars {:?})   {}",
+			"{current}{}   ({} bars {:?}, loop from {})   {}",
 			scene.id,
 			scene.track.id,
 			scene.bars,
+			scene.loop_from,
 			edges.join("  |  ")
 		);
 		row(&text, menu_scene_y(window, index), if current == "> " { 1.0 } else { 0.7 });

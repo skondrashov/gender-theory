@@ -33,6 +33,8 @@ let album, cat;
 let ti = 0;                // index of the track being edited
 let si = 0;                // index of the scene being edited (its layers and hotspots are shown)
 let follow = true;         // si follows the scene playing, until a scene is picked by hand
+let stageFilter = '';      // '' = every stage; else only that stage's layers and hotspots
+let lastStages = '';
 let sel = null;            // {type: 'scene'|'layer'|'hotspot'|'band', index}
 let st = {};               // last state from the app
 let history = [], future = [];
@@ -50,14 +52,16 @@ const trackBars = (t) => {
   return Math.max(known, used, 16);
 };
 const sceneAt = (t, bar) => t.scenes.find((s) => s.bars[0] <= bar && bar < s.bars[1]);
-const overlaps = (a, b) => a.bars[0] < b.bars[1] && b.bars[0] < a.bars[1];
+// A layer or hotspot without bars of its own is live for the whole scene (the default).
+const barsOf = (item) => item.bars ?? scene().bars;
 
 // A scene's layers and hotspots live inside its bars: when the scene moves they move with
 // it, when it shrinks they're clipped.
 function fitScene(s, oldBars) {
   const shift = s.bars[0] - oldBars[0];
+  s.loop = clamp((s.loop ?? oldBars[0]) + shift, s.bars[0], s.bars[1] - 1);
   for (const item of [...(s.layers || []), ...(s.hotspots || [])]) {
-    if (shift && item.bars[1] - item.bars[0] === oldBars[1] - oldBars[0]) { item.bars = [...s.bars]; continue; }
+    if (!item.bars) continue;
     item.bars[0] = clamp(item.bars[0] + shift, s.bars[0], s.bars[1] - 1);
     item.bars[1] = clamp(item.bars[1] + shift, item.bars[0] + 1, s.bars[1]);
   }
@@ -79,6 +83,8 @@ async function boot() {
 
   $('#track').onchange = () => { ti = +$('#track').value; si = 0; sel = null; renderAll(); };
   $('#play').onclick = togglePlay;
+  $('#stage-pick').onchange = () => send(JSON.stringify({ stage: +$('#stage-pick').value }));
+  $('#stage-filter').onchange = () => { stageFilter = $('#stage-filter').value; renderLists(); renderTimeline(); };
   $('#undo').onclick = undo;
   $('#redo').onclick = redo;
   $('#save').onclick = save;
@@ -197,6 +203,14 @@ function loop() {
   const t = track();
   $('#play').textContent = st.playing ? '❚❚' : '▶';
   $('#where').textContent = st.scene ? `${st.scene}  bar ${(st.bar ?? 0).toFixed(2)}${st.pending ? ' → ' + st.pending : ''}${st.loaded === false ? '  (loading)' : ''}` : '—';
+  const stages = JSON.stringify(st.stages || []);
+  if (stages !== lastStages) {
+    lastStages = stages;
+    const list = st.stages || [];
+    $('#stage-pick').replaceChildren(...list.map((name, k) => el('option', { value: k }, name)));
+    $('#stage-pick').hidden = list.length === 0;
+  }
+  if (document.activeElement !== $('#stage-pick')) $('#stage-pick').value = st.stage ?? 0;
   if (st.track && st.track === t.id) {
     $('#playhead').style.left = (GUTTER + st.bar * PPB) + 'px';
     $('#playhead').style.display = 'block';
@@ -282,17 +296,23 @@ function renderTopbar() {
 
 function renderLists() {
   const t = track(), s = scene();
-  const item = (type, index, label, bars, extra = '') => el('li', {
+  const item = (type, index, label, bars, extra = '', stage) => el('li', {
     class: (sel && sel.type === type && sel.index === index ? 'sel ' : '') + extra,
     'data-index': index,
     onclick: () => select(type, index),
-  }, el('span', {}, label), el('span', { class: 'bars' }, `${bars[0]}–${bars[1]}`));
+  }, el('span', {}, label, stage ? el('span', { class: 'stage' }, stage) : null), el('span', { class: 'bars' }, bars ? `${bars[0]}–${bars[1]}` : ''));
   $('#scene-list').replaceChildren(...t.scenes.map((s, k) => item('scene', k, s.id, s.bars, k === si ? 'here' : '')));
+  const names = s?.stages ?? [];
+  if (!names.includes(stageFilter)) stageFilter = '';
+  $('#stage-filter').replaceChildren(el('option', { value: '' }, names.length ? 'all stages' : 'no stages'), ...names.map((n) => el('option', { value: n, ...(n === stageFilter ? { selected: '' } : {}) }, n)));
+  $('#stage-filter').disabled = names.length === 0;
   $('#hotspot-title').textContent = s ? `hotspots of ${s.id}` : 'hotspots';
   $('#layer-title').textContent = s ? `layers of ${s.id}` : 'layers';
-  $('#hotspot-list').replaceChildren(...(s?.hotspots ?? []).map((h, k) => item('hotspot', k, h.name || h.id, h.bars)));
-  $('#layer-list').replaceChildren(...(s?.layers ?? []).map((l, k) => item('layer', k, `${l.name || l.id} · ${l.kind}`, l.bars, l.muted ? 'muted' : '')));
+  $('#hotspot-list').replaceChildren(...(s?.hotspots ?? []).map((h, k) => inStage(h) ? item('hotspot', k, h.name || h.id, h.bars, '', h.stage) : null).filter(Boolean));
+  $('#layer-list').replaceChildren(...(s?.layers ?? []).map((l, k) => inStage(l) ? item('layer', k, `${l.name || l.id} · ${l.kind}`, l.bars, l.muted ? 'muted' : '', l.stage) : null).filter(Boolean));
 }
+
+const inStage = (item) => !stageFilter || !item.stage || item.stage === stageFilter;
 
 function select(type, index) {
   if (type === 'scene') { si = index; follow = false; }
@@ -348,7 +368,7 @@ function moveSelectedTo(sceneId) {
   const list = listOf(sel.type);
   const [item] = list.splice(sel.index, 1);
   const to = t.scenes[k];
-  item.bars = [...to.bars];
+  delete item.bars;
   to[sel.type + 's'].push(item);
   si = k;
   sel = { type: sel.type, index: to[sel.type + 's'].length - 1 };
@@ -356,11 +376,6 @@ function moveSelectedTo(sceneId) {
 }
 
 // ---- adding ----
-
-function defaultBars() {
-  const s = scene();
-  return s ? [...s.bars] : [0, 16];
-}
 
 function defaultParams(kind) {
   const out = {};
@@ -374,7 +389,7 @@ function addScene() {
   const t = track();
   const end = Math.max(0, ...t.scenes.map((s) => s.bars[1]));
   snapshotForUndo();
-  t.scenes.push({ id: `${t.id}/${t.scenes.length}`, bars: [end, end + 16], layers: [], hotspots: [] });
+  t.scenes.push({ id: `${t.id}/${t.scenes.length}`, bars: [end, end + 16], loop: end, stages: [], layers: [], hotspots: [] });
   si = t.scenes.length - 1;
   sel = { type: 'scene', index: si };
   commit({ silent: true, inspector: true });
@@ -385,7 +400,7 @@ function addLayer() {
   if (!s) { setStatus('add a scene first'); return; }
   snapshotForUndo();
   s.layers ??= [];
-  s.layers.push({ id: uid('l'), name: 'layer', bars: defaultBars(), region: {}, kind: 'marks', params: defaultParams('marks') });
+  s.layers.push({ id: uid('l'), name: 'layer', region: {}, kind: 'marks', params: defaultParams('marks') });
   sel = { type: 'layer', index: s.layers.length - 1 };
   commit({ silent: true, inspector: true });
 }
@@ -395,7 +410,7 @@ function addHotspot() {
   if (!s) { setStatus('add a scene first'); return; }
   snapshotForUndo();
   s.hotspots ??= [];
-  s.hotspots.push({ id: uid('h'), name: 'hotspot', bars: defaultBars(), rect: [8, 8, 12, 12], needs: [], on: 'tap', then: [] });
+  s.hotspots.push({ id: uid('h'), name: 'hotspot', rect: [8, 8, 12, 12], needs: [], on: 'tap', then: [] });
   sel = { type: 'hotspot', index: s.hotspots.length - 1 };
   commit({ silent: true, inspector: true });
 }
@@ -451,8 +466,18 @@ function barsRow(obj, isScene) {
     if (isScene) fitScene(obj, old); else fix();
     commit({ silent: true, inspector: true });
   } });
-  return el('div', { class: 'row' }, el('span', { class: 'name' }, 'bars'), input(0), '–', input(1),
-    el('span', { class: 'doc' }, isScene ? 'of the track, end exclusive; its layers and hotspots move with it' : `within ${s.bars[0]}–${s.bars[1]}, the scene`));
+  if (isScene) {
+    return el('div', { class: 'row' }, el('span', { class: 'name' }, 'bars'), input(0), '–', input(1),
+      el('span', { class: 'doc' }, 'of the track, end exclusive; its layers and hotspots move with it'));
+  }
+  // Layers and hotspots: the whole scene unless unlocked to a range of its bars.
+  const own = el('label', {}, el('input', { type: 'checkbox', ...(obj.bars ? { checked: '' } : {}), onchange: (e) => {
+    snapshotForUndo();
+    if (e.target.checked) obj.bars = [...s.bars]; else delete obj.bars;
+    commit({ silent: true, inspector: true });
+  } }), 'own range');
+  return el('div', { class: 'row' }, el('span', { class: 'name' }, 'bars'),
+    ...(obj.bars ? [input(0), '–', input(1), el('span', { class: 'doc' }, `within ${s.bars[0]}–${s.bars[1]}`)] : [el('span', {}, `the whole scene (${s.bars[0]}–${s.bars[1]})`)]), own);
 }
 
 function row(name, ...content) {
@@ -474,7 +499,10 @@ function renderInspector() {
       head(item.id, 'scene'),
       row('id', textInput(item, 'id', { commit: { inspector: true } }), el('span', { class: 'doc' }, 'what doors point at; renaming does not follow them')),
       barsRow(item, true),
-      row('', el('button', { onclick: () => seek(item.bars[0]) }, 'play from here')),
+      row('loop from', el('input', { type: 'number', value: item.loop ?? item.bars[0], step: 1, min: 0, onchange: (e) => { snapshotForUndo(); item.loop = clamp(+e.target.value, item.bars[0], item.bars[1] - 1); commit({ silent: true, inspector: true }); } }),
+        el('span', { class: 'doc' }, 'the stretch plays once from its first bar, then from here to its end repeats until the player leaves')),
+      row('', el('button', { onclick: () => seek(item.bars[0]) }, 'play from here'), el('button', { onclick: () => seek(item.loop ?? item.bars[0]) }, 'play the loop')),
+      stagesEditor(item),
       row('layers', el('span', { class: 'doc' }, (item.layers || []).map((l) => l.name || l.id).join(', ') || 'none')),
       row('hotspots', el('span', { class: 'doc' }, (item.hotspots || []).map((h) => h.name || h.id).join(', ') || 'none')),
     );
@@ -485,6 +513,56 @@ function renderInspector() {
   } else if (sel.type === 'band') {
     box.replaceChildren(head(item.name || item.id, 'band'), ...bandInspector(item));
   }
+}
+
+function stagesEditor(s) {
+  s.stages ??= [];
+  const box = el('fieldset', { class: 'stages' }, el('legend', {}, 'stages'));
+  const rename = (k, name) => {
+    const old = s.stages[k];
+    if (!name || name === old || s.stages.includes(name)) return;
+    snapshotForUndo();
+    s.stages[k] = name;
+    for (const item of [...s.layers, ...s.hotspots]) {
+      if (item.stage === old) item.stage = name;
+      for (const a of item.then || []) if (a.stage === old) a.stage = name;
+    }
+    commit({ silent: true, inspector: true });
+  };
+  const remove = (k) => {
+    const old = s.stages[k];
+    snapshotForUndo();
+    s.stages.splice(k, 1);
+    for (const item of [...s.layers, ...s.hotspots]) {
+      if (item.stage === old) delete item.stage;
+      if (item.then) item.then = item.then.filter((a) => a.stage !== old);
+    }
+    commit({ silent: true, inspector: true });
+  };
+  const swap = (k, d) => {
+    if (k + d < 0 || k + d >= s.stages.length) return;
+    snapshotForUndo();
+    [s.stages[k], s.stages[k + d]] = [s.stages[k + d], s.stages[k]];
+    commit({ silent: true, inspector: true });
+  };
+  box.append(...s.stages.map((name, k) => el('div', { class: 'stage-row' },
+    el('span', { class: 'dim mono' }, k),
+    el('input', { type: 'text', value: name, onchange: (e) => rename(k, e.target.value.trim()) }),
+    el('button', { class: 'small', onclick: () => swap(k, -1) }, '↑'), el('button', { class: 'small', onclick: () => swap(k, 1) }, '↓'),
+    el('button', { class: 'small', onclick: () => send(JSON.stringify({ stage: k })) }, 'view'),
+    el('span', { class: 'doc' }, `${s.layers.filter((l) => l.stage === name).length} layers, ${s.hotspots.filter((h) => h.stage === name).length} hotspots`),
+    el('button', { class: 'link danger', onclick: () => remove(k) }, '×'))),
+    el('button', { class: 'link', onclick: () => { snapshotForUndo(); let n = s.stages.length; while (s.stages.includes('stage ' + n)) n++; s.stages.push('stage ' + n); commit({ silent: true, inspector: true }); } }, '+ stage'),
+    el('div', { class: 'doc' }, 'the visual states of the stretch, in order; the player starts in the first. A hotspot\'s "stage" action moves to one at the next bar, the music unchanged; layers and hotspots with a stage show only in it.'));
+  return box;
+}
+
+function stageRow(item) {
+  const s = scene();
+  const names = s.stages || [];
+  if (!names.length) return null;
+  return row('stage', el('select', { onchange: (e) => { snapshotForUndo(); if (e.target.value) item.stage = e.target.value; else delete item.stage; commit({ silent: true }); } },
+    el('option', { value: '' }, 'every stage'), ...names.map((n) => el('option', { value: n, ...(item.stage === n ? { selected: '' } : {}) }, n))));
 }
 
 function moveRow() {
@@ -504,6 +582,7 @@ function layerInspector(l) {
     row('kind', selectInput(l, 'kind', kinds, { commit: { inspector: true }, then: () => { l.params = defaultParams(l.kind); commit({ silent: true, inspector: true }); } }),
       el('span', { class: 'doc' }, spec.doc)),
     barsRow(l),
+    stageRow(l),
     moveRow(),
     row('', checkInput(l, 'muted', 'muted')),
     el('fieldset', {}, el('legend', {}, 'params'), ...Object.entries(spec.params).map(([name, p]) => paramRow(l.params, name, p))),
@@ -609,12 +688,13 @@ function hotspotInspector(h) {
       const kindSel = el('select', { onchange: (e) => {
         snapshotForUndo();
         const v = e.target.value;
-        h.then[k] = v === 'go' ? { go: allSceneIds()[0] || '' } : v === 'unlock' ? { unlock: 'glow' } : { via: [allSceneIds()[0] || '', [...h.bars]] };
+        h.then[k] = v === 'go' ? { go: allSceneIds()[0] || '' } : v === 'unlock' ? { unlock: 'glow' } : v === 'stage' ? { stage: (scene().stages || [])[0] || '' } : { via: [allSceneIds()[0] || '', [...h.bars]] };
         commit({ silent: true }); renderActions();
-      } }, ...['go', 'unlock', 'via'].map((o) => el('option', { value: o, ...(o === kind ? { selected: '' } : {}) }, o)));
+      } }, ...['go', 'unlock', 'stage', 'via'].map((o) => el('option', { value: o, ...(o === kind ? { selected: '' } : {}) }, o)));
       let body;
       if (kind === 'go') body = selectInput(a, 'go', allSceneIds());
       else if (kind === 'unlock') body = selectInput(a, 'unlock', UNLOCKS);
+      else if (kind === 'stage') body = el('span', {}, selectInput(a, 'stage', scene().stages || []), el('span', { class: 'doc' }, ' of this scene, at the next bar; the music goes on'));
       else body = el('span', {}, selectInput(a.via, 0, allSceneIds()), ' after bars ', numberInput(a.via[1], 0, { step: 1 }), '–', numberInput(a.via[1], 1, { step: 1 }), el('span', { class: 'doc' }, ' of this track, played once'));
       return el('div', { class: 'action' }, kindSel, body, el('button', { class: 'link danger', onclick: () => { snapshotForUndo(); h.then.splice(k, 1); commit({ silent: true }); renderActions(); } }, '×'));
     }), el('button', { class: 'link', onclick: () => { snapshotForUndo(); h.then.push({ go: allSceneIds()[0] || '' }); commit({ silent: true }); renderActions(); } }, '+ action'));
@@ -624,6 +704,7 @@ function hotspotInspector(h) {
     row('name', textInput(h, 'name')),
     row('id', el('span', { class: 'mono' }, h.id), el('span', { class: 'doc' }, 'layers refer to it by this')),
     barsRow(h),
+    stageRow(h),
     moveRow(),
     row('cells', ...[0, 1, 2, 3].map((k) => numberInput(h.rect, k, { step: 1, min: 0, max: 20 })), el('span', { class: 'doc' }, 'i0 j0 i1 j1 — or drag on the grid')),
     onRow, dragRow,
@@ -910,34 +991,42 @@ function setupTimeline() {
 }
 
 function block(type, obj, index, label, extra = '') {
+  const locked = type !== 'scene' && !obj.bars;
+  const bars = type === 'scene' ? obj.bars : barsOf(obj);
   const b = el('div', {
-    class: `block ${type} ${extra}` + (sel && sel.type === type && sel.index === index ? ' sel' : ''),
-    style: `left:${GUTTER + obj.bars[0] * PPB}px;width:${(obj.bars[1] - obj.bars[0]) * PPB - 2}px`,
-    title: `${label} ${obj.bars[0]}–${obj.bars[1]}`,
+    class: `block ${type} ${extra}` + (locked ? ' locked' : '') + (sel && sel.type === type && sel.index === index ? ' sel' : ''),
+    style: `left:${GUTTER + bars[0] * PPB}px;width:${(bars[1] - bars[0]) * PPB - 2}px`,
+    title: locked ? `${label} — the whole scene` : `${label} ${bars[0]}–${bars[1]}`,
     onmousedown: (e) => {
       select(type, index);
+      if (locked) return;
       const mode = e.target.classList.contains('handle') ? (e.target.classList.contains('l') ? 'l' : 'r') : 'move';
       snapshotForUndo();
       tl.drag = { obj, type, mode, x0: e.clientX, bars: [...obj.bars], el: b, hot: true };
       e.preventDefault();
     },
-  }, el('div', { class: 'handle l' }), label, el('div', { class: 'handle r' }));
+  }, locked ? null : el('div', { class: 'handle l' }), label, locked ? null : el('div', { class: 'handle r' }));
   return b;
 }
 
 // Lay blocks out in sub-rows so overlapping ranges don't hide each other.
-function packed(type, items, label) {
+function packed(type, items, label, indexOf = (obj, index) => index) {
   const rows = [];
-  const placed = items.map((obj, index) => {
-    let r = rows.findIndex((end) => end <= obj.bars[0]);
+  const placed = items.map((obj, k) => {
+    const index = indexOf(obj, k);
+    const bars = type === 'scene' ? obj.bars : barsOf(obj);
+    let r = rows.findIndex((end) => end <= bars[0]);
     if (r < 0) { r = rows.length; rows.push(0); }
-    rows[r] = obj.bars[1];
+    rows[r] = bars[1];
     return { obj, index, r };
   });
   const lane = el('div', { class: 'lane', style: `height:${Math.max(1, rows.length) * 22}px` }, el('span', { class: 'lane-label' }, label));
   for (const { obj, index, r } of placed) {
     const b = block(type, obj, index, obj.id && type === 'scene' ? obj.id : obj.name || obj.id);
     b.style.top = 2 + r * 22 + 'px';
+    if (type === 'scene' && obj.loop != null && obj.loop > obj.bars[0]) {
+      b.append(el('div', { class: 'loop', style: `width:${(obj.bars[1] - obj.loop) * PPB - 2}px`, title: `loops from bar ${obj.loop}` }));
+    }
     lane.append(b);
   }
   return lane;
@@ -952,9 +1041,9 @@ function renderTimeline() {
   ruler.replaceChildren(el('span', { class: 'lane-label' }, 'bars'), ...Array.from({ length: bars + 1 }, (_, k) => el('div', { class: 'tick' + (k % 4 === 0 ? ' four' : ''), style: `left:${GUTTER + k * PPB}px` }, k % 4 === 0 ? k : '')));
   const s = scene();
   $('#scene-lane').replaceWith(Object.assign(packed('scene', t.scenes, 'scenes'), { id: 'scene-lane' }));
-  $('#hotspot-lane').replaceWith(Object.assign(packed('hotspot', s?.hotspots ?? [], 'hotspots'), { id: 'hotspot-lane' }));
-  $('#layer-lanes').replaceChildren(...(s?.layers ?? []).map((l, k) => el('div', { class: 'lane' }, el('span', { class: 'lane-label' }, l.kind),
-    block('layer', l, k, l.name || l.id, (cat.kinds[l.kind]?.modifier ? 'modifier ' : '') + (l.muted ? 'muted' : '')))));
+  $('#hotspot-lane').replaceWith(Object.assign(packed('hotspot', (s?.hotspots ?? []).filter(inStage), 'hotspots', (obj) => s.hotspots.indexOf(obj)), { id: 'hotspot-lane' }));
+  $('#layer-lanes').replaceChildren(...(s?.layers ?? []).map((l, k) => inStage(l) ? el('div', { class: 'lane' }, el('span', { class: 'lane-label' }, l.stage ? `${l.kind} · ${l.stage}` : l.kind),
+    block('layer', l, k, l.name || l.id, (cat.kinds[l.kind]?.modifier ? 'modifier ' : '') + (l.muted ? 'muted' : ''))) : null).filter(Boolean));
   drawWave(t);
 }
 

@@ -82,6 +82,8 @@ pub const SCENES: &[&Scene] = &[
 		id: "points",
 		track: &BU_2,
 		bars: 0..8,
+		loop_from: 0,
+		stages: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [whole, _half, quarter, _eighth, _sixteenth, bass, _mid, treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -113,6 +115,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Go("points_2"),
 				tag: 0,
+				stage: None,
 			},
 			Hotspot {
 				cells: CORNER,
@@ -120,6 +123,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Unlock(Unlock::Lines),
 				tag: 1,
+				stage: None,
 			},
 			Hotspot {
 				cells: CORNER,
@@ -127,6 +131,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Go("lines"),
 				tag: 1,
+				stage: None,
 			},
 		],
 	},
@@ -134,6 +139,8 @@ pub const SCENES: &[&Scene] = &[
 		id: "points_2",
 		track: &BU_2,
 		bars: 0..8,
+		loop_from: 0,
+		stages: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [_whole, half, _quarter, _eighth, _sixteenth, _bass, mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -174,6 +181,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Go("points"),
 				tag: 0,
+				stage: None,
 			},
 			Hotspot {
 				cells: area(1, 1, 5, 5),
@@ -181,6 +189,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Go("spin"),
 				tag: 1,
+				stage: None,
 			},
 			Hotspot {
 				cells: area(15, 1, 19, 5),
@@ -188,6 +197,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Go("color_gate"),
 				tag: 2,
+				stage: None,
 			},
 		],
 	},
@@ -195,6 +205,8 @@ pub const SCENES: &[&Scene] = &[
 		id: "lines",
 		track: &FA_1,
 		bars: 0..7,
+		loop_from: 0,
+		stages: &[],
 		render: &|draw, model, i, j, _time, modifiers| {
 			let [_whole, _half, _quarter, eighth, _sixteenth, _bass, mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -214,6 +226,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Unlock(Unlock::Length),
 				tag: 0,
+				stage: None,
 			},
 			Hotspot {
 				cells: area(8, 2, 13, 4),
@@ -221,6 +234,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Go("length"),
 				tag: 0,
+				stage: None,
 			},
 		],
 	},
@@ -228,6 +242,8 @@ pub const SCENES: &[&Scene] = &[
 		id: "length",
 		track: &FA_1,
 		bars: 7..14,
+		loop_from: 7,
+		stages: &[],
 		render: &|draw, model, i, j, _time, modifiers| {
 			const SQUARES: Regions = Regions::Grid { cols: 4, rows: 4 };
 			let [_whole, _half, _quarter, _eighth, sixteenth, bass, _mid, _treble] = modifiers;
@@ -262,6 +278,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Unlock(Unlock::Rotation),
 				tag: 0,
+				stage: None,
 			},
 			Hotspot {
 				cells: area(2, 14, 6, 18),
@@ -269,6 +286,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::GoVia("spin", 0..2),
 				tag: 2,
+				stage: None,
 			},
 			Hotspot {
 				cells: area(9, 9, 11, 11),
@@ -276,6 +294,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Go("lines"),
 				tag: 1,
+				stage: None,
 			},
 		],
 	},
@@ -283,6 +302,8 @@ pub const SCENES: &[&Scene] = &[
 		id: "spin",
 		track: &FA_2,
 		bars: 2..10,
+		loop_from: 2,
+		stages: &[],
 		render: &|draw, model, i, j, _time, modifiers| {
 			let [whole, _half, _quarter, _eighth, _sixteenth, bass, _mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -337,6 +358,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Outline,
 				then: Action::Unlock(Unlock::Circles),
 				tag: 0,
+				stage: None,
 			},
 			Hotspot {
 				cells: BOX,
@@ -344,6 +366,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::GoVia("color_gate", 10..14),
 				tag: 2,
+				stage: None,
 			},
 			Hotspot {
 				cells: area(0, 0, 2, 2),
@@ -351,6 +374,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Go("length"),
 				tag: 1,
+				stage: None,
 			},
 		],
 	},
@@ -358,6 +382,8 @@ pub const SCENES: &[&Scene] = &[
 		id: "color_gate",
 		track: &BU_2,
 		bars: 0..8,
+		loop_from: 0,
+		stages: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [_whole, half, _quarter, _eighth, _sixteenth, bass, _mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -397,6 +423,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Unlock(Unlock::Color),
 				tag: 0,
+				stage: None,
 			},
 			Hotspot {
 				cells: CENTRE,
@@ -404,6 +431,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Go("points"),
 				tag: 2,
+				stage: None,
 			},
 			Hotspot {
 				cells: area(0, 18, 20, 20),
@@ -411,6 +439,7 @@ pub const SCENES: &[&Scene] = &[
 				on: Gesture::Tap,
 				then: Action::Go("points"),
 				tag: 1,
+				stage: None,
 			},
 		],
 	},
@@ -419,6 +448,8 @@ pub const SCENES: &[&Scene] = &[
 		id: "old/1",
 		track: &BU_2,
 		bars: 0..8,
+		loop_from: 0,
+		stages: &[],
 		render: &|draw, model, i, j, _time, _modifiers| {
 			let noise = model.noisemap.get_value(i, j) as f32;
 			let (i, j) = scale_coordinates(model, i, j);
@@ -435,12 +466,15 @@ pub const SCENES: &[&Scene] = &[
 			on: Gesture::Tap,
 			then: Action::Go("old/2"),
 			tag: 0,
+			stage: None,
 		}],
 	},
 	&Scene {
 		id: "old/2",
 		track: &BU_2,
 		bars: 0..8,
+		loop_from: 0,
+		stages: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [whole, half, quarter, eighth, _sixteenth, _bass, mid, treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -478,12 +512,15 @@ pub const SCENES: &[&Scene] = &[
 			on: Gesture::Tap,
 			then: Action::Go("old/3"),
 			tag: 0,
+			stage: None,
 		}],
 	},
 	&Scene {
 		id: "old/3",
 		track: &FA_1,
 		bars: 0..14,
+		loop_from: 0,
+		stages: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [whole, half, quarter, _eighth, _sixteenth, _bass, mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -510,12 +547,15 @@ pub const SCENES: &[&Scene] = &[
 			on: Gesture::Tap,
 			then: Action::Go("old/4"),
 			tag: 0,
+			stage: None,
 		}],
 	},
 	&Scene {
 		id: "old/4",
 		track: &FA_1,
 		bars: 0..14,
+		loop_from: 0,
+		stages: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [whole, half, quarter, _eighth, _sixteenth, bass, _mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -551,12 +591,15 @@ pub const SCENES: &[&Scene] = &[
 			on: Gesture::Tap,
 			then: Action::Go("old/5"),
 			tag: 0,
+			stage: None,
 		}],
 	},
 	&Scene {
 		id: "old/5",
 		track: &FA_2,
 		bars: 0..14,
+		loop_from: 0,
+		stages: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [_whole, half, quarter, _eighth, _sixteenth, bass, _mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -582,12 +625,15 @@ pub const SCENES: &[&Scene] = &[
 			on: Gesture::Tap,
 			then: Action::Go("old/6"),
 			tag: 0,
+			stage: None,
 		}],
 	},
 	&Scene {
 		id: "old/6",
 		track: &FA_2,
 		bars: 0..14,
+		loop_from: 0,
+		stages: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [_whole, half, quarter, eighth, sixteenth, bass, mid, treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -623,6 +669,7 @@ pub const SCENES: &[&Scene] = &[
 			on: Gesture::Tap,
 			then: Action::Go("old/1"),
 			tag: 0,
+			stage: None,
 		}],
 	},
 ];

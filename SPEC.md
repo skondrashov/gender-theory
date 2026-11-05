@@ -46,7 +46,9 @@ until then.
 
 Songs are an illusion; the player browses the album. Paths:
 
-- **linear**: phase to phase through a song, tap the door;
+- **linear**: through a song in stretches. A stretch of the track lasts as long as it takes
+  to get through a few stages (visual states, tapped through, the music going on), then
+  loops its tail waiting for the trigger into the next part (owner, 2026-11-05);
 - **out the middle**: some paths to a new song leave from the middle of another, not its
   end — **open:** which;
 - **back**: returning to a song later, with more mechanics, is meant to be worth it (Layer 2);
@@ -76,9 +78,11 @@ for new *kinds* of mechanic (`scenes/data.rs`).
 
 ## Rules the engine enforces (so the spec can rely on them)
 
-- A hotspot shows only when the player has all it `needs`, and disappears once it has
-  nothing left to do (an unlock already had); a second hotspot on the same cells can be
-  the door that needs it.
+- A hotspot shows only in its stage (if it has one) and when the player has all it
+  `needs`, and disappears once it has nothing left to do (an unlock already had); a second
+  hotspot on the same cells can be the door that needs it.
+- A stage change lands at the next bar, morphing like a scene change; the music is
+  untouched. A scene change restarts the new stretch from its first bar.
 - From a trigger until the change lands: white border, no input, the scene morphs into
   the next over the last 1.5 s.
 - Progress (scene + unlocks) is saved in the browser. **M** opens the whole graph.

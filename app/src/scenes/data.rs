@@ -1,10 +1,12 @@
 //! The album as data: `static/album.json`, written by the editor (`/editor.html`).
 //!
-//! Everything is measured in bars of a track. A track has **scenes** (looped bar ranges —
-//! where the player can be); a scene has **layers** (a region of the grid, a mechanic, its
-//! parameters, and the bars it's live for, within the scene) and **hotspots** (a region, a
-//! gesture, what it needs, what it does, and its bars). A scene draws every layer of its
-//! own that is live at the bar the music is on, in order.
+//! Everything is measured in bars of a track. A track has **scenes** — stretches of it:
+//! `bars` plays once, then from `loop` to the end repeats until the player leaves. A scene
+//! has **stages** (visual states, tapped through without the music changing), **layers**
+//! (a region of the grid, a mechanic, its parameters, optionally the bars it's live for —
+//! the whole scene otherwise — and optionally one stage) and **hotspots** (a region, a
+//! gesture, what it needs, what it does, optionally one stage). A scene draws every layer of its own that is live at the bar the
+//! music is on and in the current stage, in order.
 //!
 //! Numbers that move are **params**: a base value plus any number of **sidechains**, each
 //! taking a source — one of the album's frequency **bands** (`Album::bands`, followed with
@@ -21,7 +23,7 @@ use {
 	},
 	serde::Deserialize,
 	serde_json::Value,
-	std::{cell::RefCell, collections::HashMap, ops::Range},
+	std::{cell::RefCell, collections::HashMap},
 };
 
 // ---- the file ----
@@ -76,6 +78,11 @@ pub struct TrackData {
 pub struct SceneData {
 	pub id: String,
 	pub bars: [usize; 2],
+	/// The bar the tail loop starts on; the first bar if missing (the whole stretch loops).
+	#[serde(rename = "loop")]
+	pub loop_from: Option<usize>,
+	#[serde(default)]
+	pub stages: Vec<String>,
 	#[serde(default)]
 	pub layers: Vec<Layer>,
 	#[serde(default)]
@@ -145,7 +152,8 @@ fn at(map: &str, i: usize, j: usize) -> char {
 pub struct Layer {
 	pub id: String,
 	pub name: String,
-	pub bars: [usize; 2],
+	/// The bars it's live for; missing: the whole scene.
+	pub bars: Option<[usize; 2]>,
 	pub region: Region,
 	pub kind: String,
 	pub params: Value,
@@ -158,6 +166,8 @@ pub struct Layer {
 	/// How this layer's marks glow, overriding the glow layers covering the cell:
 	/// field / inverse / bounded / off.
 	pub glow: Option<String>,
+	/// Only in this stage of the scene (by name).
+	pub stage: Option<String>,
 	pub muted: bool,
 }
 
@@ -166,7 +176,7 @@ impl Default for Layer {
 		Layer {
 			id: String::new(),
 			name: String::new(),
-			bars: [0, 0],
+			bars: None,
 			region: Region::default(),
 			kind: "marks".into(),
 			params: Value::Null,
@@ -174,6 +184,7 @@ impl Default for Layer {
 			fade: None,
 			needs: vec![],
 			glow: None,
+			stage: None,
 			muted: false,
 		}
 	}
@@ -207,11 +218,14 @@ pub struct Fade {
 pub struct HotspotData {
 	pub id: String,
 	pub name: String,
-	pub bars: [usize; 2],
+	/// Unused by the engine for now (a hotspot is there for the whole scene); kept for the
+	/// editor's timeline.
+	pub bars: Option<[usize; 2]>,
 	pub rect: [usize; 4],
 	pub needs: Vec<String>,
 	pub on: OnData,
 	pub then: Vec<ActionData>,
+	pub stage: Option<String>,
 }
 
 impl Default for HotspotData {
@@ -219,11 +233,12 @@ impl Default for HotspotData {
 		HotspotData {
 			id: String::new(),
 			name: String::new(),
-			bars: [0, 0],
+			bars: None,
 			rect: [8, 8, 12, 12],
 			needs: vec![],
 			on: OnData::Name("tap".into()),
 			then: vec![],
+			stage: None,
 		}
 	}
 }
@@ -241,6 +256,7 @@ pub enum ActionData {
 	Go(String),
 	Via(String, [usize; 2]),
 	Unlock(String),
+	Stage(String),
 }
 
 // ---- params and sidechains ----
@@ -344,18 +360,6 @@ pub struct Signals<'a> {
 	pub mid: f32,
 	pub treble: f32,
 }
-
-/// The built-in sources, by name.
-pub const BUILTIN_SOURCES: [&str; 8] = [
-	"beat",
-	"bar",
-	"pulse",
-	"noise",
-	"transition",
-	"bass",
-	"mid",
-	"treble",
-];
 
 impl Signals<'_> {
 	pub fn get(&self, source: &str) -> f32 {
@@ -662,11 +666,12 @@ fn around(area: Area, i: usize, j: usize) -> f32 {
 struct LayerRt {
 	layer: Layer,
 	kind: Kind,
+	/// Index of the stage it belongs to, if one.
+	stage: Option<usize>,
 }
 
 struct DataScene {
 	layers: &'static [LayerRt],
-	bars: Range<usize>,
 	/// Hotspot id → its tag in this scene.
 	tags: Vec<(String, u8)>,
 }
@@ -705,14 +710,21 @@ pub fn install(json: &str) -> Result<usize, String> {
 			bpm,
 		});
 		for scene in track.scenes {
+			let stage_index = |name: &Option<String>| -> Option<usize> {
+				let name = name.as_deref()?;
+				scene.stages.iter().position(|stage| stage == name)
+			};
 			let mut layers = vec![];
 			for layer in scene.layers {
 				let kind = parse_kind(&layer.kind, &layer.params)
 					.map_err(|e| format!("{} layer {:?}: {e}", scene.id, layer.name))?;
-				layers.push(LayerRt { layer, kind });
+				let stage = stage_index(&layer.stage);
+				layers.push(LayerRt { layer, kind, stage });
 			}
 			let layers: &'static [LayerRt] = Vec::leak(layers);
 			let bars = scene.bars[0]..scene.bars[1].max(scene.bars[0] + 1);
+			let loop_from = scene.loop_from.unwrap_or(bars.start).clamp(bars.start, bars.end - 1);
+			let stages: Vec<&'static str> = scene.stages.iter().map(|s| leak_str(s)).collect();
 			let mut hotspots = vec![];
 			let mut tags = vec![];
 			for hotspot in &scene.hotspots {
@@ -740,6 +752,7 @@ pub fn install(json: &str) -> Result<usize, String> {
 						ActionData::Go(id) => Some(Action::Go(leak_str(id))),
 						ActionData::Via(id, [a, b]) => Some(Action::GoVia(leak_str(id), *a..*b)),
 						ActionData::Unlock(name) => unlock_named(name).map(Action::Unlock),
+						ActionData::Stage(name) => stage_index(&Some(name.clone())).map(Action::Stage),
 					})
 					.collect();
 				let then = if actions.len() == 1 {
@@ -753,13 +766,10 @@ pub fn install(json: &str) -> Result<usize, String> {
 					on,
 					then,
 					tag,
+					stage: stage_index(&hotspot.stage),
 				});
 			}
-			let data: &'static DataScene = leak(DataScene {
-				layers,
-				bars: bars.clone(),
-				tags,
-			});
+			let data: &'static DataScene = leak(DataScene { layers, tags });
 			let render: &'static dyn Fn(&Draw, &Model, usize, usize, f32, [f32; 8]) =
 				leak(move |draw: &Draw, model: &Model, i, j, time, modifiers| {
 					render(data, draw, model, i, j, time, modifiers)
@@ -768,6 +778,8 @@ pub fn install(json: &str) -> Result<usize, String> {
 				id: leak_str(&scene.id),
 				track: track_ref,
 				bars,
+				loop_from,
+				stages: Vec::leak(stages),
 				render,
 				hotspots: Vec::leak(hotspots),
 			}));
@@ -847,10 +859,12 @@ fn render(
 		mid,
 		treble,
 	};
+	let stage = model.stage();
 	let active = || {
 		scene.layers.iter().filter(|rt| {
-			let [from, to] = rt.layer.bars;
-			from as f32 <= bar && bar < to as f32 && rt.layer.region.contains(i, j)
+			rt.stage.map_or(true, |s| s == stage)
+				&& rt.layer.bars.map_or(true, |[from, to]| from as f32 <= bar && bar < to as f32)
+				&& rt.layer.region.contains(i, j)
 		})
 	};
 

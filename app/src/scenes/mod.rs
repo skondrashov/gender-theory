@@ -26,12 +26,19 @@ impl Track {
 	}
 }
 
-/// A looped section of a track, a way of seeing it, and the things you can do in it.
+/// A stretch of a track, a way of seeing it, and the things you can do in it. The stretch
+/// plays once from its first bar, then its tail (from `loop_from`) repeats until the player
+/// leaves. Inside it, `stages` are the visual states the player taps through without the
+/// music changing (hotspots with `Action::Stage`); layers and hotspots can belong to one.
 pub struct Scene {
 	pub id: &'static str,
 	pub track: &'static Track,
-	/// The looped section, in bars of `track` (end exclusive).
+	/// The stretch, in bars of `track` (end exclusive).
 	pub bars: Range<usize>,
+	/// The bar the tail loop starts on (within `bars`); `bars.start` loops the whole stretch.
+	pub loop_from: usize,
+	/// Names of the stages, in order. Empty means one unnamed stage.
+	pub stages: &'static [&'static str],
 	/// Called once per grid cell per frame: (draw, model, i, j, time, modifiers).
 	pub render: &'static dyn Fn(&Draw, &Model, usize, usize, f32, [f32; 8]),
 	pub hotspots: &'static [Hotspot],
@@ -45,6 +52,8 @@ pub struct Hotspot {
 	pub on: Gesture,
 	pub then: Action,
 	pub tag: u8,
+	/// Only in this stage of the scene (`None`: every stage).
+	pub stage: Option<usize>,
 }
 
 pub enum Gesture {
@@ -65,6 +74,8 @@ pub enum Action {
 	GoVia(&'static str, Range<usize>),
 	/// Immediately.
 	Unlock(Unlock),
+	/// Another stage of the same scene, at the next bar; the music goes on.
+	Stage(usize),
 	All(&'static [Action]),
 }
 
@@ -222,7 +233,7 @@ pub fn find(id: &str) -> Option<&'static Scene> {
 pub fn targets(action: &Action, out: &mut Vec<&'static str>) {
 	match action {
 		Action::Go(id) | Action::GoVia(id, _) => out.push(id),
-		Action::Unlock(_) => {}
+		Action::Unlock(_) | Action::Stage(_) => {}
 		Action::All(list) => list.iter().for_each(|action| targets(action, out)),
 	}
 }
@@ -233,7 +244,7 @@ impl Action {
 	/// unlock something and then, with a second hotspot that `needs` it, lead somewhere.
 	pub fn spent(&self, unlocks: Unlocks) -> bool {
 		match self {
-			Action::Go(_) | Action::GoVia(_, _) => false,
+			Action::Go(_) | Action::GoVia(_, _) | Action::Stage(_) => false,
 			Action::Unlock(unlock) => unlocks.has(*unlock),
 			Action::All(list) => list.iter().all(|action| action.spent(unlocks)),
 		}
@@ -243,7 +254,7 @@ impl Action {
 /// Unlocks an action grants.
 pub fn grants(action: &Action, out: &mut Vec<Unlock>) {
 	match action {
-		Action::Go(_) | Action::GoVia(_, _) => {}
+		Action::Go(_) | Action::GoVia(_, _) | Action::Stage(_) => {}
 		Action::Unlock(unlock) => out.push(*unlock),
 		Action::All(list) => list.iter().for_each(|action| grants(action, out)),
 	}
@@ -493,15 +504,6 @@ pub fn hit(phase: f32, fall: f32) -> f32 {
 pub fn pulse(modifiers: &[f32; 8]) -> f32 {
 	let [whole, _half, quarter, ..] = *modifiers;
 	hit(quarter, 2.5) * (0.7 + 0.3 * hit(whole, 1.5))
-}
-
-/// The glow, once it's unlocked: brightness on the music's `pulse`. The field goes
-/// 0.35..1, hitting on the beat and falling; `inverse` cells go 1..0 the other way, so on
-/// the beat they are the only black thing. 1.0 before it's unlocked, so scenes can
-/// multiply by it freely.
-pub fn glow(model: &Model, pulse: f32, inverse: bool) -> f32 {
-	let lit = if inverse { 1.0 - pulse } else { 0.35 + 0.65 * pulse };
-	1.0 + (lit - 1.0) * model.reveal(Unlock::Glow)
 }
 
 /// A ring centred on (x, y). Recorded like `mark`. Scenes gate it on `Unlock::Circles`

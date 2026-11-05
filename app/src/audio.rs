@@ -259,17 +259,17 @@ impl Audio {
 		Some(first + if section.looping && bars > 0.0 { into.rem_euclid(bars) } else { into })
 	}
 
-	/// The editor: play `scene`'s loop from `bar` (one of its bars) at context time `at`,
-	/// the rest of the pass first, then whole passes. Fails if the track isn't decoded.
+	/// The editor: play `scene`'s stretch from `bar` (one of its bars) at context time `at`.
+	/// Fails if the track isn't decoded.
 	pub fn play_from(&mut self, scene: &Scene, bar: usize, at: f64) -> Result<f64, ()> {
 		let lead = bar.saturating_sub(scene.bars.start).min(scene.bars.len().saturating_sub(1));
 		self.start(scene, None, at, lead)
 	}
 
-	/// Schedule `scene`'s loop to start at context time `at`, or, with `via`, after those
+	/// Schedule `scene`'s stretch to start at context time `at`, or, with `via`, after those
 	/// bars of that track have played once from `at`. Whatever else is playing fades out
-	/// from `at`. Returns the context time the loop itself starts. Fails if a track isn't
-	/// decoded yet.
+	/// from `at`. Returns the context time the stretch itself starts. Fails if a track
+	/// isn't decoded yet.
 	pub fn play(
 		&mut self,
 		scene: &Scene,
@@ -308,19 +308,41 @@ impl Audio {
 			});
 			start += length;
 		}
+		// The stretch: its first bars once (skipping `lead` of them), then the tail looping.
 		let bar = scene.track.bar();
+		let landing = start;
+		let loop_from = scene.loop_from.clamp(scene.bars.start, scene.bars.end.saturating_sub(1));
+		let intro = loop_from - scene.bars.start;
+		let lead = lead.min(scene.bars.len().saturating_sub(1));
+		if lead < intro {
+			let length = (intro - lead) as f64 * bar;
+			sections.push(Section {
+				buffer: buffer.clone(),
+				bar,
+				start,
+				offset: (scene.bars.start + lead) as f64 * bar,
+				length,
+				lead: 0.0,
+				looping: false,
+				end: None,
+				passes: vec![],
+				next: 0,
+			});
+			start += length;
+		}
 		sections.push(Section {
 			buffer,
 			bar,
 			start,
-			offset: scene.bars.start as f64 * bar,
-			length: scene.bars.len() as f64 * bar,
-			lead: lead as f64 * bar,
+			offset: loop_from as f64 * bar,
+			length: (scene.bars.end - loop_from) as f64 * bar,
+			lead: lead.saturating_sub(intro) as f64 * bar,
 			looping: true,
 			end: None,
 			passes: vec![],
 			next: 0,
 		});
+		let start = landing;
 
 		for section in self.current.iter_mut().chain(self.queued.iter_mut()) {
 			cut(section, at);
