@@ -5,15 +5,25 @@ use {
 };
 
 // pub mod being_useless;
+pub mod album;
 pub mod for_against;
 // pub mod porcelain_piss;
 pub mod terra_firmament;
 
-/// One mp3. `measures` is its bar count, counted by hand: the bar grid every scene on it uses.
+/// One mp3 and its bar grid: bar 0 starts at t = 0 and bars are `240 / bpm` seconds. Every
+/// scene on the track counts bars on this grid. `tools/phases.py` finds the tempo and the
+/// sections of a track; Ableton bounces start on a bar line, so t = 0 is the downbeat.
 pub struct Track {
 	pub id: &'static str,
 	pub path: &'static str,
-	pub measures: usize,
+	pub bpm: f64,
+}
+
+impl Track {
+	/// Seconds per bar.
+	pub fn bar(&self) -> f64 {
+		240.0 / self.bpm
+	}
 }
 
 /// A looped section of a track, a way of seeing it, and the things you can do in it.
@@ -194,6 +204,7 @@ impl Area {
 /// Every scene in the album, in file order. The first one is where a new player starts.
 pub fn all() -> Vec<&'static Scene> {
 	let mut scenes = vec![];
+	scenes.extend_from_slice(album::SCENES);
 	scenes.extend_from_slice(for_against::SCENES);
 	scenes.extend_from_slice(terra_firmament::SCENES);
 	scenes
@@ -448,6 +459,17 @@ pub fn mark(
 		}
 	};
 	model.record(Mark { x, y, shape, color });
+}
+
+/// A line the scene insists on, whatever the player has unlocked — scenery (stripes, a
+/// frame) rather than a cell's mark. Recorded like `mark`, so it morphs too.
+pub fn stroke(_draw: &Draw, model: &Model, x: f32, y: f32, angle: f32, length: f32, color: Rgb) {
+	model.record(Mark {
+		x,
+		y,
+		shape: Shape::Line { angle, length },
+		color,
+	});
 }
 
 /// A ring centred on (x, y). Recorded like `mark`. Scenes gate it on `Unlock::Circles`

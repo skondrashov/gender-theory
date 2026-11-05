@@ -137,7 +137,7 @@ impl Audio {
 		let mut section = at;
 		if let Some((track, bars)) = via {
 			let via_buffer = get(track)?;
-			let bar = via_buffer.duration() / track.measures as f64;
+			let bar = track.bar();
 			let length = bars.len() as f64 * bar;
 			let source = self.source(&via_buffer, bars.start as f64 * bar, Some(length), None, at)?;
 			playings.push(Playing {
@@ -148,7 +148,7 @@ impl Audio {
 			section += length;
 		}
 
-		let bar = buffer.duration() / scene.track.measures as f64;
+		let bar = scene.track.bar();
 		let (offset, length) = (scene.bars.start as f64 * bar, scene.bars.len() as f64 * bar);
 		let source = self.source(&buffer, offset, None, Some((offset, offset + length)), section)?;
 		playings.push(Playing {

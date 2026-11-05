@@ -21,13 +21,42 @@
 
 ## Tracks
 
-| file | bars | notes |
-|------|------|-------|
-| `bu/2.mp3` | 8 | |
-| `fa/1.mp3` | 14 | |
-| `fa/2.mp3` | 14 | demo transition uses bars 10–14 as the passage out of `spin` |
+The real music lives in `Desktop\gender theory\` (mp3 bounces + Ableton projects; the
+project folder `gender theory\gender theory\` has the paired-word projects: being.useless,
+for.against, porcelain.piss, terra.firmament, violence.release). Two bounce names contain
+U+F022 where a dot should be (`for<U+F022>against.mp3`, `terra<U+F022>firmament.mp3`).
+`static/music/` holds the copies the app uses — the owner's files, byte-identical:
 
-`tf/` files are byte copies of `fa/`.
+| file | source | bpm | bars | grid |
+|------|--------|-----|------|------|
+| `music/sine.mp3` | `gender theory/sine.mp3` (2023-02) | 135 | 84.5 | bar 0 at t=0 |
+| `music/sasha-grips.mp3` | `gender theory/sasha grips.mp3` (2023-03) | 147 | 88.25 | bar 0 at t=0; no Ableton project found |
+| `music/pisser.mp3` | `gender theory/pisser.mp3` (2023-01) | 120 | 104.0 | bar 0 at t=0; the porcelain.piss project is later and at 130 — different version |
+| `music/for-against.mp3` | `Desktop/for.against (for mix).mp3` (2023-05-25, newest bounce; the flac of it is 2023-06-05) | 128 | 150.5 | bar 0 at t=0 = project bar 13; project 'drop' locator = bar 77 here |
+
+Tempos: sine/pisser/sasha grips from the audio (`tools/phases.py`; beat-grid fit decisive),
+for.against from the project (every version says 128; the audio fit is mushy — dense and
+reverby). Other bounces of for.against: `Desktop/for.against.mp3` (05-08), `instrumental
+final` (05-15), `bounces/for.against.mp3` (05-09, 5:14, longer), `gender theory/for<U+F022>against.mp3`
+(03-16, 145 bars — an earlier cut). Also around: `Desktop/piss.mp3` (2024-08, 4:20, probably
+the porcelain.piss version), `terra<U+F022>firmament.mp3` (146 bpm project), `4teat*`, `bungus*`.
+
+Phase maps (per-4-bar energy from `tools/phases.py`; the cuts in `scenes/album.rs`):
+
+- **sine**: 1–16 no bass · 17–64 full in 16-bar blocks (layers added at 17/33/49 in the
+  project) · 65–72 bass out, highs out · 73–84 just the tone, fading.
+- **sasha grips**: 1–8 brightest · 9–32 · 33–60 mids up from 37 · 61–64 bass drop · 65–88.
+- **pisser**: 1–8 near silence (sound from 4.7 s) · 9–24 build, no bass, highs rising ·
+  25–88 four 16-bar cycles, each dipping in its last 4 bars (37, 53, 69, 85) · 89–104 outro.
+- **for.against**: 1–12 no bass · 13–36 groove · 37–44 highs filtered out · 45–60 · 61–76
+  build (mids up) · 77–108 drop · 109–116 breakdown, bass out · 117–148 way out · 149–151 tail.
+
+Old excerpts (`bu/2`, `fa/1`, `fa/2`) keep their hand-counted grids as bpm (73.2802,
+62.5, 109.375 — i.e. 8, 14, 14 "bars" over the file). `tf/` files are byte copies of `fa/`.
+
+Tooling: `tools/phases.py` (numpy + miniaudio, `pip install --user numpy miniaudio`, run
+with `C:/Python312/python.exe`; no ffmpeg on this machine). `.als` files are gzipped XML:
+tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End` in beats.
 
 ## Decisions (owner, 2026-11-04)
 
@@ -43,6 +72,15 @@
   asked for later — a late tap gets a quick morph, never none), ending exactly on the switch.
   Menu jumps land 1.5 s out so they morph too. The old scenes draw on `draw` directly, so
   they snap; new scenes must go through `mark()`/`ring()` to take part.
+- Real music first, phases → scenes with loops; **transitions later** (the owner: the real
+  transitions can be very long, speeding them up by interpolation probably won't work on
+  most tracks; don't make the player wait). Owner can supply approximate or exact times.
+- The first draw (owner's design): `sine/0` is stripes — every other row of points joined by
+  a stripe, one stripe missing over 8 points that glow; draw through them → Lines, the
+  points become horizontal lines and the stripes dissolve into them; then the door. A
+  one-row `Area` with `Gesture::Outline` is "draw through these points".
+- Album order for now: sine → sasha grips → pisser → for.against → sine (sine first because
+  pisser opens with 8 bars of near silence; agent's call, owner to reorder).
 
 ## Structural fact worth remembering
 

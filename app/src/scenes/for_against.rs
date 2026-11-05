@@ -23,17 +23,17 @@ use {
 pub static BU_2: Track = Track {
 	id: "bu/2",
 	path: "/bu/2.mp3",
-	measures: 8,
+	bpm: 73.2802, // as the old hand count had it
 };
 pub static FA_1: Track = Track {
 	id: "fa/1",
 	path: "/fa/1.mp3",
-	measures: 14,
+	bpm: 62.5, // as the old hand count had it
 };
 pub static FA_2: Track = Track {
 	id: "fa/2",
 	path: "/fa/2.mp3",
-	measures: 14,
+	bpm: 109.375, // as the old hand count had it
 };
 
 /// The centre 5×5 cells.
