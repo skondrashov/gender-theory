@@ -91,6 +91,8 @@ main { display: flex; height: 500px; flex: none; border-bottom: 1px solid var(--
 }
 #lists li:hover { background: #26262e; }
 #lists li.sel { background: var(--sel); }
+#lists li.here:not(.sel) { background: #262a33; }
+#lists li.playing > span:first-child::before { content: '▶ '; color: var(--accent); font-size: 9px; }
 #lists li .bars { color: var(--dim); font-family: var(--mono); font-size: 11px; }
 #lists li.muted { opacity: .45; }
 

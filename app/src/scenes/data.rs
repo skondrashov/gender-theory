@@ -1,10 +1,10 @@
 //! The album as data: `static/album.json`, written by the editor (`/editor.html`).
 //!
 //! Everything is measured in bars of a track. A track has **scenes** (looped bar ranges —
-//! where the player can be), **layers** (a region of the grid, a mechanic, its parameters,
-//! and the bars it's live for) and **hotspots** (a region, a gesture, what it needs, what
-//! it does, and its bars). A scene draws every layer of its track that is live at the bar
-//! the music is on, in order; its hotspots are the track's hotspots whose bars overlap it.
+//! where the player can be); a scene has **layers** (a region of the grid, a mechanic, its
+//! parameters, and the bars it's live for, within the scene) and **hotspots** (a region, a
+//! gesture, what it needs, what it does, and its bars). A scene draws every layer of its
+//! own that is live at the bar the music is on, in order.
 //!
 //! Numbers that move are **params**: a base value plus any number of **sidechains**, each
 //! taking a source — one of the album's frequency **bands** (`Album::bands`, followed with
@@ -70,14 +70,16 @@ pub struct TrackData {
 	pub path: String,
 	pub bpm: f64,
 	pub scenes: Vec<SceneData>,
-	pub layers: Vec<Layer>,
-	pub hotspots: Vec<HotspotData>,
 }
 
 #[derive(Deserialize)]
 pub struct SceneData {
 	pub id: String,
 	pub bars: [usize; 2],
+	#[serde(default)]
+	pub layers: Vec<Layer>,
+	#[serde(default)]
+	pub hotspots: Vec<HotspotData>,
 }
 
 /// Which cells. Everything given must hold: a rectangle, a map (`#` cells of
@@ -692,22 +694,18 @@ pub fn install(json: &str) -> Result<usize, String> {
 			path: leak_str(&track.path),
 			bpm,
 		});
-		let mut layers = vec![];
-		for layer in track.layers {
-			let kind = parse_kind(&layer.kind, &layer.params)
-				.map_err(|e| format!("{} layer {:?}: {e}", track.id, layer.name))?;
-			layers.push(LayerRt { layer, kind });
-		}
-		let layers: &'static [LayerRt] = Vec::leak(layers);
-
-		for scene in &track.scenes {
+		for scene in track.scenes {
+			let mut layers = vec![];
+			for layer in scene.layers {
+				let kind = parse_kind(&layer.kind, &layer.params)
+					.map_err(|e| format!("{} layer {:?}: {e}", scene.id, layer.name))?;
+				layers.push(LayerRt { layer, kind });
+			}
+			let layers: &'static [LayerRt] = Vec::leak(layers);
 			let bars = scene.bars[0]..scene.bars[1].max(scene.bars[0] + 1);
 			let mut hotspots = vec![];
 			let mut tags = vec![];
-			for hotspot in &track.hotspots {
-				if !(hotspot.bars[0] < bars.end && bars.start < hotspot.bars[1]) {
-					continue;
-				}
+			for hotspot in &scene.hotspots {
 				let tag = hotspots.len() as u8;
 				tags.push((hotspot.id.clone(), tag));
 				let [i0, j0, i1, j1] = hotspot.rect;

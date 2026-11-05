@@ -31,6 +31,8 @@ const uid = (p) => p + Date.now().toString(36) + Math.random().toString(36).slic
 
 let album, cat;
 let ti = 0;                // index of the track being edited
+let si = 0;                // index of the scene being edited (its layers and hotspots are shown)
+let follow = true;         // si follows the scene playing, until a scene is picked by hand
 let sel = null;            // {type: 'scene'|'layer'|'hotspot'|'band', index}
 let st = {};               // last state from the app
 let history = [], future = [];
@@ -40,13 +42,26 @@ const waves = {};          // track id → {peaks, bars, duration}
 let audioCtx;
 
 const track = () => album.tracks[ti];
+const scene = () => track().scenes[si];
 const allSceneIds = () => album.tracks.flatMap((t) => t.scenes.map((s) => s.id));
 const trackBars = (t) => {
   const known = waves[t.id]?.bars ?? 0;
-  const used = Math.max(0, ...t.scenes.map((s) => s.bars[1]), ...t.layers.map((l) => l.bars[1]), ...t.hotspots.map((h) => h.bars[1]));
+  const used = Math.max(0, ...t.scenes.map((s) => s.bars[1]));
   return Math.max(known, used, 16);
 };
 const sceneAt = (t, bar) => t.scenes.find((s) => s.bars[0] <= bar && bar < s.bars[1]);
+const overlaps = (a, b) => a.bars[0] < b.bars[1] && b.bars[0] < a.bars[1];
+
+// A scene's layers and hotspots live inside its bars: when the scene moves they move with
+// it, when it shrinks they're clipped.
+function fitScene(s, oldBars) {
+  const shift = s.bars[0] - oldBars[0];
+  for (const item of [...(s.layers || []), ...(s.hotspots || [])]) {
+    if (shift && item.bars[1] - item.bars[0] === oldBars[1] - oldBars[0]) { item.bars = [...s.bars]; continue; }
+    item.bars[0] = clamp(item.bars[0] + shift, s.bars[0], s.bars[1] - 1);
+    item.bars[1] = clamp(item.bars[1] + shift, item.bars[0] + 1, s.bars[1]);
+  }
+}
 
 // ---- boot ----
 
@@ -62,7 +77,7 @@ async function boot() {
     if (canvas) { $('#stage').append(canvas); clearInterval(adopt); }
   }, 50);
 
-  $('#track').onchange = () => { ti = +$('#track').value; sel = null; renderAll(); };
+  $('#track').onchange = () => { ti = +$('#track').value; si = 0; sel = null; renderAll(); };
   $('#play').onclick = togglePlay;
   $('#undo').onclick = undo;
   $('#redo').onclick = redo;
@@ -160,6 +175,7 @@ function togglePlay() {
 function seek(bar) {
   const scene = sceneAt(track(), bar);
   if (!scene) { setStatus(`no scene covers bar ${bar}`); return; }
+  follow = true;
   send(JSON.stringify({ seek: { scene: scene.id, bar } }));
 }
 
@@ -186,6 +202,16 @@ function loop() {
     $('#playhead').style.display = 'block';
   } else {
     $('#playhead').style.display = 'none';
+  }
+  // follow the music into whichever scene is playing, until a scene is picked by hand
+  if (follow && st.track === t.id && !tl.drag) {
+    const k = t.scenes.findIndex((s) => s.id === st.scene);
+    if (k >= 0 && k !== si) { si = k; if (sel && sel.type !== 'band') sel = sel.type === 'scene' ? { type: 'scene', index: k } : null; renderLists(); renderTimeline(); renderInspector(); renderGrid(); }
+  }
+  const playing = $('#scene-list li.playing');
+  const now = t.scenes.findIndex((s) => s.id === st.scene && st.track === t.id);
+  if ((playing ? +playing.dataset.index : -1) !== now) {
+    for (const li of document.querySelectorAll('#scene-list li')) li.classList.toggle('playing', +li.dataset.index === now);
   }
   for (const u of UNLOCKS) {
     const box = $(`#unlock-${u}`);
@@ -255,17 +281,21 @@ function renderTopbar() {
 // ---- lists ----
 
 function renderLists() {
-  const t = track();
+  const t = track(), s = scene();
   const item = (type, index, label, bars, extra = '') => el('li', {
     class: (sel && sel.type === type && sel.index === index ? 'sel ' : '') + extra,
+    'data-index': index,
     onclick: () => select(type, index),
   }, el('span', {}, label), el('span', { class: 'bars' }, `${bars[0]}–${bars[1]}`));
-  $('#scene-list').replaceChildren(...t.scenes.map((s, k) => item('scene', k, s.id, s.bars)));
-  $('#hotspot-list').replaceChildren(...t.hotspots.map((h, k) => item('hotspot', k, h.name || h.id, h.bars)));
-  $('#layer-list').replaceChildren(...t.layers.map((l, k) => item('layer', k, `${l.name || l.id} · ${l.kind}`, l.bars, l.muted ? 'muted' : '')));
+  $('#scene-list').replaceChildren(...t.scenes.map((s, k) => item('scene', k, s.id, s.bars, k === si ? 'here' : '')));
+  $('#hotspot-title').textContent = s ? `hotspots of ${s.id}` : 'hotspots';
+  $('#layer-title').textContent = s ? `layers of ${s.id}` : 'layers';
+  $('#hotspot-list').replaceChildren(...(s?.hotspots ?? []).map((h, k) => item('hotspot', k, h.name || h.id, h.bars)));
+  $('#layer-list').replaceChildren(...(s?.layers ?? []).map((l, k) => item('layer', k, `${l.name || l.id} · ${l.kind}`, l.bars, l.muted ? 'muted' : '')));
 }
 
 function select(type, index) {
+  if (type === 'scene') { si = index; follow = false; }
   sel = { type, index };
   renderLists(); renderInspector(); renderGrid(); renderTimeline(); renderSources();
   sendHighlight();
@@ -273,42 +303,62 @@ function select(type, index) {
 
 function selected() {
   if (!sel) return null;
-  const t = track();
+  const t = track(), s = scene();
   if (sel.type === 'scene') return t.scenes[sel.index];
-  if (sel.type === 'layer') return t.layers[sel.index];
-  if (sel.type === 'hotspot') return t.hotspots[sel.index];
+  if (sel.type === 'layer') return s?.layers[sel.index];
+  if (sel.type === 'hotspot') return s?.hotspots[sel.index];
   if (sel.type === 'band') return album.bands[sel.index];
   return null;
 }
 
+function listOf(type) {
+  const t = track(), s = scene();
+  return type === 'scene' ? t.scenes : type === 'layer' ? s.layers : type === 'hotspot' ? s.hotspots : album.bands;
+}
+
 function deleteSelected() {
   if (!sel) return;
-  const t = track();
-  const list = sel.type === 'scene' ? t.scenes : sel.type === 'layer' ? t.layers : sel.type === 'hotspot' ? t.hotspots : album.bands;
+  const list = listOf(sel.type);
   snapshotForUndo();
   list.splice(sel.index, 1);
+  if (sel.type === 'scene') si = Math.max(0, Math.min(si, track().scenes.length - 1));
   sel = null;
   commit({ silent: true, inspector: true, sources: true });
 }
 
 function duplicateSelected() {
   if (!sel || sel.type === 'band') return;
-  const t = track();
-  const list = sel.type === 'scene' ? t.scenes : sel.type === 'layer' ? t.layers : t.hotspots;
+  const list = listOf(sel.type);
   const copy = JSON.parse(JSON.stringify(list[sel.index]));
-  if (sel.type === 'scene') copy.id = copy.id + '-copy';
+  if (sel.type === 'scene') { copy.id = copy.id + '-copy'; const len = copy.bars[1] - copy.bars[0]; const old = [...copy.bars]; copy.bars = [copy.bars[1], copy.bars[1] + len]; fitScene(copy, old); }
   else { copy.id = uid(sel.type[0]); copy.name = (copy.name || copy.id) + ' copy'; }
   snapshotForUndo();
   list.splice(sel.index + 1, 0, copy);
   sel = { type: sel.type, index: sel.index + 1 };
+  if (sel.type === 'scene') si = sel.index;
+  commit({ silent: true, inspector: true });
+}
+
+// Move a layer or hotspot to another scene of the track (by id).
+function moveSelectedTo(sceneId) {
+  const t = track();
+  const k = t.scenes.findIndex((s) => s.id === sceneId);
+  if (k < 0 || k === si || !sel || (sel.type !== 'layer' && sel.type !== 'hotspot')) return;
+  snapshotForUndo();
+  const list = listOf(sel.type);
+  const [item] = list.splice(sel.index, 1);
+  const to = t.scenes[k];
+  item.bars = [...to.bars];
+  to[sel.type + 's'].push(item);
+  si = k;
+  sel = { type: sel.type, index: to[sel.type + 's'].length - 1 };
   commit({ silent: true, inspector: true });
 }
 
 // ---- adding ----
 
 function defaultBars() {
-  const t = track();
-  const s = sel && sel.type === 'scene' ? t.scenes[sel.index] : sceneAt(t, Math.floor(st.track === t.id ? st.bar ?? 0 : 0));
+  const s = scene();
   return s ? [...s.bars] : [0, 16];
 }
 
@@ -324,24 +374,29 @@ function addScene() {
   const t = track();
   const end = Math.max(0, ...t.scenes.map((s) => s.bars[1]));
   snapshotForUndo();
-  t.scenes.push({ id: `${t.id}/${t.scenes.length}`, bars: [end, end + 16] });
-  sel = { type: 'scene', index: t.scenes.length - 1 };
+  t.scenes.push({ id: `${t.id}/${t.scenes.length}`, bars: [end, end + 16], layers: [], hotspots: [] });
+  si = t.scenes.length - 1;
+  sel = { type: 'scene', index: si };
   commit({ silent: true, inspector: true });
 }
 
 function addLayer() {
-  const t = track();
+  const s = scene();
+  if (!s) { setStatus('add a scene first'); return; }
   snapshotForUndo();
-  t.layers.push({ id: uid('l'), name: 'layer', bars: defaultBars(), region: {}, kind: 'marks', params: defaultParams('marks') });
-  sel = { type: 'layer', index: t.layers.length - 1 };
+  s.layers ??= [];
+  s.layers.push({ id: uid('l'), name: 'layer', bars: defaultBars(), region: {}, kind: 'marks', params: defaultParams('marks') });
+  sel = { type: 'layer', index: s.layers.length - 1 };
   commit({ silent: true, inspector: true });
 }
 
 function addHotspot() {
-  const t = track();
+  const s = scene();
+  if (!s) { setStatus('add a scene first'); return; }
   snapshotForUndo();
-  t.hotspots.push({ id: uid('h'), name: 'hotspot', bars: defaultBars(), rect: [8, 8, 12, 12], needs: [], on: 'tap', then: [] });
-  sel = { type: 'hotspot', index: t.hotspots.length - 1 };
+  s.hotspots ??= [];
+  s.hotspots.push({ id: uid('h'), name: 'hotspot', bars: defaultBars(), rect: [8, 8, 12, 12], needs: [], on: 'tap', then: [] });
+  sel = { type: 'hotspot', index: s.hotspots.length - 1 };
   commit({ silent: true, inspector: true });
 }
 
@@ -382,10 +437,22 @@ function checkInput(obj, key, label, opts = {}) {
     onchange: (e) => { snapshotForUndo(); obj[key] = e.target.checked; commit({ silent: true, ...opts.commit }); if (opts.then) opts.then(); } }), label);
 }
 
-function barsRow(obj) {
-  return el('div', { class: 'row' }, el('span', { class: 'name' }, 'bars'),
-    numberInput(obj.bars, 0, { step: 1, min: 0 }), '–', numberInput(obj.bars, 1, { step: 1, min: 1 }),
-    el('span', { class: 'doc' }, 'of the track, end exclusive'));
+function barsRow(obj, isScene) {
+  const s = scene();
+  const fix = () => {
+    if (isScene) return;
+    obj.bars[0] = clamp(obj.bars[0], s.bars[0], s.bars[1] - 1);
+    obj.bars[1] = clamp(obj.bars[1], obj.bars[0] + 1, s.bars[1]);
+  };
+  const input = (k) => el('input', { type: 'number', value: obj.bars[k], step: 1, min: 0, onchange: (e) => {
+    snapshotForUndo();
+    const old = [...obj.bars];
+    obj.bars[k] = +e.target.value;
+    if (isScene) fitScene(obj, old); else fix();
+    commit({ silent: true, inspector: true });
+  } });
+  return el('div', { class: 'row' }, el('span', { class: 'name' }, 'bars'), input(0), '–', input(1),
+    el('span', { class: 'doc' }, isScene ? 'of the track, end exclusive; its layers and hotspots move with it' : `within ${s.bars[0]}–${s.bars[1]}, the scene`));
 }
 
 function row(name, ...content) {
@@ -406,10 +473,10 @@ function renderInspector() {
     box.replaceChildren(
       head(item.id, 'scene'),
       row('id', textInput(item, 'id', { commit: { inspector: true } }), el('span', { class: 'doc' }, 'what doors point at; renaming does not follow them')),
-      barsRow(item),
+      barsRow(item, true),
       row('', el('button', { onclick: () => seek(item.bars[0]) }, 'play from here')),
-      row('layers live here', el('span', { class: 'doc' }, t.layers.filter((l) => l.bars[0] < item.bars[1] && item.bars[0] < l.bars[1]).map((l) => l.name || l.id).join(', ') || 'none')),
-      row('hotspots', el('span', { class: 'doc' }, t.hotspots.filter((h) => h.bars[0] < item.bars[1] && item.bars[0] < h.bars[1]).map((h) => h.name || h.id).join(', ') || 'none')),
+      row('layers', el('span', { class: 'doc' }, (item.layers || []).map((l) => l.name || l.id).join(', ') || 'none')),
+      row('hotspots', el('span', { class: 'doc' }, (item.hotspots || []).map((h) => h.name || h.id).join(', ') || 'none')),
     );
   } else if (sel.type === 'layer') {
     box.replaceChildren(head(item.name || item.id, item.kind), ...layerInspector(item));
@@ -420,8 +487,15 @@ function renderInspector() {
   }
 }
 
-function layerInspector(l) {
+function moveRow() {
   const t = track();
+  return row('in scene', el('select', { onchange: (e) => moveSelectedTo(e.target.value) },
+    ...t.scenes.map((s, k) => el('option', { value: s.id, ...(k === si ? { selected: '' } : {}) }, s.id))),
+    el('span', { class: 'doc' }, 'pick another to move it there'));
+}
+
+function layerInspector(l) {
+  const s = scene();
   const kinds = Object.keys(cat.kinds);
   const spec = cat.kinds[l.kind] || cat.kinds.marks;
   l.params ??= {};
@@ -430,6 +504,7 @@ function layerInspector(l) {
     row('kind', selectInput(l, 'kind', kinds, { commit: { inspector: true }, then: () => { l.params = defaultParams(l.kind); commit({ silent: true, inspector: true }); } }),
       el('span', { class: 'doc' }, spec.doc)),
     barsRow(l),
+    moveRow(),
     row('', checkInput(l, 'muted', 'muted')),
     el('fieldset', {}, el('legend', {}, 'params'), ...Object.entries(spec.params).map(([name, p]) => paramRow(l.params, name, p))),
   ];
@@ -446,7 +521,7 @@ function layerInspector(l) {
       snapshotForUndo();
       if (!e.target.value) delete l.when; else l.when = { hotspot: e.target.value, visible: l.when?.visible ?? true };
       commit({ silent: true, inspector: true });
-    } }, el('option', { value: '' }, '—'), ...t.hotspots.map((h) => el('option', { value: h.id, ...(when?.hotspot === h.id ? { selected: '' } : {}) }, h.name || h.id))),
+    } }, el('option', { value: '' }, '—'), ...(s.hotspots || []).map((h) => el('option', { value: h.id, ...(when?.hotspot === h.id ? { selected: '' } : {}) }, h.name || h.id))),
     when ? el('select', { onchange: (e) => { snapshotForUndo(); l.when.visible = e.target.value === 'visible'; commit({ silent: true }); } },
       el('option', { value: 'visible', ...(when.visible ? { selected: '' } : {}) }, 'is showing'),
       el('option', { value: 'hidden', ...(!when.visible ? { selected: '' } : {}) }, 'is not showing')) : null,
@@ -516,7 +591,6 @@ function chainRow(p, c, k, rerender) {
 }
 
 function hotspotInspector(h) {
-  const t = track();
   h.needs ??= []; h.then ??= [];
   const on = typeof h.on === 'string' ? h.on : 'drag';
   const onRow = row('on', el('select', { onchange: (e) => {
@@ -548,6 +622,7 @@ function hotspotInspector(h) {
     row('name', textInput(h, 'name')),
     row('id', el('span', { class: 'mono' }, h.id), el('span', { class: 'doc' }, 'layers refer to it by this')),
     barsRow(h),
+    moveRow(),
     row('cells', ...[0, 1, 2, 3].map((k) => numberInput(h.rect, k, { step: 1, min: 0, max: 20 })), el('span', { class: 'doc' }, 'i0 j0 i1 j1 — or drag on the grid')),
     onRow, dragRow,
     row('needs', ...UNLOCKS.map((u) => el('label', {}, el('input', { type: 'checkbox', ...(h.needs.includes(u) ? { checked: '' } : {}), onchange: (e) => {
@@ -555,7 +630,6 @@ function hotspotInspector(h) {
     } }), u)), el('span', { class: 'doc' }, 'invisible and inert until the player has these')),
     el('fieldset', {}, el('legend', {}, 'then'), actions,
       el('div', { class: 'doc' }, 'an unlock never moves you; a spent unlock hotspot disappears, so a second hotspot on the same cells that needs it can be the door')),
-    row('seen in', el('span', { class: 'doc' }, t.scenes.filter((s) => s.bars[0] < h.bars[1] && h.bars[0] < s.bars[1]).map((s) => s.id).join(', ') || 'no scene — widen its bars')),
   ];
 }
 
@@ -812,14 +886,17 @@ function setupTimeline() {
     const d = tl.drag;
     const bar = Math.round((e.clientX - d.x0) / PPB);
     const bars = d.obj.bars;
+    const [lo, hi] = d.type === 'scene' ? [0, Infinity] : scene().bars;
     if (d.mode === 'move') {
       const len = d.bars[1] - d.bars[0];
-      bars[0] = Math.max(0, d.bars[0] + bar); bars[1] = bars[0] + len;
+      bars[0] = clamp(d.bars[0] + bar, lo, Math.max(lo, hi - len)); bars[1] = bars[0] + len;
     } else if (d.mode === 'l') {
-      bars[0] = clamp(d.bars[0] + bar, 0, d.bars[1] - 1);
+      bars[0] = clamp(d.bars[0] + bar, lo, d.bars[1] - 1);
     } else {
-      bars[1] = Math.max(d.bars[0] + 1, d.bars[1] + bar);
+      bars[1] = clamp(d.bars[1] + bar, d.bars[0] + 1, hi);
     }
+    if (d.type === 'scene') fitScene(d.obj, d.last ?? d.bars);
+    d.last = [...bars];
     if (d.hot) { d.el.style.left = GUTTER + bars[0] * PPB + 'px'; d.el.style.width = (bars[1] - bars[0]) * PPB - 2 + 'px'; }
     push();
   });
@@ -839,7 +916,7 @@ function block(type, obj, index, label, extra = '') {
       select(type, index);
       const mode = e.target.classList.contains('handle') ? (e.target.classList.contains('l') ? 'l' : 'r') : 'move';
       snapshotForUndo();
-      tl.drag = { obj, mode, x0: e.clientX, bars: [...obj.bars], el: b, hot: true };
+      tl.drag = { obj, type, mode, x0: e.clientX, bars: [...obj.bars], el: b, hot: true };
       e.preventDefault();
     },
   }, el('div', { class: 'handle l' }), label, el('div', { class: 'handle r' }));
@@ -871,9 +948,10 @@ function renderTimeline() {
   $('#lanes').style.width = width + 'px';
   const ruler = $('#ruler');
   ruler.replaceChildren(el('span', { class: 'lane-label' }, 'bars'), ...Array.from({ length: bars + 1 }, (_, k) => el('div', { class: 'tick' + (k % 4 === 0 ? ' four' : ''), style: `left:${GUTTER + k * PPB}px` }, k % 4 === 0 ? k : '')));
+  const s = scene();
   $('#scene-lane').replaceWith(Object.assign(packed('scene', t.scenes, 'scenes'), { id: 'scene-lane' }));
-  $('#hotspot-lane').replaceWith(Object.assign(packed('hotspot', t.hotspots, 'hotspots'), { id: 'hotspot-lane' }));
-  $('#layer-lanes').replaceChildren(...t.layers.map((l, k) => el('div', { class: 'lane' }, el('span', { class: 'lane-label' }, l.kind),
+  $('#hotspot-lane').replaceWith(Object.assign(packed('hotspot', s?.hotspots ?? [], 'hotspots'), { id: 'hotspot-lane' }));
+  $('#layer-lanes').replaceChildren(...(s?.layers ?? []).map((l, k) => el('div', { class: 'lane' }, el('span', { class: 'lane-label' }, l.kind),
     block('layer', l, k, l.name || l.id, (cat.kinds[l.kind]?.modifier ? 'modifier ' : '') + (l.muted ? 'muted' : '')))));
   drawWave(t);
 }

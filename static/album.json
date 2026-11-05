@@ -57,6 +57,58 @@
      "bars": [
       0,
       16
+     ],
+     "layers": [
+      {
+       "id": "l1",
+       "name": "met ends",
+       "bars": [
+        0,
+        16
+       ],
+       "region": {
+        "map": "....................\n.#####.######.#####.\n.#.#.#.######...#...\n.#.#.#.##..##...#...\n.#.#.#.######...#...\n.#.#.#.######...#...\n.#.#.#.##.......#...\n.#.#.#.######...#...\n.#.#.#.######...#...\n....................\n....................\n####.####....#.####.\n#..#.#..#....#.#....\n####.#..#.####.####.\n#....#..#.#..#....#.\n####.#..#.####.####.\n....................\n....................\n....................\n...................."
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "along",
+        "length": {
+         "base": 1.0,
+         "chains": []
+        },
+        "gray": {
+         "base": 0.9,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "e",
+       "name": "the e in met",
+       "bars": [
+        0,
+        16
+       ],
+       "rect": [
+        7,
+        11,
+        13,
+        19
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "sine/1"
+        }
+       ]
+      }
      ]
     },
     {
@@ -64,6 +116,195 @@
      "bars": [
       16,
       32
+     ],
+     "layers": [
+      {
+       "id": "l2",
+       "name": "field",
+       "bars": [
+        16,
+        32
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "along",
+        "length": {
+         "base": 1.0,
+         "chains": []
+        },
+        "gray": {
+         "base": 0.9,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "fade": {
+        "unlock": "glow",
+        "to": 1
+       }
+      },
+      {
+       "id": "l3",
+       "name": "square inside",
+       "bars": [
+        16,
+        32
+       ],
+       "region": {
+        "rect": [
+         3,
+         7,
+         9,
+         13
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "along",
+        "length": {
+         "base": 1.0,
+         "chains": []
+        },
+        "gray": {
+         "base": 0.0,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "square",
+        "visible": true
+       },
+       "glow": "off"
+      },
+      {
+       "id": "l4",
+       "name": "square edge",
+       "bars": [
+        16,
+        32
+       ],
+       "region": {
+        "rect": [
+         3,
+         7,
+         9,
+         13
+        ],
+        "perimeter": true
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "along",
+        "length": {
+         "base": 1.0,
+         "chains": []
+        },
+        "gray": {
+         "base": 0.9,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "square",
+        "visible": true
+       },
+       "glow": "off"
+      },
+      {
+       "id": "l5",
+       "name": "inverse square",
+       "bars": [
+        16,
+        32
+       ],
+       "region": {
+        "rect": [
+         12,
+         4,
+         17,
+         9
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "along",
+        "length": {
+         "base": 1.0,
+         "chains": []
+        },
+        "gray": {
+         "base": 1.0,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "square-2",
+        "visible": true
+       },
+       "glow": "inverse"
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "square",
+       "name": "the square",
+       "bars": [
+        16,
+        32
+       ],
+       "rect": [
+        3,
+        7,
+        9,
+        13
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "unlock": "glow"
+        }
+       ]
+      },
+      {
+       "id": "square-2",
+       "name": "the inverse square",
+       "bars": [
+        16,
+        32
+       ],
+       "rect": [
+        12,
+        4,
+        17,
+        9
+       ],
+       "needs": [
+        "glow"
+       ],
+       "on": "tap",
+       "then": [
+        {
+         "go": "sine/2"
+        }
+       ]
+      }
      ]
     },
     {
@@ -71,6 +312,186 @@
      "bars": [
       32,
       48
+     ],
+     "layers": [
+      {
+       "id": "l6",
+       "name": "stripes",
+       "bars": [
+        32,
+        48
+       ],
+       "region": {
+        "rows": [
+         2,
+         0
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "along",
+        "length": {
+         "base": 1.0,
+         "chains": []
+        },
+        "gray": {
+         "base": 0.85,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       }
+      },
+      {
+       "id": "l7",
+       "name": "rows between",
+       "bars": [
+        32,
+        48
+       ],
+       "region": {
+        "rows": [
+         2,
+         1
+        ]
+       },
+       "kind": "points",
+       "params": {
+        "gray": {
+         "base": 0.7,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "fade": {
+        "unlock": "lines",
+        "to": 0
+       }
+      },
+      {
+       "id": "l8",
+       "name": "patch",
+       "bars": [
+        32,
+        48
+       ],
+       "region": {
+        "rect": [
+         7,
+         7,
+         13,
+         13
+        ]
+       },
+       "kind": "points",
+       "params": {
+        "gray": {
+         "base": 0.9,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "patch",
+        "visible": true
+       },
+       "glow": "inverse"
+      },
+      {
+       "id": "l9",
+       "name": "gap",
+       "bars": [
+        32,
+        48
+       ],
+       "region": {
+        "rect": [
+         6,
+         10,
+         14,
+         11
+        ]
+       },
+       "kind": "points",
+       "params": {
+        "gray": {
+         "base": 0.55,
+         "chains": [
+          {
+           "source": "beat",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "gap",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "patch",
+       "name": "the patch",
+       "bars": [
+        32,
+        48
+       ],
+       "rect": [
+        7,
+        7,
+        13,
+        13
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "unlock": "lines"
+        }
+       ]
+      },
+      {
+       "id": "gap",
+       "name": "the gap",
+       "bars": [
+        32,
+        48
+       ],
+       "rect": [
+        6,
+        10,
+        14,
+        11
+       ],
+       "needs": [
+        "lines"
+       ],
+       "on": "outline",
+       "then": [
+        {
+         "go": "sine/3"
+        }
+       ]
+      }
      ]
     },
     {
@@ -78,6 +499,193 @@
      "bars": [
       48,
       64
+     ],
+     "layers": [
+      {
+       "id": "l10",
+       "name": "inverse region",
+       "bars": [
+        48,
+        64
+       ],
+       "region": {
+        "rect": [
+         0,
+         10,
+         10,
+         20
+        ]
+       },
+       "kind": "glow",
+       "params": {
+        "mode": "inverse"
+       }
+      },
+      {
+       "id": "l11",
+       "name": "hidden box",
+       "bars": [
+        48,
+        64
+       ],
+       "region": {
+        "rect": [
+         3,
+         13,
+         7,
+         17
+        ]
+       },
+       "kind": "glow",
+       "params": {
+        "mode": "bounded",
+        "lo": 0.35,
+        "hi": 0.65
+       }
+      },
+      {
+       "id": "l12",
+       "name": "checker lines",
+       "bars": [
+        48,
+        64
+       ],
+       "region": {
+        "checker": 0
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "checker",
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 1.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "beat",
+           "depth": 0.6,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.7,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       }
+      },
+      {
+       "id": "l13",
+       "name": "checker dots",
+       "bars": [
+        48,
+        64
+       ],
+       "region": {
+        "checker": 1
+       },
+       "kind": "points",
+       "params": {
+        "gray": {
+         "base": 0.5,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       }
+      },
+      {
+       "id": "l14",
+       "name": "the box",
+       "bars": [
+        48,
+        64
+       ],
+       "region": {
+        "rect": [
+         12,
+         3,
+         18,
+         9
+        ],
+        "perimeter": true
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "around",
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 1.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "beat",
+           "depth": 0.6,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.95,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "box",
+       "name": "the box",
+       "bars": [
+        48,
+        64
+       ],
+       "rect": [
+        12,
+        3,
+        18,
+        9
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "sine/4"
+        }
+       ]
+      }
      ]
     },
     {
@@ -85,6 +693,318 @@
      "bars": [
       64,
       72
+     ],
+     "layers": [
+      {
+       "id": "l10",
+       "name": "inverse region",
+       "bars": [
+        64,
+        72
+       ],
+       "region": {
+        "rect": [
+         0,
+         10,
+         10,
+         20
+        ]
+       },
+       "kind": "glow",
+       "params": {
+        "mode": "inverse"
+       }
+      },
+      {
+       "id": "l11",
+       "name": "hidden box",
+       "bars": [
+        64,
+        72
+       ],
+       "region": {
+        "rect": [
+         3,
+         13,
+         7,
+         17
+        ]
+       },
+       "kind": "glow",
+       "params": {
+        "mode": "bounded",
+        "lo": 0.35,
+        "hi": 0.65
+       }
+      },
+      {
+       "id": "l12",
+       "name": "checker lines",
+       "bars": [
+        64,
+        72
+       ],
+       "region": {
+        "checker": 0
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "checker",
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 1.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "beat",
+           "depth": 0.6,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.7,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       }
+      },
+      {
+       "id": "l13",
+       "name": "checker dots",
+       "bars": [
+        64,
+        72
+       ],
+       "region": {
+        "checker": 1
+       },
+       "kind": "points",
+       "params": {
+        "gray": {
+         "base": 0.5,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       }
+      },
+      {
+       "id": "l14",
+       "name": "the box",
+       "bars": [
+        64,
+        72
+       ],
+       "region": {
+        "rect": [
+         12,
+         3,
+         18,
+         9
+        ],
+        "perimeter": true
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "around",
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 1.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "beat",
+           "depth": 0.6,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.95,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       }
+      },
+      {
+       "id": "l15",
+       "name": "cross row",
+       "bars": [
+        64,
+        72
+       ],
+       "region": {
+        "rect": [
+         0,
+         10,
+         20,
+         11
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "along",
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 1.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "beat",
+           "depth": 0.6,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.95,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       }
+      },
+      {
+       "id": "l16",
+       "name": "cross column",
+       "bars": [
+        64,
+        72
+       ],
+       "region": {
+        "rect": [
+         10,
+         0,
+         11,
+         20
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "across",
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 1.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "beat",
+           "depth": 0.6,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.95,
+         "chains": []
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "centre",
+       "name": "the centre",
+       "bars": [
+        64,
+        72
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "unlock": "length"
+        }
+       ]
+      },
+      {
+       "id": "centre-2",
+       "name": "the centre, again",
+       "bars": [
+        64,
+        72
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [
+        "length"
+       ],
+       "on": "tap",
+       "then": [
+        {
+         "go": "sine/5"
+        }
+       ]
+      }
      ]
     },
     {
@@ -92,920 +1012,182 @@
      "bars": [
       72,
       84
-     ]
-    }
-   ],
-   "layers": [
-    {
-     "id": "l1",
-     "name": "met ends",
-     "bars": [
-      0,
-      16
      ],
-     "region": {
-      "map": "....................\n.#####.######.#####.\n.#.#.#.######...#...\n.#.#.#.##..##...#...\n.#.#.#.######...#...\n.#.#.#.######...#...\n.#.#.#.##.......#...\n.#.#.#.######...#...\n.#.#.#.######...#...\n....................\n....................\n####.####....#.####.\n#..#.#..#....#.#....\n####.#..#.####.####.\n#....#..#.#..#....#.\n####.#..#.####.####.\n....................\n....................\n....................\n...................."
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "along",
-      "length": {
-       "base": 1.0,
-       "chains": []
-      },
-      "gray": {
-       "base": 0.9,
-       "chains": []
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     }
-    },
-    {
-     "id": "l2",
-     "name": "field",
-     "bars": [
-      16,
-      32
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "along",
-      "length": {
-       "base": 1.0,
-       "chains": []
-      },
-      "gray": {
-       "base": 0.9,
-       "chains": []
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "fade": {
-      "unlock": "glow",
-      "to": 1
-     }
-    },
-    {
-     "id": "l3",
-     "name": "square inside",
-     "bars": [
-      16,
-      32
-     ],
-     "region": {
-      "rect": [
-       3,
-       7,
-       9,
-       13
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "along",
-      "length": {
-       "base": 1.0,
-       "chains": []
-      },
-      "gray": {
-       "base": 0.0,
-       "chains": []
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "square",
-      "visible": true
-     },
-     "glow": "off"
-    },
-    {
-     "id": "l4",
-     "name": "square edge",
-     "bars": [
-      16,
-      32
-     ],
-     "region": {
-      "rect": [
-       3,
-       7,
-       9,
-       13
-      ],
-      "perimeter": true
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "along",
-      "length": {
-       "base": 1.0,
-       "chains": []
-      },
-      "gray": {
-       "base": 0.9,
-       "chains": []
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "square",
-      "visible": true
-     },
-     "glow": "off"
-    },
-    {
-     "id": "l5",
-     "name": "inverse square",
-     "bars": [
-      16,
-      32
-     ],
-     "region": {
-      "rect": [
-       12,
-       4,
-       17,
-       9
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "along",
-      "length": {
-       "base": 1.0,
-       "chains": []
-      },
-      "gray": {
-       "base": 1.0,
-       "chains": []
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "square-2",
-      "visible": true
-     },
-     "glow": "inverse"
-    },
-    {
-     "id": "l6",
-     "name": "stripes",
-     "bars": [
-      32,
-      48
-     ],
-     "region": {
-      "rows": [
-       2,
-       0
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "along",
-      "length": {
-       "base": 1.0,
-       "chains": []
-      },
-      "gray": {
-       "base": 0.85,
-       "chains": []
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     }
-    },
-    {
-     "id": "l7",
-     "name": "rows between",
-     "bars": [
-      32,
-      48
-     ],
-     "region": {
-      "rows": [
-       2,
-       1
-      ]
-     },
-     "kind": "points",
-     "params": {
-      "gray": {
-       "base": 0.7,
-       "chains": []
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "fade": {
-      "unlock": "lines",
-      "to": 0
-     }
-    },
-    {
-     "id": "l8",
-     "name": "patch",
-     "bars": [
-      32,
-      48
-     ],
-     "region": {
-      "rect": [
-       7,
-       7,
-       13,
-       13
-      ]
-     },
-     "kind": "points",
-     "params": {
-      "gray": {
-       "base": 0.9,
-       "chains": []
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "patch",
-      "visible": true
-     },
-     "glow": "inverse"
-    },
-    {
-     "id": "l9",
-     "name": "gap",
-     "bars": [
-      32,
-      48
-     ],
-     "region": {
-      "rect": [
-       6,
-       10,
-       14,
-       11
-      ]
-     },
-     "kind": "points",
-     "params": {
-      "gray": {
-       "base": 0.55,
-       "chains": [
-        {
-         "source": "beat",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "gap",
-      "visible": true
-     }
-    },
-    {
-     "id": "l10",
-     "name": "inverse region",
-     "bars": [
-      48,
-      72
-     ],
-     "region": {
-      "rect": [
-       0,
-       10,
-       10,
-       20
-      ]
-     },
-     "kind": "glow",
-     "params": {
-      "mode": "inverse"
-     }
-    },
-    {
-     "id": "l11",
-     "name": "hidden box",
-     "bars": [
-      48,
-      72
-     ],
-     "region": {
-      "rect": [
-       3,
-       13,
-       7,
-       17
-      ]
-     },
-     "kind": "glow",
-     "params": {
-      "mode": "bounded",
-      "lo": 0.35,
-      "hi": 0.65
-     }
-    },
-    {
-     "id": "l12",
-     "name": "checker lines",
-     "bars": [
-      48,
-      72
-     ],
-     "region": {
-      "checker": 0
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "checker",
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 1.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
+     "layers": [
+      {
+       "id": "l17",
+       "name": "field",
+       "bars": [
+        72,
+        84
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 105.0,
+        "spin": {
+         "base": 0.15,
+         "chains": []
         },
-        {
-         "source": "beat",
-         "depth": 0.6,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.7,
-       "chains": []
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     }
-    },
-    {
-     "id": "l13",
-     "name": "checker dots",
-     "bars": [
-      48,
-      72
-     ],
-     "region": {
-      "checker": 1
-     },
-     "kind": "points",
-     "params": {
-      "gray": {
-       "base": 0.5,
-       "chains": []
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     }
-    },
-    {
-     "id": "l14",
-     "name": "the box",
-     "bars": [
-      48,
-      72
-     ],
-     "region": {
-      "rect": [
-       12,
-       3,
-       18,
-       9
-      ],
-      "perimeter": true
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "around",
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 1.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
         },
-        {
-         "source": "beat",
-         "depth": 0.6,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.95,
-       "chains": []
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     }
-    },
-    {
-     "id": "l15",
-     "name": "cross row",
-     "bars": [
-      64,
-      72
-     ],
-     "region": {
-      "rect": [
-       0,
-       10,
-       20,
-       11
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "along",
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 1.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
         },
-        {
-         "source": "beat",
-         "depth": 0.6,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
         }
-       ]
+       }
       },
-      "gray": {
-       "base": 0.95,
-       "chains": []
+      {
+       "id": "l18",
+       "name": "sixteenths",
+       "bars": [
+        72,
+        84
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
       },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     }
-    },
-    {
-     "id": "l16",
-     "name": "cross column",
-     "bars": [
-      64,
-      72
-     ],
-     "region": {
-      "rect": [
-       10,
-       0,
-       11,
-       20
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "across",
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 1.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
+      {
+       "id": "l19",
+       "name": "door",
+       "bars": [
+        72,
+        84
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
         },
-        {
-         "source": "beat",
-         "depth": 0.6,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.95,
-       "chains": []
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     }
-    },
-    {
-     "id": "l17",
-     "name": "field",
-     "bars": [
-      72,
-      84
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 105.0,
-      "spin": {
-       "base": 0.15,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
         },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-sine/5",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-sine/5",
+       "name": "on",
+       "bars": [
+        72,
+        84
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
         {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
+         "go": "sasha-grips/0"
         }
        ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l18",
-     "name": "sixteenths",
-     "bars": [
-      72,
-      84
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l19",
-     "name": "door",
-     "bars": [
-      72,
-      84
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-sine/5",
-      "visible": true
-     }
-    }
-   ],
-   "hotspots": [
-    {
-     "id": "e",
-     "name": "the e in met",
-     "bars": [
-      0,
-      16
-     ],
-     "rect": [
-      7,
-      11,
-      13,
-      19
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "go": "sine/1"
-      }
-     ]
-    },
-    {
-     "id": "square",
-     "name": "the square",
-     "bars": [
-      16,
-      32
-     ],
-     "rect": [
-      3,
-      7,
-      9,
-      13
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "unlock": "glow"
-      }
-     ]
-    },
-    {
-     "id": "square-2",
-     "name": "the inverse square",
-     "bars": [
-      16,
-      32
-     ],
-     "rect": [
-      12,
-      4,
-      17,
-      9
-     ],
-     "needs": [
-      "glow"
-     ],
-     "on": "tap",
-     "then": [
-      {
-       "go": "sine/2"
-      }
-     ]
-    },
-    {
-     "id": "patch",
-     "name": "the patch",
-     "bars": [
-      32,
-      48
-     ],
-     "rect": [
-      7,
-      7,
-      13,
-      13
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "unlock": "lines"
-      }
-     ]
-    },
-    {
-     "id": "gap",
-     "name": "the gap",
-     "bars": [
-      32,
-      48
-     ],
-     "rect": [
-      6,
-      10,
-      14,
-      11
-     ],
-     "needs": [
-      "lines"
-     ],
-     "on": "outline",
-     "then": [
-      {
-       "go": "sine/3"
-      }
-     ]
-    },
-    {
-     "id": "box",
-     "name": "the box",
-     "bars": [
-      48,
-      64
-     ],
-     "rect": [
-      12,
-      3,
-      18,
-      9
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "go": "sine/4"
-      }
-     ]
-    },
-    {
-     "id": "centre",
-     "name": "the centre",
-     "bars": [
-      64,
-      72
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "unlock": "length"
-      }
-     ]
-    },
-    {
-     "id": "centre-2",
-     "name": "the centre, again",
-     "bars": [
-      64,
-      72
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [
-      "length"
-     ],
-     "on": "tap",
-     "then": [
-      {
-       "go": "sine/5"
-      }
-     ]
-    },
-    {
-     "id": "door-sine/5",
-     "name": "on",
-     "bars": [
-      72,
-      84
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "go": "sasha-grips/0"
       }
      ]
     }
@@ -1021,6 +1203,183 @@
      "bars": [
       0,
       8
+     ],
+     "layers": [
+      {
+       "id": "l20",
+       "name": "field",
+       "bars": [
+        0,
+        8
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 126.0,
+        "spin": {
+         "base": 0.2,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l21",
+       "name": "sixteenths",
+       "bars": [
+        0,
+        8
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l22",
+       "name": "door",
+       "bars": [
+        0,
+        8
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-sasha-grips/0",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-sasha-grips/0",
+       "name": "on",
+       "bars": [
+        0,
+        8
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "sasha-grips/1"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1028,6 +1387,183 @@
      "bars": [
       8,
       32
+     ],
+     "layers": [
+      {
+       "id": "l23",
+       "name": "field",
+       "bars": [
+        8,
+        32
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 147.0,
+        "spin": {
+         "base": 0.25,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l24",
+       "name": "sixteenths",
+       "bars": [
+        8,
+        32
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l25",
+       "name": "door",
+       "bars": [
+        8,
+        32
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-sasha-grips/1",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-sasha-grips/1",
+       "name": "on",
+       "bars": [
+        8,
+        32
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "sasha-grips/2"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1035,6 +1571,146 @@
      "bars": [
       32,
       60
+     ],
+     "layers": [
+      {
+       "id": "l26",
+       "name": "satellites",
+       "bars": [
+        32,
+        60
+       ],
+       "region": {},
+       "kind": "orbits",
+       "params": {
+        "near": 0.45,
+        "far": 0.9,
+        "near_rate": 0.8,
+        "far_rate": 1.3,
+        "vary": 0.4,
+        "pull": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 1.0,
+           "threshold": 0.25,
+           "width": 0.5,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.3,
+           "threshold": 0.25,
+           "width": 0.5,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 1.0,
+           "threshold": 0.25,
+           "width": 0.5,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l27",
+       "name": "door",
+       "bars": [
+        32,
+        60
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-sasha-grips/2",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-sasha-grips/2",
+       "name": "on",
+       "bars": [
+        32,
+        60
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "sasha-grips/3"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1042,6 +1718,183 @@
      "bars": [
       60,
       64
+     ],
+     "layers": [
+      {
+       "id": "l28",
+       "name": "field",
+       "bars": [
+        60,
+        64
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 189.0,
+        "spin": {
+         "base": 0.35,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l29",
+       "name": "sixteenths",
+       "bars": [
+        60,
+        64
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l30",
+       "name": "door",
+       "bars": [
+        60,
+        64
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-sasha-grips/3",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-sasha-grips/3",
+       "name": "on",
+       "bars": [
+        60,
+        64
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "sasha-grips/4"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1049,837 +1902,182 @@
      "bars": [
       64,
       88
-     ]
-    }
-   ],
-   "layers": [
-    {
-     "id": "l20",
-     "name": "field",
-     "bars": [
-      0,
-      8
      ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 126.0,
-      "spin": {
-       "base": 0.2,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l21",
-     "name": "sixteenths",
-     "bars": [
-      0,
-      8
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l22",
-     "name": "door",
-     "bars": [
-      0,
-      8
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-sasha-grips/0",
-      "visible": true
-     }
-    },
-    {
-     "id": "l23",
-     "name": "field",
-     "bars": [
-      8,
-      32
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 147.0,
-      "spin": {
-       "base": 0.25,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l24",
-     "name": "sixteenths",
-     "bars": [
-      8,
-      32
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l25",
-     "name": "door",
-     "bars": [
-      8,
-      32
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-sasha-grips/1",
-      "visible": true
-     }
-    },
-    {
-     "id": "l26",
-     "name": "satellites",
-     "bars": [
-      32,
-      60
-     ],
-     "region": {},
-     "kind": "orbits",
-     "params": {
-      "near": 0.45,
-      "far": 0.9,
-      "near_rate": 0.8,
-      "far_rate": 1.3,
-      "vary": 0.4,
-      "pull": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 1.0,
-         "threshold": 0.25,
-         "width": 0.5,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.3,
-         "threshold": 0.25,
-         "width": 0.5,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 1.0,
-         "threshold": 0.25,
-         "width": 0.5,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l27",
-     "name": "door",
-     "bars": [
-      32,
-      60
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-sasha-grips/2",
-      "visible": true
-     }
-    },
-    {
-     "id": "l28",
-     "name": "field",
-     "bars": [
-      60,
-      64
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 189.0,
-      "spin": {
-       "base": 0.35,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l29",
-     "name": "sixteenths",
-     "bars": [
-      60,
-      64
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l30",
-     "name": "door",
-     "bars": [
-      60,
-      64
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-sasha-grips/3",
-      "visible": true
-     }
-    },
-    {
-     "id": "l31",
-     "name": "field",
-     "bars": [
-      64,
-      88
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 210.0,
-      "spin": {
-       "base": 0.15,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l32",
-     "name": "sixteenths",
-     "bars": [
-      64,
-      88
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l33",
-     "name": "door",
-     "bars": [
-      64,
-      88
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-sasha-grips/4",
-      "visible": true
-     }
-    }
-   ],
-   "hotspots": [
-    {
-     "id": "door-sasha-grips/0",
-     "name": "on",
-     "bars": [
-      0,
-      8
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
+     "layers": [
       {
-       "go": "sasha-grips/1"
-      }
-     ]
-    },
-    {
-     "id": "door-sasha-grips/1",
-     "name": "on",
-     "bars": [
-      8,
-      32
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
+       "id": "l31",
+       "name": "field",
+       "bars": [
+        64,
+        88
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 210.0,
+        "spin": {
+         "base": 0.15,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
       {
-       "go": "sasha-grips/2"
-      }
-     ]
-    },
-    {
-     "id": "door-sasha-grips/2",
-     "name": "on",
-     "bars": [
-      32,
-      60
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
+       "id": "l32",
+       "name": "sixteenths",
+       "bars": [
+        64,
+        88
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
       {
-       "go": "sasha-grips/3"
+       "id": "l33",
+       "name": "door",
+       "bars": [
+        64,
+        88
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-sasha-grips/4",
+        "visible": true
+       }
       }
-     ]
-    },
-    {
-     "id": "door-sasha-grips/3",
-     "name": "on",
-     "bars": [
-      60,
-      64
      ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
+     "hotspots": [
       {
-       "go": "sasha-grips/4"
-      }
-     ]
-    },
-    {
-     "id": "door-sasha-grips/4",
-     "name": "on",
-     "bars": [
-      64,
-      88
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "go": "pisser/0"
+       "id": "door-sasha-grips/4",
+       "name": "on",
+       "bars": [
+        64,
+        88
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "pisser/0"
+        }
+       ]
       }
      ]
     }
@@ -1895,6 +2093,183 @@
      "bars": [
       0,
       8
+     ],
+     "layers": [
+      {
+       "id": "l34",
+       "name": "field",
+       "bars": [
+        0,
+        8
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 231.0,
+        "spin": {
+         "base": 0.2,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l35",
+       "name": "sixteenths",
+       "bars": [
+        0,
+        8
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l36",
+       "name": "door",
+       "bars": [
+        0,
+        8
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-pisser/0",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-pisser/0",
+       "name": "on",
+       "bars": [
+        0,
+        8
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "pisser/1"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1902,6 +2277,183 @@
      "bars": [
       8,
       24
+     ],
+     "layers": [
+      {
+       "id": "l37",
+       "name": "field",
+       "bars": [
+        8,
+        24
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 252.0,
+        "spin": {
+         "base": 0.25,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l38",
+       "name": "sixteenths",
+       "bars": [
+        8,
+        24
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l39",
+       "name": "door",
+       "bars": [
+        8,
+        24
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-pisser/1",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-pisser/1",
+       "name": "on",
+       "bars": [
+        8,
+        24
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "pisser/2"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1909,6 +2461,183 @@
      "bars": [
       24,
       40
+     ],
+     "layers": [
+      {
+       "id": "l40",
+       "name": "field",
+       "bars": [
+        24,
+        40
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 273.0,
+        "spin": {
+         "base": 0.30000000000000004,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l41",
+       "name": "sixteenths",
+       "bars": [
+        24,
+        40
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l42",
+       "name": "door",
+       "bars": [
+        24,
+        40
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-pisser/2",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-pisser/2",
+       "name": "on",
+       "bars": [
+        24,
+        40
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "pisser/3"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1916,6 +2645,183 @@
      "bars": [
       40,
       56
+     ],
+     "layers": [
+      {
+       "id": "l43",
+       "name": "field",
+       "bars": [
+        40,
+        56
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 294.0,
+        "spin": {
+         "base": 0.35,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l44",
+       "name": "sixteenths",
+       "bars": [
+        40,
+        56
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l45",
+       "name": "door",
+       "bars": [
+        40,
+        56
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-pisser/3",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-pisser/3",
+       "name": "on",
+       "bars": [
+        40,
+        56
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "pisser/4"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1923,6 +2829,183 @@
      "bars": [
       56,
       72
+     ],
+     "layers": [
+      {
+       "id": "l46",
+       "name": "field",
+       "bars": [
+        56,
+        72
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 315.0,
+        "spin": {
+         "base": 0.15,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l47",
+       "name": "sixteenths",
+       "bars": [
+        56,
+        72
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l48",
+       "name": "door",
+       "bars": [
+        56,
+        72
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-pisser/4",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-pisser/4",
+       "name": "on",
+       "bars": [
+        56,
+        72
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "pisser/5"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1930,6 +3013,183 @@
      "bars": [
       72,
       88
+     ],
+     "layers": [
+      {
+       "id": "l49",
+       "name": "field",
+       "bars": [
+        72,
+        88
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 336.0,
+        "spin": {
+         "base": 0.2,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l50",
+       "name": "sixteenths",
+       "bars": [
+        72,
+        88
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l51",
+       "name": "door",
+       "bars": [
+        72,
+        88
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-pisser/5",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-pisser/5",
+       "name": "on",
+       "bars": [
+        72,
+        88
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "pisser/6"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1937,1220 +3197,182 @@
      "bars": [
       88,
       104
-     ]
-    }
-   ],
-   "layers": [
-    {
-     "id": "l34",
-     "name": "field",
-     "bars": [
-      0,
-      8
      ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 231.0,
-      "spin": {
-       "base": 0.2,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l35",
-     "name": "sixteenths",
-     "bars": [
-      0,
-      8
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l36",
-     "name": "door",
-     "bars": [
-      0,
-      8
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-pisser/0",
-      "visible": true
-     }
-    },
-    {
-     "id": "l37",
-     "name": "field",
-     "bars": [
-      8,
-      24
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 252.0,
-      "spin": {
-       "base": 0.25,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l38",
-     "name": "sixteenths",
-     "bars": [
-      8,
-      24
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l39",
-     "name": "door",
-     "bars": [
-      8,
-      24
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-pisser/1",
-      "visible": true
-     }
-    },
-    {
-     "id": "l40",
-     "name": "field",
-     "bars": [
-      24,
-      40
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 273.0,
-      "spin": {
-       "base": 0.30000000000000004,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l41",
-     "name": "sixteenths",
-     "bars": [
-      24,
-      40
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l42",
-     "name": "door",
-     "bars": [
-      24,
-      40
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-pisser/2",
-      "visible": true
-     }
-    },
-    {
-     "id": "l43",
-     "name": "field",
-     "bars": [
-      40,
-      56
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 294.0,
-      "spin": {
-       "base": 0.35,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l44",
-     "name": "sixteenths",
-     "bars": [
-      40,
-      56
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l45",
-     "name": "door",
-     "bars": [
-      40,
-      56
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-pisser/3",
-      "visible": true
-     }
-    },
-    {
-     "id": "l46",
-     "name": "field",
-     "bars": [
-      56,
-      72
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 315.0,
-      "spin": {
-       "base": 0.15,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l47",
-     "name": "sixteenths",
-     "bars": [
-      56,
-      72
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l48",
-     "name": "door",
-     "bars": [
-      56,
-      72
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-pisser/4",
-      "visible": true
-     }
-    },
-    {
-     "id": "l49",
-     "name": "field",
-     "bars": [
-      72,
-      88
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 336.0,
-      "spin": {
-       "base": 0.2,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l50",
-     "name": "sixteenths",
-     "bars": [
-      72,
-      88
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l51",
-     "name": "door",
-     "bars": [
-      72,
-      88
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-pisser/5",
-      "visible": true
-     }
-    },
-    {
-     "id": "l52",
-     "name": "field",
-     "bars": [
-      88,
-      104
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 357.0,
-      "spin": {
-       "base": 0.25,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l53",
-     "name": "sixteenths",
-     "bars": [
-      88,
-      104
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l54",
-     "name": "door",
-     "bars": [
-      88,
-      104
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-pisser/6",
-      "visible": true
-     }
-    }
-   ],
-   "hotspots": [
-    {
-     "id": "door-pisser/0",
-     "name": "on",
-     "bars": [
-      0,
-      8
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
+     "layers": [
       {
-       "go": "pisser/1"
-      }
-     ]
-    },
-    {
-     "id": "door-pisser/1",
-     "name": "on",
-     "bars": [
-      8,
-      24
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
+       "id": "l52",
+       "name": "field",
+       "bars": [
+        88,
+        104
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 357.0,
+        "spin": {
+         "base": 0.25,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
       {
-       "go": "pisser/2"
-      }
-     ]
-    },
-    {
-     "id": "door-pisser/2",
-     "name": "on",
-     "bars": [
-      24,
-      40
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
+       "id": "l53",
+       "name": "sixteenths",
+       "bars": [
+        88,
+        104
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
       {
-       "go": "pisser/3"
+       "id": "l54",
+       "name": "door",
+       "bars": [
+        88,
+        104
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-pisser/6",
+        "visible": true
+       }
       }
-     ]
-    },
-    {
-     "id": "door-pisser/3",
-     "name": "on",
-     "bars": [
-      40,
-      56
      ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
+     "hotspots": [
       {
-       "go": "pisser/4"
-      }
-     ]
-    },
-    {
-     "id": "door-pisser/4",
-     "name": "on",
-     "bars": [
-      56,
-      72
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "go": "pisser/5"
-      }
-     ]
-    },
-    {
-     "id": "door-pisser/5",
-     "name": "on",
-     "bars": [
-      72,
-      88
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "go": "pisser/6"
-      }
-     ]
-    },
-    {
-     "id": "door-pisser/6",
-     "name": "on",
-     "bars": [
-      88,
-      104
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "go": "for-against/0"
+       "id": "door-pisser/6",
+       "name": "on",
+       "bars": [
+        88,
+        104
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "for-against/0"
+        }
+       ]
       }
      ]
     }
@@ -3166,6 +3388,183 @@
      "bars": [
       0,
       12
+     ],
+     "layers": [
+      {
+       "id": "l55",
+       "name": "field",
+       "bars": [
+        0,
+        12
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 378.0,
+        "spin": {
+         "base": 0.30000000000000004,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l56",
+       "name": "sixteenths",
+       "bars": [
+        0,
+        12
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l57",
+       "name": "door",
+       "bars": [
+        0,
+        12
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-for-against/0",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-for-against/0",
+       "name": "on",
+       "bars": [
+        0,
+        12
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "for-against/1"
+        }
+       ]
+      }
      ]
     },
     {
@@ -3173,6 +3572,183 @@
      "bars": [
       12,
       36
+     ],
+     "layers": [
+      {
+       "id": "l58",
+       "name": "field",
+       "bars": [
+        12,
+        36
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 399.0,
+        "spin": {
+         "base": 0.35,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l59",
+       "name": "sixteenths",
+       "bars": [
+        12,
+        36
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l60",
+       "name": "door",
+       "bars": [
+        12,
+        36
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-for-against/1",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-for-against/1",
+       "name": "on",
+       "bars": [
+        12,
+        36
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "for-against/2"
+        }
+       ]
+      }
      ]
     },
     {
@@ -3180,6 +3756,183 @@
      "bars": [
       36,
       44
+     ],
+     "layers": [
+      {
+       "id": "l61",
+       "name": "field",
+       "bars": [
+        36,
+        44
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 420.0,
+        "spin": {
+         "base": 0.15,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l62",
+       "name": "sixteenths",
+       "bars": [
+        36,
+        44
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l63",
+       "name": "door",
+       "bars": [
+        36,
+        44
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-for-against/2",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-for-against/2",
+       "name": "on",
+       "bars": [
+        36,
+        44
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "for-against/3"
+        }
+       ]
+      }
      ]
     },
     {
@@ -3187,6 +3940,183 @@
      "bars": [
       44,
       60
+     ],
+     "layers": [
+      {
+       "id": "l64",
+       "name": "field",
+       "bars": [
+        44,
+        60
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 441.0,
+        "spin": {
+         "base": 0.2,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l65",
+       "name": "sixteenths",
+       "bars": [
+        44,
+        60
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l66",
+       "name": "door",
+       "bars": [
+        44,
+        60
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-for-against/3",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-for-against/3",
+       "name": "on",
+       "bars": [
+        44,
+        60
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "for-against/4"
+        }
+       ]
+      }
      ]
     },
     {
@@ -3194,6 +4124,183 @@
      "bars": [
       60,
       76
+     ],
+     "layers": [
+      {
+       "id": "l67",
+       "name": "field",
+       "bars": [
+        60,
+        76
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 462.0,
+        "spin": {
+         "base": 0.25,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l68",
+       "name": "sixteenths",
+       "bars": [
+        60,
+        76
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l69",
+       "name": "door",
+       "bars": [
+        60,
+        76
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-for-against/4",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-for-against/4",
+       "name": "on",
+       "bars": [
+        60,
+        76
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "for-against/5"
+        }
+       ]
+      }
      ]
     },
     {
@@ -3201,6 +4308,183 @@
      "bars": [
       76,
       108
+     ],
+     "layers": [
+      {
+       "id": "l70",
+       "name": "field",
+       "bars": [
+        76,
+        108
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 483.0,
+        "spin": {
+         "base": 0.30000000000000004,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l71",
+       "name": "sixteenths",
+       "bars": [
+        76,
+        108
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l72",
+       "name": "door",
+       "bars": [
+        76,
+        108
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-for-against/5",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-for-against/5",
+       "name": "on",
+       "bars": [
+        76,
+        108
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "for-against/6"
+        }
+       ]
+      }
      ]
     },
     {
@@ -3208,6 +4492,183 @@
      "bars": [
       108,
       116
+     ],
+     "layers": [
+      {
+       "id": "l73",
+       "name": "field",
+       "bars": [
+        108,
+        116
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 504.0,
+        "spin": {
+         "base": 0.35,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "l74",
+       "name": "sixteenths",
+       "bars": [
+        108,
+        116
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
+      {
+       "id": "l75",
+       "name": "door",
+       "bars": [
+        108,
+        116
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-for-against/6",
+        "visible": true
+       }
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "door-for-against/6",
+       "name": "on",
+       "bars": [
+        108,
+        116
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "for-against/7"
+        }
+       ]
+      }
      ]
     },
     {
@@ -3215,1393 +4676,182 @@
      "bars": [
       116,
       148
-     ]
-    }
-   ],
-   "layers": [
-    {
-     "id": "l55",
-     "name": "field",
-     "bars": [
-      0,
-      12
      ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 378.0,
-      "spin": {
-       "base": 0.30000000000000004,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l56",
-     "name": "sixteenths",
-     "bars": [
-      0,
-      12
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l57",
-     "name": "door",
-     "bars": [
-      0,
-      12
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-for-against/0",
-      "visible": true
-     }
-    },
-    {
-     "id": "l58",
-     "name": "field",
-     "bars": [
-      12,
-      36
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 399.0,
-      "spin": {
-       "base": 0.35,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l59",
-     "name": "sixteenths",
-     "bars": [
-      12,
-      36
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l60",
-     "name": "door",
-     "bars": [
-      12,
-      36
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-for-against/1",
-      "visible": true
-     }
-    },
-    {
-     "id": "l61",
-     "name": "field",
-     "bars": [
-      36,
-      44
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 420.0,
-      "spin": {
-       "base": 0.15,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l62",
-     "name": "sixteenths",
-     "bars": [
-      36,
-      44
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l63",
-     "name": "door",
-     "bars": [
-      36,
-      44
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-for-against/2",
-      "visible": true
-     }
-    },
-    {
-     "id": "l64",
-     "name": "field",
-     "bars": [
-      44,
-      60
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 441.0,
-      "spin": {
-       "base": 0.2,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l65",
-     "name": "sixteenths",
-     "bars": [
-      44,
-      60
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l66",
-     "name": "door",
-     "bars": [
-      44,
-      60
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-for-against/3",
-      "visible": true
-     }
-    },
-    {
-     "id": "l67",
-     "name": "field",
-     "bars": [
-      60,
-      76
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 462.0,
-      "spin": {
-       "base": 0.25,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l68",
-     "name": "sixteenths",
-     "bars": [
-      60,
-      76
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l69",
-     "name": "door",
-     "bars": [
-      60,
-      76
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-for-against/4",
-      "visible": true
-     }
-    },
-    {
-     "id": "l70",
-     "name": "field",
-     "bars": [
-      76,
-      108
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 483.0,
-      "spin": {
-       "base": 0.30000000000000004,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l71",
-     "name": "sixteenths",
-     "bars": [
-      76,
-      108
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l72",
-     "name": "door",
-     "bars": [
-      76,
-      108
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-for-against/5",
-      "visible": true
-     }
-    },
-    {
-     "id": "l73",
-     "name": "field",
-     "bars": [
-      108,
-      116
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 504.0,
-      "spin": {
-       "base": 0.35,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l74",
-     "name": "sixteenths",
-     "bars": [
-      108,
-      116
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l75",
-     "name": "door",
-     "bars": [
-      108,
-      116
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-for-against/6",
-      "visible": true
-     }
-    },
-    {
-     "id": "l76",
-     "name": "field",
-     "bars": [
-      116,
-      148
-     ],
-     "region": {},
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "offset": 525.0,
-      "spin": {
-       "base": 0.15,
-       "chains": []
-      },
-      "alternate": true,
-      "length": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "mid",
-         "depth": 0.9,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.15,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 0.45,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "treble",
-         "depth": 0.25,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": [
-        {
-         "source": "noise",
-         "depth": 1.0,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        },
-        {
-         "source": "bass",
-         "depth": 0.5,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      }
-     }
-    },
-    {
-     "id": "l77",
-     "name": "sixteenths",
-     "bars": [
-      116,
-      148
-     ],
-     "region": {},
-     "kind": "walk",
-     "params": {
-      "cols": 4,
-      "rows": 4,
-      "sub": "sixteenth",
-      "gray": 0.25,
-      "length": 0.8
-     }
-    },
-    {
-     "id": "l78",
-     "name": "door",
-     "bars": [
-      116,
-      148
-     ],
-     "region": {
-      "rect": [
-       8,
-       8,
-       12,
-       12
-      ]
-     },
-     "kind": "marks",
-     "params": {
-      "angle": "noise",
-      "length": {
-       "base": 0.6,
-       "chains": [
-        {
-         "source": "bass",
-         "depth": 0.4,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "gray": {
-       "base": 0.3,
-       "chains": [
-        {
-         "source": "bar",
-         "depth": 0.7,
-         "threshold": 0.0,
-         "width": 1.0,
-         "curve": 1.0,
-         "invert": false,
-         "on": true
-        }
-       ]
-      },
-      "color": {
-       "base": 0.0,
-       "chains": []
-      }
-     },
-     "when": {
-      "hotspot": "door-for-against/7",
-      "visible": true
-     }
-    }
-   ],
-   "hotspots": [
-    {
-     "id": "door-for-against/0",
-     "name": "on",
-     "bars": [
-      0,
-      12
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
+     "layers": [
       {
-       "go": "for-against/1"
-      }
-     ]
-    },
-    {
-     "id": "door-for-against/1",
-     "name": "on",
-     "bars": [
-      12,
-      36
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
+       "id": "l76",
+       "name": "field",
+       "bars": [
+        116,
+        148
+       ],
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "offset": 525.0,
+        "spin": {
+         "base": 0.15,
+         "chains": []
+        },
+        "alternate": true,
+        "length": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.15,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 0.45,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "treble",
+           "depth": 0.25,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 1.0,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "bass",
+           "depth": 0.5,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
       {
-       "go": "for-against/2"
-      }
-     ]
-    },
-    {
-     "id": "door-for-against/2",
-     "name": "on",
-     "bars": [
-      36,
-      44
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
+       "id": "l77",
+       "name": "sixteenths",
+       "bars": [
+        116,
+        148
+       ],
+       "region": {},
+       "kind": "walk",
+       "params": {
+        "cols": 4,
+        "rows": 4,
+        "sub": "sixteenth",
+        "gray": 0.25,
+        "length": 0.8
+       }
+      },
       {
-       "go": "for-against/3"
+       "id": "l78",
+       "name": "door",
+       "bars": [
+        116,
+        148
+       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "noise",
+        "length": {
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 0.7,
+           "threshold": 0.0,
+           "width": 1.0,
+           "curve": 1.0,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "color": {
+         "base": 0.0,
+         "chains": []
+        }
+       },
+       "when": {
+        "hotspot": "door-for-against/7",
+        "visible": true
+       }
       }
-     ]
-    },
-    {
-     "id": "door-for-against/3",
-     "name": "on",
-     "bars": [
-      44,
-      60
      ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
+     "hotspots": [
       {
-       "go": "for-against/4"
-      }
-     ]
-    },
-    {
-     "id": "door-for-against/4",
-     "name": "on",
-     "bars": [
-      60,
-      76
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "go": "for-against/5"
-      }
-     ]
-    },
-    {
-     "id": "door-for-against/5",
-     "name": "on",
-     "bars": [
-      76,
-      108
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "go": "for-against/6"
-      }
-     ]
-    },
-    {
-     "id": "door-for-against/6",
-     "name": "on",
-     "bars": [
-      108,
-      116
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "go": "for-against/7"
-      }
-     ]
-    },
-    {
-     "id": "door-for-against/7",
-     "name": "on",
-     "bars": [
-      116,
-      148
-     ],
-     "rect": [
-      8,
-      8,
-      12,
-      12
-     ],
-     "needs": [],
-     "on": "tap",
-     "then": [
-      {
-       "go": "sine/0"
+       "id": "door-for-against/7",
+       "name": "on",
+       "bars": [
+        116,
+        148
+       ],
+       "rect": [
+        8,
+        8,
+        12,
+        12
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "go": "sine/0"
+        }
+       ]
       }
      ]
     }
