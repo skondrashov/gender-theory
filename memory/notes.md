@@ -101,6 +101,12 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   5. Same field with a cross; tap the centre → **Length** (lengths move with the music);
      tap again → on. "Stop here for now."
   Lines so far: stationary, horizontal/vertical, one cell long — scenes choose angles.
+- Seams (2026-11-05): after the gapless header the owner still heard a click and no fade —
+  there was none: one looping source, hard `stop()`. `audio.rs` now plays one source per
+  pass with gain ramps (20 ms in before the bar line, 30 ms tail at a wrap, 80 ms tail on a
+  cut). Constants to taste; a longer `CUT_TAIL` means hearing the old track's next downbeat
+  under the new one. Headless Chromium (DevTools protocol, `cdp_click.py` in the session
+  scratch) ran two wraps and a switch without errors — but only ears can judge the seams.
 - Next song (owner): **hexes** as an unlock — the square grid sheared into a triangular
   lattice (rows slid half a cell, rows squashed by √3/2); regular hexes can't align with a
   square grid, the shear can. Not started.
