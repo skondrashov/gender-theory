@@ -177,8 +177,12 @@ impl Audio {
 				if start > now + LOOKAHEAD || section.end.map_or(false, |end| start >= end) {
 					break;
 				}
-				if let Ok(pass) = schedule(&context, &analyser, section, start) {
-					section.passes.push(pass);
+				match schedule(&context, &analyser, section, start) {
+					Ok(pass) => section.passes.push(pass),
+					Err(error) => web_sys::console::error_2(
+						&format!("couldn't schedule a pass at {start:.3}").into(),
+						&error,
+					),
 				}
 				section.next += 1;
 			}
@@ -270,14 +274,15 @@ impl Audio {
 }
 
 /// One pass of `section` with its bar line at `start`: fades in over `FADE_IN` before it,
-/// holds for the section's length, rings out over `LOOP_TAIL`.
+/// holds for the section's length, rings out over `LOOP_TAIL`. (Nothing may be scheduled
+/// before context time 0 — Web Audio throws — so the very first pass gets no lead-in.)
 fn schedule(
 	context: &AudioContext,
 	analyser: &AnalyserNode,
 	section: &Section,
 	start: f64,
 ) -> Result<Pass, JsValue> {
-	let pre = FADE_IN.min(section.offset);
+	let pre = FADE_IN.min(section.offset).min(start).max(0.0);
 	let source = AudioBufferSourceNode::new(context)?;
 	source.set_buffer(Some(&section.buffer));
 	let gain = GainNode::new(context)?;

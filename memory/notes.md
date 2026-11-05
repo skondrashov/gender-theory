@@ -126,6 +126,9 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   fall)` and `pulse(modifiers)` in `scenes/mod.rs` are the envelope (beat hits, downbeat
   hardest); glow and anything else that pulses go through them. Smoothing is fine; tying
   parameters to the music's own bands (bass for the kick) is the direction.
+- Web Audio throws on any time < 0: the first pass used to schedule its 20 ms lead-in before
+  context time 0, fail silently, and be skipped — "no music for 10+ s" (until pass 2). The
+  lead-in is clamped to 0 now and scheduling failures are logged to the console.
 - Loading: tracks are fetched as a stream so the bytes count up (`audio.progress`); the view
   draws a bar along the bottom until the current track is decoded. First click only starts
   the audio context; music starts once the track is decoded (~250 ms after the bytes).
