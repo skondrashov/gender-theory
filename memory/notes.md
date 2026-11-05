@@ -8,6 +8,8 @@
   because wasm-pack 0.11's bundled binaryen can't validate wasm from current rustc.
 - `cd app && wasm-pack build --target web` → ~25 s incremental. Copy the result into
   `app/pkg` only after checking it in a browser; `app/pkg` is what's committed and deployed.
+  (Until 2026-11-04 `app/.gitignore` ignored `/pkg`, so despite what the old AGENTS.md said it
+  was never in git — only on this machine. It's tracked now, ~2.5 MB of wasm per rebuild.)
 - Headless check without a browser session: Edge works —
   `msedge --headless=new --use-angle=swiftshader --enable-unsafe-swiftshader --screenshot=... --virtual-time-budget=8000 URL`
   (segfaults on exit, after writing the screenshot; harmless). No audio, no clicks, so only

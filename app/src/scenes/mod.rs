@@ -272,9 +272,11 @@ pub fn cell_at(model: &Model, x: f32, y: f32) -> Option<(usize, usize)> {
 /// The one colour there is, for now. A placeholder: the owner's call.
 pub const COLOR: (f32, f32, f32) = (1.0, 0.45, 0.2);
 
-/// Grey at this brightness or, as colour is unlocked, the colour at this brightness.
-pub fn paint(model: &Model, gray: f32) -> Rgb {
-	let c = model.reveal(Unlock::Color);
+/// Grey at this brightness, warmed toward `COLOR` by `color` (0 = grey, 1 = the colour) —
+/// once colour is unlocked. Scenes pick `color` per cell, so the whole range from white to
+/// the colour is theirs to use.
+pub fn paint(model: &Model, gray: f32, color: f32) -> Rgb {
+	let c = (color * model.reveal(Unlock::Color)).clamp(0.0, 1.0);
 	let (r, g, b) = COLOR;
 	rgb(
 		gray * (1.0 + (r - 1.0) * c),
@@ -290,10 +292,11 @@ pub fn paint(model: &Model, gray: f32) -> Rgb {
 /// - Lines: a line one grid interval long at `angle`, which holds still
 /// - Length: its length is `length` px instead
 /// - Rotation: it moves: `turn` is added to the angle (so pass the time-varying part there)
+/// - Color: it's warmed toward `COLOR` by `color` (0..1, see `paint`)
 ///
 /// Each of these eases in over a couple of seconds from the moment it's unlocked (see
 /// `Model::reveal`): the line grows out of the point, stretches to its length, winds up
-/// to speed.
+/// to speed, takes on colour.
 pub fn mark(
 	draw: &Draw,
 	model: &Model,
@@ -303,8 +306,9 @@ pub fn mark(
 	turn: f32,
 	length: f32,
 	gray: f32,
+	color: f32,
 ) {
-	let color = paint(model, gray);
+	let color = paint(model, gray, color);
 	let lines = model.reveal(Unlock::Lines);
 	if lines == 0.0 {
 		draw.line()

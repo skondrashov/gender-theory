@@ -83,7 +83,7 @@ pub const SCENES: &[&Scene] = &[
 		track: &BU_2,
 		bars: 0..8,
 		render: &|draw, model, i, j, time, modifiers| {
-			let [whole, _half, quarter, _eighth, _sixteenth, bass, _mid, _treble] = modifiers;
+			let [whole, _half, quarter, _eighth, _sixteenth, bass, _mid, treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
 			let unit = model.scaling as f32;
 			let (x, y) = scale_coordinates(model, i, j);
@@ -103,6 +103,7 @@ pub const SCENES: &[&Scene] = &[
 				time * 0.2,
 				unit * (0.4 + bass),
 				gray,
+				treble,
 			);
 		},
 		hotspots: &[
@@ -142,13 +143,13 @@ pub const SCENES: &[&Scene] = &[
 				// The black square: the way back.
 				Some(0) => {}
 				// Spins, once you can see that.
-				Some(1) => mark(draw, model, x, y, 0.0, time, unit, 1.0),
+				Some(1) => mark(draw, model, x, y, 0.0, time, unit, 1.0, 1.0),
 				// Rings, once you can see those.
 				Some(_) => {
 					draw.ellipse()
 						.no_fill()
 						.stroke_weight(1.5)
-						.stroke_color(paint(model, 0.8))
+						.stroke_color(paint(model, 0.8, 1.0))
 						.x_y(x, y)
 						.radius(unit * 0.4 * (0.5 + mid) * model.reveal(Unlock::Circles));
 				}
@@ -161,6 +162,7 @@ pub const SCENES: &[&Scene] = &[
 					0.0,
 					unit * 0.6,
 					noise.abs() * (0.3 + 0.7 * half),
+					mid,
 				),
 			}
 		},
@@ -202,7 +204,7 @@ pub const SCENES: &[&Scene] = &[
 			} else {
 				0.25 + 0.5 * (1.0 - eighth) * noise.abs()
 			};
-			mark(draw, model, x, y, noise * TAU, 0.0, unit * (0.6 + 0.6 * mid), gray);
+			mark(draw, model, x, y, noise * TAU, 0.0, unit * (0.6 + 0.6 * mid), gray, noise.abs());
 		},
 		hotspots: &[
 			Hotspot {
@@ -250,7 +252,7 @@ pub const SCENES: &[&Scene] = &[
 				None if hot => 0.9,
 				None => 0.3 + 0.3 * bass,
 			};
-			mark(draw, model, x, y, noise * TAU, 0.0, length, gray);
+			mark(draw, model, x, y, noise * TAU, 0.0, length, gray, if hot { 1.0 } else { 0.2 });
 		},
 		hotspots: &[
 			Hotspot {
@@ -317,14 +319,14 @@ pub const SCENES: &[&Scene] = &[
 				draw.ellipse()
 					.no_fill()
 					.stroke_weight(1.5)
-					.stroke_color(paint(model, gray * spread))
+					.stroke_color(paint(model, gray * spread, 1.0))
 					.x_y(x, y)
 					.radius(
 						unit * (0.35 + 2.0 * transition * noise.abs())
 							* (0.5 + bass) * model.reveal(Unlock::Circles),
 					);
 			}
-			mark(draw, model, x, y, angle, turn, length, gray);
+			mark(draw, model, x, y, angle, turn, length, gray, s);
 		},
 		hotspots: &[
 			Hotspot {
@@ -366,12 +368,12 @@ pub const SCENES: &[&Scene] = &[
 					draw.ellipse()
 						.no_fill()
 						.stroke_weight(2.0)
-						.stroke_color(paint(model, 0.6 + 0.4 * bass))
+						.stroke_color(paint(model, 0.6 + 0.4 * bass, 1.0))
 						.x_y(x, y)
 						.radius(unit * (0.3 + 0.5 * bass) * model.reveal(Unlock::Circles));
 				}
 				// The top row: back to the start.
-				Some(_) => mark(draw, model, x, y, 0.0, time, unit, 0.9),
+				Some(_) => mark(draw, model, x, y, 0.0, time, unit, 0.9, 0.0),
 				None => mark(
 					draw,
 					model,
@@ -381,6 +383,7 @@ pub const SCENES: &[&Scene] = &[
 					0.0,
 					unit * 0.5,
 					0.2 + 0.3 * half * noise.abs(),
+					half,
 				),
 			}
 		},
