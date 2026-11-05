@@ -11,6 +11,7 @@ Load this file as your system prompt (`claude --system-prompt "$(cat AGENTS.md)"
 - `scenes/album.rs` — **the real music**: sine, sasha grips, pisser, for.against (in `static/music/`), each cut into its phases, one looping scene per phase. The first act (sine's five phases, the owner's design: met ends → glow → lines/stripes → the boxes → length) is built; the rest are placeholders chained by a centre tap, waiting for the owner's scene list. Transitions between phases are deliberately not done yet.
 - `scenes/for_against.rs` — the demo graph (`points` → … → `color_gate`, seven scenes with every mechanism used once, on old excerpts) plus the six original scenes kept verbatim as `old/1`–`old/6`.
 - `tools/phases.py` — finds a track's tempo and phase boundaries (energy map per 4 bars) and prints the `Track` + section ranges; `--sections` to cut by hand.
+- `tools/gapless.py` — prepends the Info/LAME frame Ableton's mp3 export leaves out, so browsers trim the 51 ms encoder delay and bar 0 is t = 0. Run it on every new bounce before it goes in `static/music/` (idempotent). Pure Python.
 - `scenes/terra_firmament.rs` — empty stub. `being_useless`, `porcelain_piss` are commented-out `mod` lines.
 - `words.rs` — `paired_words` and ~1,400 `random_words`. **Not compiled in.** The concept waiting to be used, not dead code — don't delete it.
 - `notes.rs` — a 16×4 sequencer grid, not compiled in. An abandoned direction. Leave it.
@@ -67,7 +68,7 @@ Open `http://localhost:8080`, click once. `run.sh` is a bash script; use Git Bas
 
 ## Hard constraints
 
-1. **The mp3s are the owner's music.** Don't replace, trim, re-encode, or "fix" them; don't add tracks. If a scene needs audio that doesn't exist, ask.
+1. **The mp3s are the owner's music.** Don't replace, trim, re-encode, or "fix" them; don't add tracks without being asked. The one allowed edit is `tools/gapless.py`'s header frame (audio frames untouched). If a scene needs audio that doesn't exist, ask.
 2. **Taste belongs to the owner.** Visual parameters, the word pairs, the scene order, the grey page, `COLOR` — all deliberate until told otherwise. Propose; don't quietly refactor the look.
 3. **Deploys go through `~/projects/ops`** (static-site deploy of `static/` + `app/pkg`; the actix server is dev-only and binds `127.0.0.1` — keep it that way). Queue, don't push to the VM yourself.
 4. Don't commit `target/` (either crate). `app/pkg` **is** committed on purpose.

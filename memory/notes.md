@@ -25,7 +25,8 @@ The real music lives in `Desktop\gender theory\` (mp3 bounces + Ableton projects
 project folder `gender theory\gender theory\` has the paired-word projects: being.useless,
 for.against, porcelain.piss, terra.firmament, violence.release). Two bounce names contain
 U+F022 where a dot should be (`for<U+F022>against.mp3`, `terra<U+F022>firmament.mp3`).
-`static/music/` holds the copies the app uses — the owner's files, byte-identical:
+`static/music/` holds the copies the app uses — the owner's audio frames untouched, with one
+**Info frame prepended by `tools/gapless.py`** (see below):
 
 | file | source | bpm | bars | grid |
 |------|--------|-----|------|------|
@@ -53,6 +54,17 @@ Phase maps (per-4-bar energy from `tools/phases.py`; the cuts in `scenes/album.r
 
 Old excerpts (`bu/2`, `fa/1`, `fa/2`) keep their hand-counted grids as bpm (73.2802,
 62.5, 109.375 — i.e. 8, 14, 14 "bars" over the file). `tf/` files are byte copies of `fa/`.
+
+**Gapless header (2026-11-05).** Ableton's mp3 export writes no Xing/LAME Info frame, so
+decoders can't trim the encoder delay: measured against `Desktop/for.against.wav` (same
+bounce as the 05-08 mp3), the decoded mp3 starts **2258 samples = 51.2 ms** late — 1729 of
+encoder delay + the 529 every decoder adds. Chromium's `decodeAudioData` showed the same
+2258 on all four tracks. So bar 0 was 51 ms into the buffer and every loop point and switch
+landed 51 ms early: the seams. `tools/gapless.py` prepends a standard Info frame with a LAME
+tag carrying delay 1729; Chromium then puts sine's first sample at 0 (verified over the
+DevTools protocol; Firefox/Safari honour the same tag). The old excerpts (`bu/ fa/ tf/`) were
+left alone — their hand-set grids are relative to the whole file. If the owner re-exports a
+track, run `gapless.py` on the new file (idempotent: it skips files that already have one).
 
 Tooling: `tools/phases.py` (numpy + miniaudio, `pip install --user numpy miniaudio`, run
 with `C:/Python312/python.exe`; no ffmpeg on this machine). `.als` files are gzipped XML:
