@@ -45,6 +45,7 @@ features = [
    "Location",
 
    "Headers",
+   "ReadableStream",
    "Request",
    "RequestInit",
    "RequestMode",

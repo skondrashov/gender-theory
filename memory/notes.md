@@ -119,8 +119,16 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   lattice (rows slid half a cell, rows squashed by √3/2); regular hexes can't align with a
   square grid, the shear can. Not started.
 - Glow is `Unlock::Glow` (bit 5, appended after Color so saved progress keeps meaning);
-  `glow(model, half, inverse)` is the multiplier, `dot()`/`stroke()` draw scenery that
+  `glow(model, pulse, inverse)` is the multiplier, `dot()`/`stroke()` draw scenery that
   ignores unlocks (dots stay dots next to lines).
+- **Nothing sinusoidal** (owner, 2026-11-05): music is events — each bar/beat/subdivision
+  hits and falls away (square, or a maximally slanted sawtooth), never a sine. `hit(phase,
+  fall)` and `pulse(modifiers)` in `scenes/mod.rs` are the envelope (beat hits, downbeat
+  hardest); glow and anything else that pulses go through them. Smoothing is fine; tying
+  parameters to the music's own bands (bass for the kick) is the direction.
+- Loading: tracks are fetched as a stream so the bytes count up (`audio.progress`); the view
+  draws a bar along the bottom until the current track is decoded. First click only starts
+  the audio context; music starts once the track is decoded (~250 ms after the bytes).
 - Album order for now: sine → sasha grips → pisser → for.against → sine (sine first because
   pisser opens with 8 bars of near silence; agent's call, owner to reorder).
 

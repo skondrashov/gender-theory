@@ -526,6 +526,22 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 
 	let window = app.window_rect();
 
+	// The track isn't here yet: a bar along the bottom filling up.
+	if !model.audio.is_loaded(model.scene.track) {
+		let y = window.bottom() + 40.0;
+		let (left, right) = (window.left() + 40.0, window.right() - 40.0);
+		draw.line()
+			.weight(2.0)
+			.gray(0.25)
+			.points(pt2(left, y), pt2(right, y));
+		if let Some(progress) = model.audio.progress(model.scene.track) {
+			draw.line()
+				.weight(2.0)
+				.gray(if progress < 1.0 { 0.9 } else { 0.6 })
+				.points(pt2(left, y), pt2(left + (right - left) * progress, y));
+		}
+	}
+
 	// Something has been set in motion: a white border until it lands.
 	if model.transitioning() {
 		draw.rect()

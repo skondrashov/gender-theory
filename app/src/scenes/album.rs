@@ -78,11 +78,11 @@ const MET_ENDS: &str = "
 const E_IN_MET: Area = area(7, 11, 13, 19);
 
 fn met_ends(draw: &Draw, model: &Model, i: usize, j: usize, _time: f32, modifiers: [f32; 8]) {
-	let [_whole, half, _quarter, _eighth, _sixteenth, _bass, _mid, _treble] = modifiers;
+	let [_whole, _half, _quarter, _eighth, _sixteenth, _bass, _mid, _treble] = modifiers;
 	let unit = model.scaling as f32;
 	let (x, y) = scale_coordinates(model, i, j);
 	if at(MET_ENDS, i, j) == '#' {
-		mark(draw, model, x, y, 0.0, 0.0, unit, 0.9 * glow(model, half, false), 0.0);
+		mark(draw, model, x, y, 0.0, 0.0, unit, 0.9 * glow(model, pulse(&modifiers), false), 0.0);
 	}
 }
 
@@ -92,7 +92,7 @@ const SQUARE: Area = area(3, 7, 9, 13);
 const SQUARE_2: Area = area(12, 4, 17, 9);
 
 fn square(draw: &Draw, model: &Model, i: usize, j: usize, _time: f32, modifiers: [f32; 8]) {
-	let [_whole, half, _quarter, _eighth, _sixteenth, _bass, _mid, _treble] = modifiers;
+	let [_whole, _half, _quarter, _eighth, _sixteenth, _bass, _mid, _treble] = modifiers;
 	let unit = model.scaling as f32;
 	let (x, y) = scale_coordinates(model, i, j);
 	let field = model.reveal(Unlock::Glow);
@@ -101,8 +101,8 @@ fn square(draw: &Draw, model: &Model, i: usize, j: usize, _time: f32, modifiers:
 		Some(1) if SQUARE.on_perimeter(i, j) => 0.9,
 		Some(1) => 0.0,
 		// The second square: the inverse.
-		Some(0) => glow(model, half, true),
-		_ => 0.9 * field * glow(model, half, false),
+		Some(0) => glow(model, pulse(&modifiers), true),
+		_ => 0.9 * field * glow(model, pulse(&modifiers), false),
 	};
 	mark(draw, model, x, y, 0.0, 0.0, unit, gray, 0.0);
 }
@@ -114,14 +114,14 @@ const PATCH: Area = area(7, 7, 13, 13);
 const GAP: Area = area(6, 10, 14, 11);
 
 fn stripes(draw: &Draw, model: &Model, i: usize, j: usize, _time: f32, modifiers: [f32; 8]) {
-	let [_whole, half, quarter, _eighth, _sixteenth, _bass, _mid, _treble] = modifiers;
+	let [_whole, _half, quarter, _eighth, _sixteenth, _bass, _mid, _treble] = modifiers;
 	let unit = model.scaling as f32;
 	let (x, y) = scale_coordinates(model, i, j);
 	let lines = model.reveal(Unlock::Lines);
-	let lit = glow(model, half, false);
+	let lit = glow(model, pulse(&modifiers), false);
 	match model.hint_at(i, j) {
 		// The patch.
-		Some(1) => dot(draw, model, x, y, paint(model, 0.9 * glow(model, half, true), 0.0)),
+		Some(1) => dot(draw, model, x, y, paint(model, 0.9 * glow(model, pulse(&modifiers), true), 0.0)),
 		// The gap: bare points, pulsing on the beat.
 		Some(0) => dot(draw, model, x, y, paint(model, (0.55 + 0.45 * (1.0 - quarter)) * lit, 0.0)),
 		_ if j % 2 == 0 => {
@@ -159,15 +159,14 @@ fn around(area: Area, i: usize, j: usize) -> f32 {
 }
 
 /// The checkerboard field shared by the last two phases of the act.
-fn checker(draw: &Draw, model: &Model, i: usize, j: usize, half: f32, length: f32) {
+fn checker(draw: &Draw, model: &Model, i: usize, j: usize, pulse: f32, length: f32) {
 	let (x, y) = scale_coordinates(model, i, j);
 	let noise = model.noisemap.get_value(i, j) as f32;
-	let p = 0.5 + 0.5 * (TAU * half).cos();
 	let lit = if HIDDEN.contains(i, j) {
 		// Bounded to the greys.
-		1.0 + ((0.35 + 0.3 * p) - 1.0) * model.reveal(Unlock::Glow)
+		1.0 + ((0.35 + 0.3 * pulse) - 1.0) * model.reveal(Unlock::Glow)
 	} else {
-		glow(model, half, INVERSE.contains(i, j))
+		glow(model, pulse, INVERSE.contains(i, j))
 	};
 	if BOX.on_perimeter(i, j) {
 		mark(draw, model, x, y, around(BOX, i, j), 0.0, length, 0.95 * lit, 0.0);
@@ -181,38 +180,38 @@ fn checker(draw: &Draw, model: &Model, i: usize, j: usize, half: f32, length: f3
 }
 
 fn boxes(draw: &Draw, model: &Model, i: usize, j: usize, _time: f32, modifiers: [f32; 8]) {
-	let [_whole, half, _quarter, _eighth, _sixteenth, _bass, _mid, _treble] = modifiers;
+	let [_whole, _half, _quarter, _eighth, _sixteenth, _bass, _mid, _treble] = modifiers;
 	let unit = model.scaling as f32;
-	checker(draw, model, i, j, half, unit);
+	checker(draw, model, i, j, pulse(&modifiers), unit);
 }
 
 /// The same field with a cross through the middle. Tap the centre: lengths start to move.
 const CENTRE: Area = area(8, 8, 12, 12);
 
 fn cross(draw: &Draw, model: &Model, i: usize, j: usize, _time: f32, modifiers: [f32; 8]) {
-	let [_whole, half, _quarter, _eighth, sixteenth, bass, _mid, _treble] = modifiers;
+	let [_whole, _half, _quarter, _eighth, sixteenth, bass, _mid, _treble] = modifiers;
 	let unit = model.scaling as f32;
 	let (x, y) = scale_coordinates(model, i, j);
 	let length = unit * (0.3 + 1.4 * bass + 0.6 * (1.0 - sixteenth));
 	if i == 10 || j == 10 {
 		let angle = if j == 10 { 0.0 } else { PI / 2.0 };
-		mark(draw, model, x, y, angle, 0.0, length, 0.95 * glow(model, half, false), 0.0);
+		mark(draw, model, x, y, angle, 0.0, length, 0.95 * glow(model, pulse(&modifiers), false), 0.0);
 		return;
 	}
-	checker(draw, model, i, j, half, length);
+	checker(draw, model, i, j, pulse(&modifiers), length);
 }
 
 // ---- sasha grips ----
 
-/// The growly part. Around every dot two points orbit at their own rates, one near, one
-/// far and the other way round. A line runs from the dot to the near one — until the bass
-/// hits: then it's pulled toward the far one, and eases back as the bass fades.
+/// The growly part. Around every dot a point orbits, and a line runs from the dot to it.
+/// A second, invisible point orbits further out the other way: when the bass hits, the
+/// tip of the line is pulled toward it, and eases back as the bass fades.
 fn orbits(draw: &Draw, model: &Model, i: usize, j: usize, time: f32, modifiers: [f32; 8]) {
-	let [whole, half, _quarter, _eighth, _sixteenth, bass, _mid, _treble] = modifiers;
+	let [whole, _half, _quarter, _eighth, _sixteenth, bass, _mid, _treble] = modifiers;
 	let unit = model.scaling as f32;
 	let (x, y) = scale_coordinates(model, i, j);
 	let noise = model.noisemap.get_value(i, j) as f32;
-	let lit = glow(model, half, false);
+	let lit = glow(model, pulse(&modifiers), false);
 
 	let near = (0.8 + 0.4 * noise) * time + noise * TAU;
 	let far = -(1.3 + 0.5 * noise) * time + noise * 7.0;
@@ -230,7 +229,6 @@ fn orbits(draw: &Draw, model: &Model, i: usize, j: usize, time: f32, modifiers: 
 	}
 	dot(draw, model, x, y, paint(model, 0.9 * lit, 0.0));
 	dot(draw, model, x1, y1, paint(model, 0.5 * lit, 0.0));
-	dot(draw, model, x2, y2, paint(model, 0.5 * lit, 0.0));
 	mark(
 		draw,
 		model,
@@ -250,7 +248,7 @@ fn orbits(draw: &Draw, model: &Model, i: usize, j: usize, time: f32, modifiers: 
 /// album) so no two look quite the same: the field leans a different way, turns at a
 /// different rate.
 fn render(draw: &Draw, model: &Model, i: usize, j: usize, time: f32, modifiers: [f32; 8], k: usize) {
-	let [whole, half, _quarter, _eighth, sixteenth, bass, mid, treble] = modifiers;
+	let [whole, _half, _quarter, _eighth, sixteenth, bass, mid, treble] = modifiers;
 	let noise = model.noisemap.get_value(i, j) as f32;
 	let unit = model.scaling as f32;
 	let (x, y) = scale_coordinates(model, i, j);
@@ -271,7 +269,7 @@ fn render(draw: &Draw, model: &Model, i: usize, j: usize, time: f32, modifiers: 
 	if let Some(transition) = model.transition() {
 		length *= 1.0 + 3.0 * transition;
 	}
-	mark(draw, model, x, y, angle, turn, length, gray * glow(model, half, false), color);
+	mark(draw, model, x, y, angle, turn, length, gray * glow(model, pulse(&modifiers), false), color);
 }
 
 macro_rules! phase {

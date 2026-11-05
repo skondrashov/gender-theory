@@ -481,12 +481,26 @@ pub fn dot(draw: &Draw, model: &Model, x: f32, y: f32, color: Rgb) {
 	stroke(draw, model, x, y, PI / 4.0, SQRT_2, color);
 }
 
-/// The glow, once it's unlocked: brightness breathing with the half bar. The field goes
-/// 0.35..1, peaking on the beat; `inverse` cells go 1..0 the other way, so at the peak they
-/// are the only black thing. 1.0 before it's unlocked, so scenes can multiply by it freely.
-pub fn glow(model: &Model, half: f32, inverse: bool) -> f32 {
-	let p = 0.5 + 0.5 * (TAU * half).cos();
-	let lit = if inverse { 1.0 - p } else { 0.35 + 0.65 * p };
+/// An event, the way music has them: at `phase` 0 it hits, then it falls away before the
+/// next one — a maximally slanted sawtooth with a curve to it, never a sine. `fall` above
+/// 1 falls faster.
+pub fn hit(phase: f32, fall: f32) -> f32 {
+	(1.0 - phase.clamp(0.0, 1.0)).powf(fall)
+}
+
+/// The music's pulse, 0..1: every beat a hit that falls to nothing before the next, the
+/// downbeat the hardest. What the glow follows. (The place to tie it to the bass band.)
+pub fn pulse(modifiers: &[f32; 8]) -> f32 {
+	let [whole, _half, quarter, ..] = *modifiers;
+	hit(quarter, 2.5) * (0.7 + 0.3 * hit(whole, 1.5))
+}
+
+/// The glow, once it's unlocked: brightness on the music's `pulse`. The field goes
+/// 0.35..1, hitting on the beat and falling; `inverse` cells go 1..0 the other way, so on
+/// the beat they are the only black thing. 1.0 before it's unlocked, so scenes can
+/// multiply by it freely.
+pub fn glow(model: &Model, pulse: f32, inverse: bool) -> f32 {
+	let lit = if inverse { 1.0 - pulse } else { 0.35 + 0.65 * pulse };
 	1.0 + (lit - 1.0) * model.reveal(Unlock::Glow)
 }
 

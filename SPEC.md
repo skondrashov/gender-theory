@@ -56,6 +56,14 @@ Transitions — the music of leaving one phase for another — are **deferred**:
 transitions can be many bars long and the player shouldn't wait; speeding them up by
 interpolation probably won't work on most tracks. Changes land on the next bar, crossfaded.
 
+## Rules of the drawing
+
+- Music is events, not waves: each bar, beat and subdivision hits and falls away. Nothing
+  pulses on a sine; everything that pulses goes through `pulse()` (beat hits, downbeat
+  hardest, smoothing allowed) or follows a band of the music itself.
+- A line is a cell's mark; what it can be is what's unlocked. Dots and stripes that must
+  stay what they are regardless are scenery (`dot`, `stroke`).
+
 ## Rules the engine enforces (so the spec can rely on them)
 
 - A hotspot shows only when the player has all it `needs`, and disappears once it has

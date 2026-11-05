@@ -11,7 +11,7 @@
 
 use {
 	crate::scenes::{Scene, Track},
-	js_sys::ArrayBuffer,
+	js_sys::{Function, Reflect, Uint8Array},
 	std::{
 		cell::RefCell,
 		collections::{HashMap, HashSet},
@@ -36,6 +36,8 @@ const CUT_TAIL: f64 = 0.08;
 const LOOKAHEAD: f64 = 1.5;
 
 type Buffers = Rc<RefCell<HashMap<&'static str, AudioBuffer>>>;
+/// Bytes received and bytes expected, per track being fetched.
+type Progress = Rc<RefCell<HashMap<&'static str, (usize, usize)>>>;
 
 /// One play-through of a section: a source behind a gain.
 struct Pass {
@@ -77,6 +79,7 @@ pub struct Audio {
 	pub analyser: AnalyserNode,
 	buffers: Buffers,
 	loading: HashSet<&'static str>,
+	progress: Progress,
 	current: Option<Section>,
 	/// In start order.
 	queued: Vec<Section>,
@@ -95,6 +98,7 @@ impl Audio {
 			analyser,
 			buffers: Default::default(),
 			loading: Default::default(),
+			progress: Default::default(),
 			current: None,
 			queued: vec![],
 			fading: vec![],
@@ -116,14 +120,23 @@ impl Audio {
 		self.buffers.borrow().contains_key(track.id)
 	}
 
+	/// How much of a track has arrived, 0..1 — `None` until the fetch has started or the
+	/// size is known. 1 means decoding (see `is_loaded`).
+	pub fn progress(&self, track: &Track) -> Option<f32> {
+		let progress = self.progress.borrow();
+		let (got, total) = progress.get(track.id)?;
+		(*total > 0).then(|| (*got as f32 / *total as f32).min(1.0))
+	}
+
 	/// Fetch and decode a track in the background, once.
 	pub fn load(&mut self, track: &'static Track) {
 		if self.is_loaded(track) || !self.loading.insert(track.id) {
 			return;
 		}
 		let (context, buffers) = (self.context.clone(), self.buffers.clone());
+		let progress = self.progress.clone();
 		spawn_local(async move {
-			match decode(&context, track.path).await {
+			match decode(&context, track, &progress).await {
 				Ok(buffer) => {
 					web_sys::console::log_1(
 						&format!("loaded {}: {:.3} s at {} Hz", track.path, buffer.duration(), buffer.sample_rate()).into(),
@@ -305,14 +318,44 @@ fn cut(section: &mut Section, at: f64) {
 	}
 }
 
-async fn decode(context: &AudioContext, path: &str) -> Result<AudioBuffer, JsValue> {
+/// Fetch a track, counting the bytes as they come (for the loading bar), then decode it.
+async fn decode(
+	context: &AudioContext,
+	track: &'static Track,
+	progress: &Progress,
+) -> Result<AudioBuffer, JsValue> {
 	let window = web_sys::window().ok_or("no window")?;
-	let response: Response = JsFuture::from(window.fetch_with_str(path))
+	let response: Response = JsFuture::from(window.fetch_with_str(track.path))
 		.await?
 		.dyn_into()?;
-	let bytes: ArrayBuffer = JsFuture::from(response.array_buffer()?)
-		.await?
-		.dyn_into()?;
-	let decoded = JsFuture::from(context.decode_audio_data(&bytes)?).await?;
+	if !response.ok() {
+		return Err(format!("{} {}", response.status(), response.status_text()).into());
+	}
+	let total = response
+		.headers()
+		.get("content-length")?
+		.and_then(|length| length.parse::<usize>().ok())
+		.unwrap_or(0);
+	progress.borrow_mut().insert(track.id, (0, total));
+	// The stream reader, untyped: its `read()` resolves to `{ done, value }`.
+	let reader = response.body().ok_or("no body")?.get_reader();
+	let read: Function = Reflect::get(&reader, &"read".into())?.dyn_into()?;
+	let mut bytes: Vec<u8> = Vec::with_capacity(total);
+	loop {
+		let chunk = JsFuture::from(read.call0(&reader)?.dyn_into::<js_sys::Promise>()?).await?;
+		if Reflect::get(&chunk, &"done".into())?.is_truthy() {
+			break;
+		}
+		let value: Uint8Array = Reflect::get(&chunk, &"value".into())?.dyn_into()?;
+		bytes.extend(value.to_vec());
+		progress
+			.borrow_mut()
+			.insert(track.id, (bytes.len(), total.max(bytes.len())));
+	}
+	progress
+		.borrow_mut()
+		.insert(track.id, (bytes.len(), bytes.len()));
+	let array = Uint8Array::from(bytes.as_slice());
+	let decoded = JsFuture::from(context.decode_audio_data(&array.buffer())?).await?;
 	Ok(decoded.dyn_into()?)
 }
