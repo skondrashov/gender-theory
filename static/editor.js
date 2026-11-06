@@ -247,7 +247,7 @@ function builtins() {
   const per = spec.length / 16;
   return {
     beat, bar, pulse: beat * (0.7 + 0.3 * bar),
-    noise: NaN, transition: 0,
+    span: NaN, noise: NaN, transition: 0,
     bass: coarse(0, 2 * per), mid: coarse(2 * per, 8 * per), treble: coarse(8 * per, 16 * per),
   };
 }
@@ -310,6 +310,9 @@ function renderLists() {
   $('#layer-title').textContent = s ? `layers of ${s.id}` : 'layers';
   $('#hotspot-list').replaceChildren(...(s?.hotspots ?? []).map((h, k) => inStage(h) ? item('hotspot', k, h.name || h.id, h.bars, '', h.stage) : null).filter(Boolean));
   $('#layer-list').replaceChildren(...(s?.layers ?? []).map((l, k) => inStage(l) ? item('layer', k, `${l.name || l.id} · ${l.kind}`, l.bars, l.muted ? 'muted' : '', l.stage) : null).filter(Boolean));
+  $('#preset-list').replaceChildren(...(album.presets ?? []).map((p, k) => el('li', { title: 'click to add a copy to this scene', onclick: () => insertPreset(k) },
+    el('span', {}, p.name, el('span', { class: 'stage' }, p.layer.kind)),
+    el('span', { class: 'x', title: 'forget this preset', onclick: (e) => { e.stopPropagation(); deletePreset(k); } }, '×'))));
 }
 
 const inStage = (item) => !stageFilter || !item.stage || item.stage === stageFilter;
@@ -377,12 +380,44 @@ function moveSelectedTo(sceneId) {
 
 // ---- adding ----
 
+// A param's default in the catalogue is a number, or a whole {base, chains}.
+const defaultParam = (spec) => (typeof spec.default === 'object' ? JSON.parse(JSON.stringify(spec.default)) : { base: spec.default, chains: [] });
+
 function defaultParams(kind) {
   const out = {};
   for (const [name, spec] of Object.entries(cat.kinds[kind].params)) {
-    out[name] = spec.type === 'param' ? { base: spec.default, chains: [] } : spec.default;
+    out[name] = spec.type === 'param' ? defaultParam(spec) : spec.default;
   }
   return out;
+}
+
+// ---- presets: layers kept to drop into any scene ----
+
+function savePreset(l) {
+  const layer = JSON.parse(JSON.stringify(l));
+  delete layer.id; delete layer.stage; delete layer.bars; delete layer.muted;
+  snapshotForUndo();
+  album.presets ??= [];
+  album.presets.push({ id: uid('p'), name: layer.name || l.kind, layer });
+  commit({ silent: true });
+  setStatus(`saved preset "${layer.name || l.kind}"`);
+}
+
+function insertPreset(k) {
+  const s = scene();
+  if (!s) { setStatus('add a scene first'); return; }
+  const preset = album.presets[k];
+  snapshotForUndo();
+  s.layers ??= [];
+  s.layers.push({ id: uid('l'), ...JSON.parse(JSON.stringify(preset.layer)), ...inFilteredStage() });
+  sel = { type: 'layer', index: s.layers.length - 1 };
+  commit({ silent: true, inspector: true });
+}
+
+function deletePreset(k) {
+  snapshotForUndo();
+  album.presets.splice(k, 1);
+  commit({ silent: true });
 }
 
 function addScene() {
@@ -589,7 +624,7 @@ function layerInspector(l) {
     barsRow(l),
     stageRow(l),
     moveRow(),
-    row('', checkInput(l, 'muted', 'muted')),
+    row('', checkInput(l, 'muted', 'muted'), el('button', { class: 'small', onclick: () => savePreset(l), title: 'keep a copy in the presets list, to drop into any scene' }, 'save as preset')),
     el('fieldset', {}, el('legend', {}, 'params'), ...Object.entries(spec.params).map(([name, p]) => paramRow(l.params, name, p))),
   ];
   if (!spec.modifier) {
@@ -637,9 +672,9 @@ function layerInspector(l) {
 
 function paramRow(params, name, spec) {
   // Missing in the file means the engine's default: show that, not 0.
-  if (params[name] === undefined) params[name] = spec.type === 'param' ? { base: spec.default, chains: [] } : spec.default;
+  if (params[name] === undefined) params[name] = spec.type === 'param' ? defaultParam(spec) : spec.default;
   if (spec.type === 'param') {
-    if (typeof params[name] !== 'object' || params[name] === null) params[name] = { base: typeof params[name] === 'number' ? params[name] : spec.default, chains: [] };
+    if (typeof params[name] !== 'object' || params[name] === null) params[name] = { base: typeof params[name] === 'number' ? params[name] : (defaultParam(spec).base), chains: [] };
     const p = params[name];
     p.chains ??= [];
     const chainsBox = el('div', { class: 'chains' });

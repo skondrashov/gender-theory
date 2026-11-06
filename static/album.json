@@ -51,6 +51,108 @@
    "floor": 0.1
   }
  ],
+ "presets": [
+  {
+   "id": "p-snake-retreat",
+   "name": "snake \u00b7 retreat",
+   "layer": {
+    "name": "snake retreat",
+    "region": {
+     "rect": [
+      0,
+      0,
+      20,
+      20
+     ]
+    },
+    "kind": "snake",
+    "params": {
+     "mode": "retreat",
+     "axis": "rows",
+     "alternate": true,
+     "reverse": false,
+     "heads": 1,
+     "spin": 0,
+     "progress": {
+      "base": 0,
+      "chains": [
+       {
+        "source": "span",
+        "depth": 1,
+        "threshold": 0,
+        "width": 1,
+        "curve": 1,
+        "invert": false,
+        "on": true
+       }
+      ]
+     },
+     "gray": {
+      "base": 0.9,
+      "chains": []
+     },
+     "dots": {
+      "base": 0.45,
+      "chains": []
+     },
+     "color": {
+      "base": 0,
+      "chains": []
+     }
+    }
+   }
+  },
+  {
+   "id": "p-snake-arrive",
+   "name": "snake \u00b7 arrive",
+   "layer": {
+    "name": "snake arrive",
+    "region": {
+     "rect": [
+      0,
+      0,
+      20,
+      20
+     ]
+    },
+    "kind": "snake",
+    "params": {
+     "mode": "arrive",
+     "axis": "rows",
+     "alternate": true,
+     "reverse": true,
+     "heads": 1,
+     "spin": 180,
+     "progress": {
+      "base": 0,
+      "chains": [
+       {
+        "source": "span",
+        "depth": 1,
+        "threshold": 0,
+        "width": 1,
+        "curve": 1,
+        "invert": false,
+        "on": true
+       }
+      ]
+     },
+     "gray": {
+      "base": 0.9,
+      "chains": []
+     },
+     "dots": {
+      "base": 0.45,
+      "chains": []
+     },
+     "color": {
+      "base": 0,
+      "chains": []
+     }
+    }
+   }
+  }
+ ],
  "tracks": [
   {
    "id": "sine",
@@ -92,7 +194,8 @@
           }
          ]
         }
-       }
+       },
+       "needs": []
       },
       {
        "id": "l1",
@@ -879,13 +982,13 @@
      "hotspots": [
       {
        "id": "e",
-       "name": "the e in met",
+       "name": "e in met",
        "region": {
         "rect": [
          8,
-         15,
+         13,
          12,
-         18
+         16
         ]
        },
        "needs": [],
@@ -896,110 +999,6 @@
         }
        ],
        "stage": "met ends"
-      },
-      {
-       "id": "square",
-       "name": "the square",
-       "region": {
-        "rect": [
-         3,
-         7,
-         9,
-         13
-        ]
-       },
-       "needs": [],
-       "on": "tap",
-       "then": [
-        {
-         "unlock": "glow"
-        }
-       ],
-       "stage": "square"
-      },
-      {
-       "id": "square-2",
-       "name": "the inverse square",
-       "region": {
-        "rect": [
-         12,
-         4,
-         17,
-         9
-        ]
-       },
-       "needs": [
-        "glow"
-       ],
-       "on": "tap",
-       "then": [
-        {
-         "stage": "stripes"
-        }
-       ],
-       "stage": "square"
-      },
-      {
-       "id": "patch",
-       "name": "the patch",
-       "region": {
-        "rect": [
-         7,
-         7,
-         13,
-         13
-        ]
-       },
-       "needs": [],
-       "on": "tap",
-       "then": [
-        {
-         "unlock": "lines"
-        }
-       ],
-       "stage": "stripes"
-      },
-      {
-       "id": "gap",
-       "name": "the gap",
-       "region": {
-        "rect": [
-         6,
-         10,
-         14,
-         11
-        ]
-       },
-       "needs": [
-        "lines"
-       ],
-       "on": "outline",
-       "then": [
-        {
-         "stage": "boxes"
-        }
-       ],
-       "stage": "stripes"
-      },
-      {
-       "id": "box",
-       "name": "the box",
-       "region": {
-        "rect": [
-         12,
-         3,
-         18,
-         9
-        ]
-       },
-       "needs": [],
-       "on": "tap",
-       "then": [
-        {
-         "stage": "cross"
-        }
-       ],
-       "stage": "boxes"
       },
       {
        "id": "centre",
@@ -1045,18 +1044,30 @@
       },
       {
        "id": "hmw4rooy7v5i",
-       "name": "hotspot",
+       "name": "e in ends",
        "region": {
         "rect": [
-         0,
+         2,
          6,
-         4,
+         6,
          9
         ]
        },
        "needs": [],
        "on": "tap",
-       "then": []
+       "then": [],
+       "stage": "met ends"
+      },
+      {
+       "id": "hmw5ia2bz7hc",
+       "name": "d in ends",
+       "region": {
+        "map": "....................\n....................\n....................\n....................\n....................\n....................\n....................\n....................\n....................\n....................\n....................\n....................\n....................\n....................\n....................\n....................\n....................\n....................\n....................\n...................."
+       },
+       "needs": [],
+       "on": "tap",
+       "then": [],
+       "stage": "met ends"
       }
      ]
     },

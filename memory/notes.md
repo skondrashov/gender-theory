@@ -141,6 +141,18 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   `scenes/album.rs` before 2026-11-05). Knobs per sidechain: depth, threshold, width, curve,
   invert, on; per band: attack, release, gain. The layout is a first draft the owner asked
   to see; expect to rework it.
+- **The snake, and presets** (owner, 2026-11-06): "all the points are connected in
+  horizontal lines. the lines retreat in such a way that it looks like it's all one singular
+  line retreating and leaving dots, maybe even in alternating directions along the y axis
+  … then, each dot rotates and extends a line to re-connect in a line along the x axis, but
+  does it in the inverse way so it looks like singular lines are coming in" — built as the
+  `snake` kind (one polyline through the region's rect in serpentine order; cell k owns the
+  segment to cell k+1; `progress` follows the new `span` source = 0..1 across the layer's
+  own bars). Then: "maybe what i want is like saved scenes and layers in like a preset form.
+  layers i think is the right level" — so it's not placed in a scene; it's two **presets**
+  (`album.presets`, editor-only): `snake · retreat` and `snake · arrive` (spin 180,
+  reverse). The retreat anchors at the next dot and pulls back; the arrive grows out of each
+  dot, turning `spin` degrees as it goes.
 - **Painting is the default** (owner, 2026-11-06): "if i'm editing a hotspot or layer, i
   should be able to just click on the map. and default it to empty and 'map' setting instead
   of 'whole'" — new layers and hotspots start as an empty map and are painted on the grid;

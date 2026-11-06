@@ -34,6 +34,9 @@ use {
 pub struct Album {
 	pub bands: Vec<Band>,
 	pub tracks: Vec<TrackData>,
+	/// The editor's layer presets (`{id, name, layer}`): a library to drop into any scene.
+	/// The engine doesn't read them.
+	pub presets: Vec<Value>,
 }
 
 /// A frequency range of the music, followed as a 0..1 level (source `id`), and as a pitch:
@@ -386,9 +389,12 @@ impl Param {
 	}
 }
 
-/// Every source a sidechain can take, as of this frame and this cell.
+/// Every source a sidechain can take, as of this frame, this cell and this layer.
+#[derive(Clone, Copy)]
 pub struct Signals<'a> {
 	pub bands: &'a HashMap<String, f32>,
+	/// 0..1 across the layer's own bars (the scene's if it has none).
+	pub span: f32,
 	pub beat: f32,
 	pub bar: f32,
 	pub pulse: f32,
@@ -402,6 +408,7 @@ pub struct Signals<'a> {
 impl Signals<'_> {
 	pub fn get(&self, source: &str) -> f32 {
 		match source {
+			"span" => self.span,
 			"beat" => self.beat,
 			"bar" => self.bar,
 			"pulse" => self.pulse,
@@ -421,8 +428,9 @@ impl Signals<'_> {
 /// What the editor needs to know about the kinds and their params. Types: `param` (a base
 /// and sidechains), `number`, `bool`, `angle`, `select` (with `options`), `sub`.
 pub const CATALOGUE: &str = r##"{
-  "sources": ["beat", "bar", "pulse", "noise", "transition", "bass", "mid", "treble"],
+  "sources": ["span", "beat", "bar", "pulse", "noise", "transition", "bass", "mid", "treble"],
   "sourceDocs": {
+    "span": "0..1 across the layer's own bars (the scene's if it has none): where we are in it",
     "beat": "hits on every beat and falls away before the next",
     "bar": "hits on the downbeat and falls away over the bar",
     "pulse": "beat and bar together: beat hits, downbeat hardest",
@@ -443,6 +451,21 @@ pub const CATALOGUE: &str = r##"{
         "length": {"type": "param", "default": 1, "step": 0.1, "doc": "in cells (needs length to be other than 1)"},
         "gray": {"type": "param", "default": 0.7, "step": 0.05, "doc": "brightness, times the glow over the cell"},
         "color": {"type": "param", "default": 0, "step": 0.1, "doc": "0 grey .. 1 the colour (needs colour)"}
+      }
+    },
+    "snake": {
+      "doc": "One line through every cell of the region's rectangle, row by row (or column by column), as a snake. retreat: it pulls back cell by cell from its start, leaving a dot at each. arrive: from the dots, each dot in turn extends (and turns) a line to the next until the line is whole. Where it is comes from `progress`: the layer's own bars by default, so put a retreat and an arrive on consecutive bars.",
+      "params": {
+        "mode": {"type": "select", "options": ["retreat", "arrive"], "default": "retreat"},
+        "axis": {"type": "select", "options": ["rows", "cols"], "default": "rows", "doc": "the lines run along rows (left-right) or columns (up-down)"},
+        "alternate": {"type": "bool", "default": true, "doc": "every other line runs the opposite way, so it's one continuous snake"},
+        "reverse": {"type": "bool", "default": false, "doc": "run the order from the other end"},
+        "heads": {"type": "number", "default": 1, "step": 1, "doc": "how many snakes at once (the order cut into equal runs)"},
+        "spin": {"type": "number", "default": 0, "step": 15, "doc": "degrees the moving end turns about its dot as it grows or shrinks"},
+        "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "0 untouched .. 1 done, for the mode"},
+        "gray": {"type": "param", "default": 0.9, "step": 0.05, "doc": "the line"},
+        "dots": {"type": "param", "default": 0.45, "step": 0.05, "doc": "the dots it leaves / starts from"},
+        "color": {"type": "param", "default": 0, "step": 0.1}
       }
     },
     "points": {
@@ -524,6 +547,45 @@ impl Default for Marks {
 			alternate: false,
 			length: Param::new(1.0),
 			gray: Param::new(0.7),
+			color: Param::new(0.0),
+		}
+	}
+}
+
+#[derive(Deserialize)]
+#[serde(default)]
+struct Snake {
+	mode: String,
+	axis: String,
+	alternate: bool,
+	reverse: bool,
+	heads: usize,
+	/// Degrees.
+	spin: f32,
+	progress: Param,
+	gray: Param,
+	dots: Param,
+	color: Param,
+}
+
+impl Default for Snake {
+	fn default() -> Self {
+		Snake {
+			mode: "retreat".into(),
+			axis: "rows".into(),
+			alternate: true,
+			reverse: false,
+			heads: 1,
+			spin: 0.0,
+			progress: Param {
+				base: 0.0,
+				chains: vec![Sidechain {
+					source: "span".into(),
+					..Default::default()
+				}],
+			},
+			gray: Param::new(0.9),
+			dots: Param::new(0.45),
 			color: Param::new(0.0),
 		}
 	}
@@ -634,6 +696,7 @@ impl Default for Walk {
 
 enum Kind {
 	Marks(Marks),
+	Snake(Snake),
 	Points(Points),
 	Rings(Rings),
 	Orbits(Orbits),
@@ -649,6 +712,7 @@ fn parse_kind(kind: &str, params: &Value) -> Result<Kind, String> {
 	let bad = |e: serde_json::Error| format!("{kind}: {e}");
 	Ok(match kind {
 		"marks" => Kind::Marks(serde_json::from_value(params).map_err(bad)?),
+		"snake" => Kind::Snake(serde_json::from_value(params).map_err(bad)?),
 		"points" => Kind::Points(serde_json::from_value(params).map_err(bad)?),
 		"rings" => Kind::Rings(serde_json::from_value(params).map_err(bad)?),
 		"orbits" => Kind::Orbits(serde_json::from_value(params).map_err(bad)?),
@@ -698,6 +762,8 @@ struct DataScene {
 	layers: &'static [LayerRt],
 	/// Hotspot id → its tag in this scene.
 	tags: Vec<(String, u8)>,
+	/// The scene's bars, for layers without their own.
+	bars: [usize; 2],
 }
 
 thread_local! {
@@ -803,7 +869,11 @@ pub fn install(json: &str) -> Result<usize, String> {
 					stage: stage_index(&hotspot.stage),
 				});
 			}
-			let data: &'static DataScene = leak(DataScene { layers, tags });
+			let data: &'static DataScene = leak(DataScene {
+				layers,
+				tags,
+				bars: [bars.start, bars.end],
+			});
 			let render: &'static dyn Fn(&Draw, &Model, usize, usize, f32, [f32; 8]) =
 				leak(move |draw: &Draw, model: &Model, i, j, time, modifiers| {
 					render(data, draw, model, i, j, time, modifiers)
@@ -878,6 +948,7 @@ fn render(
 	let pulse = pulse(&modifiers);
 	let signals = Signals {
 		bands: model.bands(),
+		span: 0.0,
 		beat: hit(quarter, 2.5),
 		bar: hit(whole, 1.5),
 		pulse,
@@ -886,6 +957,16 @@ fn render(
 		bass,
 		mid,
 		treble,
+	};
+	// The same signals, with `span` where the bar is in this layer's own bars.
+	let with_span = |rt: &LayerRt| {
+		let [from, to] = rt.layer.bars.unwrap_or(scene.bars);
+		let span = if to > from {
+			((bar - from as f32) / (to - from) as f32).clamp(0.0, 1.0)
+		} else {
+			0.0
+		};
+		Signals { span, ..signals }
 	};
 	let stage = model.stage();
 	let active = || {
@@ -901,6 +982,7 @@ fn render(
 	let mut level = 1.0;
 	let (mut hot_gray, mut hot_length) = (0.0, 0.0);
 	for rt in active() {
+		let signals = with_span(rt);
 		match &rt.kind {
 			Kind::Glow(glow) => {
 				if gate(scene, model, &rt.layer).is_some() {
@@ -927,6 +1009,7 @@ fn render(
 		let Some(factor) = gate(scene, model, &rt.layer) else {
 			continue;
 		};
+		let signals = with_span(rt);
 		let own = rt.layer.glow.as_ref().map_or(level, |glow| glow.value(&signals));
 		let lit = lit(model, own) * factor;
 		match &rt.kind {
@@ -962,6 +1045,63 @@ fn render(
 					gray,
 					marks.color.value(&signals),
 				);
+			}
+			Kind::Snake(snake) => {
+				// One polyline through the cell centres of the region's rectangle in serpentine
+				// order; cell k owns the segment from its centre to the next cell's.
+				let rect = rt.layer.region.area();
+				let (w, h) = (rect.i1.saturating_sub(rect.i0), rect.j1.saturating_sub(rect.j0));
+				if w == 0 || h == 0 {
+					continue;
+				}
+				let n = w * h;
+				let along_rows = snake.axis != "cols";
+				let len = if along_rows { w } else { h };
+				let order = |i: usize, j: usize| {
+					let (line, pos) = if along_rows {
+						(rect.j1 - 1 - j, i - rect.i0)
+					} else {
+						(i - rect.i0, j - rect.j0)
+					};
+					let pos = if snake.alternate && line % 2 == 1 { len - 1 - pos } else { pos };
+					let k = line * len + pos;
+					if snake.reverse { n - 1 - k } else { k }
+				};
+				let cell = |k: usize| {
+					let k = if snake.reverse { n - 1 - k } else { k };
+					let (line, pos) = (k / len, k % len);
+					let pos = if snake.alternate && line % 2 == 1 { len - 1 - pos } else { pos };
+					if along_rows {
+						(rect.i0 + pos, rect.j1 - 1 - line)
+					} else {
+						(rect.i0 + line, rect.j0 + pos)
+					}
+				};
+				let heads = snake.heads.clamp(1, n);
+				let run = (n + heads - 1) / heads;
+				let k = order(i, j);
+				let (head, c) = (k / run, k % run);
+				let last = ((head + 1) * run).min(n) - 1;
+				let run_len = last + 1 - head * run;
+				let front = snake.progress.value(&signals).clamp(0.0, 1.0) * run_len as f32;
+				let color = snake.color.value(&signals);
+				let dots = (snake.dots.value(&signals) + hot_gray) * lit;
+				dot(draw, model, x, y, paint(model, dots, color));
+				if k < last {
+					let (ni, nj) = cell(k + 1);
+					let (qx, qy) = scale_coordinates(model, ni, nj);
+					let arrive = snake.mode == "arrive";
+					let c = c as f32;
+					let fill = if arrive { front - c } else { c + 1.0 - front }.clamp(0.0, 1.0);
+					if fill > 0.0 {
+						// arriving grows out of this dot towards the next; retreating pulls back
+						// from this dot towards the next, anchored there
+						let (sx, sy, dx, dy) = if arrive { (x, y, qx - x, qy - y) } else { (qx, qy, x - qx, y - qy) };
+						let angle = dy.atan2(dx) + snake.spin.to_radians() * (1.0 - fill);
+						let gray = (snake.gray.value(&signals) + hot_gray) * lit;
+						stroke(draw, model, sx, sy, angle, fill * unit, paint(model, gray, color));
+					}
+				}
 			}
 			Kind::Points(points) => {
 				let gray = (points.gray.value(&signals) + hot_gray) * lit;
