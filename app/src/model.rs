@@ -397,7 +397,7 @@ impl Model {
 	/// The `tag` of the unlocked hotspot covering cell (i, j), if any. Scenes draw hints with this.
 	pub fn hint_at(&self, i: usize, j: usize) -> Option<u8> {
 		self.hotspots()
-			.find(|hotspot| hotspot.cells.contains(i, j))
+			.find(|hotspot| hotspot.covers(i, j))
 			.map(|hotspot| hotspot.tag)
 	}
 
@@ -1078,9 +1078,9 @@ pub fn mouse_released(app: &App, model: &mut Model, _button: MouseButton) {
 		return;
 	};
 	let hit = model.hotspots().find(|hotspot| {
-		hotspot.cells.contains(press.0, press.1)
+		hotspot.covers(press.0, press.1)
 			&& match hotspot.on {
-				Gesture::Tap => hotspot.cells.contains(release.0, release.1),
+				Gesture::Tap => hotspot.covers(release.0, release.1),
 				Gesture::Drag { to } => to.contains(release.0, release.1),
 				Gesture::Outline => false,
 			}

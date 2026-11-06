@@ -116,6 +116,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Go("points_2"),
 				tag: 0,
 				stage: None,
+				inside: None,
 			},
 			Hotspot {
 				cells: CORNER,
@@ -124,6 +125,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Unlock(Unlock::Lines),
 				tag: 1,
 				stage: None,
+				inside: None,
 			},
 			Hotspot {
 				cells: CORNER,
@@ -132,6 +134,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Go("lines"),
 				tag: 1,
 				stage: None,
+				inside: None,
 			},
 		],
 	},
@@ -182,6 +185,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Go("points"),
 				tag: 0,
 				stage: None,
+				inside: None,
 			},
 			Hotspot {
 				cells: area(1, 1, 5, 5),
@@ -190,6 +194,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Go("spin"),
 				tag: 1,
 				stage: None,
+				inside: None,
 			},
 			Hotspot {
 				cells: area(15, 1, 19, 5),
@@ -198,6 +203,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Go("color_gate"),
 				tag: 2,
 				stage: None,
+				inside: None,
 			},
 		],
 	},
@@ -227,6 +233,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Unlock(Unlock::Length),
 				tag: 0,
 				stage: None,
+				inside: None,
 			},
 			Hotspot {
 				cells: area(8, 2, 13, 4),
@@ -235,6 +242,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Go("length"),
 				tag: 0,
 				stage: None,
+				inside: None,
 			},
 		],
 	},
@@ -279,6 +287,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Unlock(Unlock::Rotation),
 				tag: 0,
 				stage: None,
+				inside: None,
 			},
 			Hotspot {
 				cells: area(2, 14, 6, 18),
@@ -287,6 +296,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::GoVia("spin", 0..2),
 				tag: 2,
 				stage: None,
+				inside: None,
 			},
 			Hotspot {
 				cells: area(9, 9, 11, 11),
@@ -295,6 +305,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Go("lines"),
 				tag: 1,
 				stage: None,
+				inside: None,
 			},
 		],
 	},
@@ -359,6 +370,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Unlock(Unlock::Circles),
 				tag: 0,
 				stage: None,
+				inside: None,
 			},
 			Hotspot {
 				cells: BOX,
@@ -367,6 +379,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::GoVia("color_gate", 10..14),
 				tag: 2,
 				stage: None,
+				inside: None,
 			},
 			Hotspot {
 				cells: area(0, 0, 2, 2),
@@ -375,6 +388,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Go("length"),
 				tag: 1,
 				stage: None,
+				inside: None,
 			},
 		],
 	},
@@ -424,6 +438,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Unlock(Unlock::Color),
 				tag: 0,
 				stage: None,
+				inside: None,
 			},
 			Hotspot {
 				cells: CENTRE,
@@ -432,6 +447,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Go("points"),
 				tag: 2,
 				stage: None,
+				inside: None,
 			},
 			Hotspot {
 				cells: area(0, 18, 20, 20),
@@ -440,6 +456,7 @@ pub const SCENES: &[&Scene] = &[
 				then: Action::Go("points"),
 				tag: 1,
 				stage: None,
+				inside: None,
 			},
 		],
 	},
@@ -467,6 +484,7 @@ pub const SCENES: &[&Scene] = &[
 			then: Action::Go("old/2"),
 			tag: 0,
 			stage: None,
+			inside: None,
 		}],
 	},
 	&Scene {
@@ -513,6 +531,7 @@ pub const SCENES: &[&Scene] = &[
 			then: Action::Go("old/3"),
 			tag: 0,
 			stage: None,
+			inside: None,
 		}],
 	},
 	&Scene {
@@ -548,6 +567,7 @@ pub const SCENES: &[&Scene] = &[
 			then: Action::Go("old/4"),
 			tag: 0,
 			stage: None,
+			inside: None,
 		}],
 	},
 	&Scene {
@@ -592,6 +612,7 @@ pub const SCENES: &[&Scene] = &[
 			then: Action::Go("old/5"),
 			tag: 0,
 			stage: None,
+			inside: None,
 		}],
 	},
 	&Scene {
@@ -626,6 +647,7 @@ pub const SCENES: &[&Scene] = &[
 			then: Action::Go("old/6"),
 			tag: 0,
 			stage: None,
+			inside: None,
 		}],
 	},
 	&Scene {
@@ -670,6 +692,7 @@ pub const SCENES: &[&Scene] = &[
 			then: Action::Go("old/1"),
 			tag: 0,
 			stage: None,
+			inside: None,
 		}],
 	},
 ];

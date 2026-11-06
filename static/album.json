@@ -880,12 +880,14 @@
       {
        "id": "e",
        "name": "the e in met",
-       "rect": [
-        8,
-        15,
-        12,
-        18
-       ],
+       "region": {
+        "rect": [
+         8,
+         15,
+         12,
+         18
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -898,12 +900,14 @@
       {
        "id": "square",
        "name": "the square",
-       "rect": [
-        3,
-        7,
-        9,
-        13
-       ],
+       "region": {
+        "rect": [
+         3,
+         7,
+         9,
+         13
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -916,12 +920,14 @@
       {
        "id": "square-2",
        "name": "the inverse square",
-       "rect": [
-        12,
-        4,
-        17,
-        9
-       ],
+       "region": {
+        "rect": [
+         12,
+         4,
+         17,
+         9
+        ]
+       },
        "needs": [
         "glow"
        ],
@@ -936,12 +942,14 @@
       {
        "id": "patch",
        "name": "the patch",
-       "rect": [
-        7,
-        7,
-        13,
-        13
-       ],
+       "region": {
+        "rect": [
+         7,
+         7,
+         13,
+         13
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -954,12 +962,14 @@
       {
        "id": "gap",
        "name": "the gap",
-       "rect": [
-        6,
-        10,
-        14,
-        11
-       ],
+       "region": {
+        "rect": [
+         6,
+         10,
+         14,
+         11
+        ]
+       },
        "needs": [
         "lines"
        ],
@@ -974,12 +984,14 @@
       {
        "id": "box",
        "name": "the box",
-       "rect": [
-        12,
-        3,
-        18,
-        9
-       ],
+       "region": {
+        "rect": [
+         12,
+         3,
+         18,
+         9
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -992,12 +1004,14 @@
       {
        "id": "centre",
        "name": "the centre",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -1010,12 +1024,14 @@
       {
        "id": "centre-2",
        "name": "the centre, again",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [
         "length"
        ],
@@ -1030,12 +1046,14 @@
       {
        "id": "hmw4rooy7v5i",
        "name": "hotspot",
-       "rect": [
-        0,
-        6,
-        4,
-        9
-       ],
+       "region": {
+        "rect": [
+         0,
+         6,
+         4,
+         9
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": []
@@ -1194,12 +1212,14 @@
       {
        "id": "door-sine/5",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -1371,12 +1391,14 @@
       {
        "id": "door-sasha-grips/0",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -1541,12 +1563,14 @@
       {
        "id": "door-sasha-grips/1",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -1678,12 +1702,14 @@
       {
        "id": "door-sasha-grips/2",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -1848,12 +1874,14 @@
       {
        "id": "door-sasha-grips/3",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -2018,12 +2046,14 @@
       {
        "id": "door-sasha-grips/4",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -2195,12 +2225,14 @@
       {
        "id": "door-pisser/0",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -2365,12 +2397,14 @@
       {
        "id": "door-pisser/1",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -2535,12 +2569,14 @@
       {
        "id": "door-pisser/2",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -2705,12 +2741,14 @@
       {
        "id": "door-pisser/3",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -2875,12 +2913,14 @@
       {
        "id": "door-pisser/4",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -3045,12 +3085,14 @@
       {
        "id": "door-pisser/5",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -3215,12 +3257,14 @@
       {
        "id": "door-pisser/6",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -3392,12 +3436,14 @@
       {
        "id": "door-for-against/0",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -3562,12 +3608,14 @@
       {
        "id": "door-for-against/1",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -3732,12 +3780,14 @@
       {
        "id": "door-for-against/2",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -3902,12 +3952,14 @@
       {
        "id": "door-for-against/3",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -4072,12 +4124,14 @@
       {
        "id": "door-for-against/4",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -4242,12 +4296,14 @@
       {
        "id": "door-for-against/5",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -4412,12 +4468,14 @@
       {
        "id": "door-for-against/6",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [
@@ -4582,12 +4640,14 @@
       {
        "id": "door-for-against/7",
        "name": "on",
-       "rect": [
-        8,
-        8,
-        12,
-        12
-       ],
+       "region": {
+        "rect": [
+         8,
+         8,
+         12,
+         12
+        ]
+       },
        "needs": [],
        "on": "tap",
        "then": [

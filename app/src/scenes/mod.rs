@@ -47,13 +47,23 @@ pub struct Scene {
 /// Something to do in a scene. Invisible and inert until the player has all of `needs`.
 /// The scene's render draws the hint itself, by asking `model.hint_at(i, j)` for the `tag`.
 pub struct Hotspot {
+	/// The rectangle round its cells: what the outline gesture traces, what hints go round.
 	pub cells: Area,
+	/// Narrows `cells` to a shape (a painted map, a checker, …); `None`: the whole rectangle.
+	pub inside: Option<&'static (dyn Fn(usize, usize) -> bool + Sync)>,
 	pub needs: Unlocks,
 	pub on: Gesture,
 	pub then: Action,
 	pub tag: u8,
 	/// Only in this stage of the scene (`None`: every stage).
 	pub stage: Option<usize>,
+}
+
+impl Hotspot {
+	/// Whether cell (i, j) is one of the hotspot's.
+	pub fn covers(&self, i: usize, j: usize) -> bool {
+		self.cells.contains(i, j) && self.inside.map_or(true, |inside| inside(i, j))
+	}
 }
 
 pub enum Gesture {

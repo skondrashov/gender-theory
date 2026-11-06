@@ -118,6 +118,32 @@ impl Region {
 			.unwrap_or(area(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT))
 	}
 
+	/// Nothing given: the whole grid.
+	pub fn is_unset(&self) -> bool {
+		self.rect.is_none()
+			&& self.map.is_none()
+			&& self.rows.is_none()
+			&& self.cols.is_none()
+			&& self.checker.is_none()
+			&& !self.perimeter
+	}
+
+	/// The tight rectangle round the cells it contains; empty (0, 0, 0, 0) if none.
+	pub fn bounds(&self) -> Area {
+		let mut bounds: Option<Area> = None;
+		for i in 0..CANVAS_WIDTH {
+			for j in 0..CANVAS_HEIGHT {
+				if self.contains(i, j) {
+					bounds = Some(match bounds {
+						None => area(i, j, i + 1, j + 1),
+						Some(b) => area(b.i0.min(i), b.j0.min(j), b.i1.max(i + 1), b.j1.max(j + 1)),
+					});
+				}
+			}
+		}
+		bounds.unwrap_or(area(0, 0, 0, 0))
+	}
+
 	pub fn contains(&self, i: usize, j: usize) -> bool {
 		let rect = self.area();
 		if !rect.contains(i, j) || (self.perimeter && !rect.on_perimeter(i, j)) {
@@ -229,7 +255,10 @@ pub struct HotspotData {
 	/// Unused by the engine for now (a hotspot is there for the whole scene); kept for the
 	/// editor's timeline.
 	pub bars: Option<[usize; 2]>,
-	pub rect: [usize; 4],
+	/// Its cells, like a layer's. The outline gesture traces the rectangle round them.
+	pub region: Region,
+	/// The old form: just a rectangle. Read when `region` is unset.
+	pub rect: Option<[usize; 4]>,
 	pub needs: Vec<String>,
 	pub on: OnData,
 	pub then: Vec<ActionData>,
@@ -242,7 +271,8 @@ impl Default for HotspotData {
 			id: String::new(),
 			name: String::new(),
 			bars: None,
-			rect: [8, 8, 12, 12],
+			region: Region::default(),
+			rect: None,
 			needs: vec![],
 			on: OnData::Name("tap".into()),
 			then: vec![],
@@ -724,7 +754,16 @@ pub fn install(json: &str) -> Result<usize, String> {
 			for hotspot in &scene.hotspots {
 				let tag = hotspots.len() as u8;
 				tags.push((hotspot.id.clone(), tag));
-				let [i0, j0, i1, j1] = hotspot.rect;
+				let region: &'static Region = leak(if hotspot.region.is_unset() {
+					Region {
+						rect: hotspot.rect,
+						..Default::default()
+					}
+				} else {
+					hotspot.region.clone()
+				});
+				let inside: &'static (dyn Fn(usize, usize) -> bool + Sync) =
+					leak(move |i: usize, j: usize| region.contains(i, j));
 				let needs = Unlocks::of(
 					&hotspot
 						.needs
@@ -755,7 +794,8 @@ pub fn install(json: &str) -> Result<usize, String> {
 					Action::All(Vec::leak(actions))
 				};
 				hotspots.push(Hotspot {
-					cells: area(i0, j0, i1, j1),
+					cells: region.bounds(),
+					inside: Some(inside),
 					needs,
 					on,
 					then,

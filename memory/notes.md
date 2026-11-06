@@ -141,6 +141,12 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   `scenes/album.rs` before 2026-11-05). Knobs per sidechain: depth, threshold, width, curve,
   invert, on; per band: attack, release, gain. The layout is a first draft the owner asked
   to see; expect to rework it.
+- **Painting is the default** (owner, 2026-11-06): "if i'm editing a hotspot or layer, i
+  should be able to just click on the map. and default it to empty and 'map' setting instead
+  of 'whole'" — new layers and hotspots start as an empty map and are painted on the grid;
+  hotspots have a `region` like layers (`Hotspot.inside` narrows the bounding `cells`;
+  outline/hints use the rectangle round it; old `rect` still reads). The drag-paint bug was
+  an operator-precedence inversion in the grid's mousemove.
 - **Glow is only a param** (owner, 2026-11-06): "i don't want the glow of everything to
   default to the pulse, i want glow to just be sidechainable but require glow unlocked to do
   anything" — a glow layer has one param, `level` (brightness 0..1, default 1), gated by the

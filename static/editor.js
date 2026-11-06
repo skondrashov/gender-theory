@@ -397,13 +397,15 @@ function addScene() {
 
 // New layers and hotspots go in the stage the lists are filtered to, if any.
 const inFilteredStage = () => (stageFilter ? { stage: stageFilter } : {});
+// ... and start as an empty map, to paint on the grid.
+const emptyRegion = () => ({ map: mapRows('').join('\n') });
 
 function addLayer() {
   const s = scene();
   if (!s) { setStatus('add a scene first'); return; }
   snapshotForUndo();
   s.layers ??= [];
-  s.layers.push({ id: uid('l'), name: 'layer', region: {}, kind: 'marks', params: defaultParams('marks'), ...inFilteredStage() });
+  s.layers.push({ id: uid('l'), name: 'layer', region: emptyRegion(), kind: 'marks', params: defaultParams('marks'), ...inFilteredStage() });
   sel = { type: 'layer', index: s.layers.length - 1 };
   commit({ silent: true, inspector: true });
 }
@@ -413,7 +415,7 @@ function addHotspot() {
   if (!s) { setStatus('add a scene first'); return; }
   snapshotForUndo();
   s.hotspots ??= [];
-  s.hotspots.push({ id: uid('h'), name: 'hotspot', rect: [8, 8, 12, 12], needs: [], on: 'tap', then: [], ...inFilteredStage() });
+  s.hotspots.push({ id: uid('h'), name: 'hotspot', region: emptyRegion(), needs: [], on: 'tap', then: [], ...inFilteredStage() });
   sel = { type: 'hotspot', index: s.hotspots.length - 1 };
   commit({ silent: true, inspector: true });
 }
@@ -692,7 +694,7 @@ function hotspotInspector(h) {
   const on = typeof h.on === 'string' ? h.on : 'drag';
   const onRow = row('on', el('select', { onchange: (e) => {
       snapshotForUndo();
-      h.on = e.target.value === 'drag' ? { drag: [...h.rect] } : e.target.value;
+      h.on = e.target.value === 'drag' ? { drag: boundsOf(regionOf()) } : e.target.value;
       commit({ silent: true, inspector: true });
     } }, ...['tap', 'outline', 'drag'].map((o) => el('option', { value: o, ...(o === on ? { selected: '' } : {}) }, o))),
     el('span', { class: 'doc' }, on === 'tap' ? 'press and release inside' : on === 'outline' ? 'draw its perimeter in one stroke' : 'press inside, release in the target'));
@@ -722,7 +724,7 @@ function hotspotInspector(h) {
     barsRow(h),
     stageRow(h),
     moveRow(),
-    row('cells', ...[0, 1, 2, 3].map((k) => numberInput(h.rect, k, { step: 1, min: 0, max: 20 })), el('span', { class: 'doc' }, 'i0 j0 i1 j1 — or drag on the grid')),
+    row('cells', el('span', {}, describeRegion(regionOf())), el('span', { class: 'doc' }, 'paint or drag them on the grid; outline traces the rectangle round them')),
     onRow, dragRow,
     row('needs', ...UNLOCKS.map((u) => el('label', {}, el('input', { type: 'checkbox', ...(h.needs.includes(u) ? { checked: '' } : {}), onchange: (e) => {
       snapshotForUndo(); h.needs = UNLOCKS.filter((v) => (v === u ? e.target.checked : h.needs.includes(v))); commit({ silent: true });
@@ -754,9 +756,24 @@ const grid = { drag: null };
 function regionOf() {
   if (!sel) return null;
   const item = selected();
-  if (sel.type === 'layer') return item.region ??= {};
-  if (sel.type === 'hotspot') return { rect: item.rect };
-  return null;
+  if (sel.type !== 'layer' && sel.type !== 'hotspot') return null;
+  if (item.rect) { item.region = { rect: item.rect, ...(item.region || {}) }; delete item.rect; } // the old hotspot form
+  return item.region ??= {};
+}
+
+function describeRegion(r) {
+  const n = regionCells(r).length;
+  if (r.map != null) return `${n} painted cell${n === 1 ? '' : 's'}`;
+  if (r.rect) return `${r.rect.join(' ')}${r.perimeter ? ', the perimeter' : ''} — ${n} cells`;
+  return n === W * H ? 'the whole grid' : `${n} cells of the grid`;
+}
+
+// The rectangle round a region's cells (what a drag target starts as).
+function boundsOf(r) {
+  const cells = regionCells(r);
+  if (!cells.length) return [8, 8, 12, 12];
+  const is = cells.map(([i]) => i), js = cells.map(([, j]) => j);
+  return [Math.min(...is), Math.min(...js), Math.max(...is) + 1, Math.max(...js) + 1];
 }
 
 // Mirrors data::Region::contains.
@@ -812,7 +829,7 @@ function setupGrid() {
     if (!r) return;
     const [i, j] = cellAt(e);
     snapshotForUndo();
-    if (sel.type === 'layer' && r.map != null) {
+    if (r.map != null) {
       grid.drag = { paint: mapAt(r.map, i, j) !== '#' };
       r.map = mapSet(r.map, i, j, grid.drag.paint);
     } else {
@@ -826,7 +843,7 @@ function setupGrid() {
     const r = regionOf();
     const [i, j] = cellAt(e);
     if (grid.drag.paint != null) {
-      if (mapAt(r.map, i, j) === '#' !== grid.drag.paint) return;
+      if ((mapAt(r.map, i, j) === '#') === grid.drag.paint) return;
       r.map = mapSet(r.map, i, j, grid.drag.paint);
     } else {
       const [a, b] = grid.drag.from;
@@ -838,8 +855,7 @@ function setupGrid() {
 }
 
 function setRect(r, i0, j0, i1, j1) {
-  if (sel.type === 'hotspot') { const h = selected(); h.rect[0] = i0; h.rect[1] = j0; h.rect[2] = i1; h.rect[3] = j1; }
-  else r.rect = [i0, j0, i1, j1];
+  r.rect = [i0, j0, i1, j1];
 }
 
 function renderGrid() {
@@ -857,14 +873,13 @@ function renderGrid() {
   sendHighlight();
   // tools
   const tools = $('#region-tools');
-  if (!r || sel.type !== 'layer') { tools.replaceChildren(r ? el('span', {}, 'drag to set the hotspot\'s cells') : el('span', {}, 'select a layer or hotspot to edit its region')); return; }
-  const l = selected();
-  const go = () => commit({ silent: true, lists: false, timeline: false });
+  if (!r) { tools.replaceChildren(el('span', {}, 'select a layer or hotspot to edit its region')); return; }
+  const go = () => commit({ silent: true, lists: false, timeline: false, inspector: sel.type === 'hotspot' });
   const btn = (label, on, fn) => el('button', { class: 'small' + (on ? ' on' : ''), onclick: () => { snapshotForUndo(); fn(); go(); } }, label);
   tools.replaceChildren(
-    btn('whole', !r.rect && r.map == null, () => { delete r.rect; delete r.map; }),
-    btn('rect', !!r.rect && r.map == null, () => { delete r.map; r.rect ??= [5, 5, 15, 15]; }),
     btn('map', r.map != null, () => { if (r.map == null) { const rows = mapRows(''); r.map = rows.map((row, k) => Array.from(row, (_, i) => inRegion({ rect: r.rect }, i, H - 1 - k) ? '#' : '.').join('')).join('\n'); delete r.rect; } }),
+    btn('rect', !!r.rect && r.map == null, () => { delete r.map; r.rect ??= [5, 5, 15, 15]; }),
+    btn('whole', !r.rect && r.map == null, () => { delete r.rect; delete r.map; }),
     el('label', {}, el('input', { type: 'checkbox', ...(r.perimeter ? { checked: '' } : {}), onchange: (e) => { snapshotForUndo(); if (e.target.checked) r.perimeter = true; else delete r.perimeter; go(); } }), 'perimeter'),
     el('span', {}, 'rows every ', stepInput(r, 'rows'), ' cols every ', stepInput(r, 'cols')),
     el('span', {}, 'checker ', el('select', { onchange: (e) => { snapshotForUndo(); if (e.target.value === '') delete r.checker; else r.checker = +e.target.value; go(); } },
