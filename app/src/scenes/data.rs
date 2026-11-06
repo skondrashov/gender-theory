@@ -171,9 +171,9 @@ pub struct Layer {
 	pub fade: Option<Fade>,
 	/// Brightness is the product of these unlocks' reveals (0 without them).
 	pub needs: Vec<String>,
-	/// How this layer's marks glow, overriding the glow layers covering the cell:
-	/// field / inverse / bounded / off.
-	pub glow: Option<String>,
+	/// This layer's marks glow on their own level (0..1, once glow is unlocked), whatever
+	/// the glow layers covering the cell say.
+	pub glow: Option<Param>,
 	/// Only in this stage of the scene (by name).
 	pub stage: Option<String>,
 	pub muted: bool,
@@ -395,7 +395,7 @@ pub const CATALOGUE: &str = r##"{
   "sourceDocs": {
     "beat": "hits on every beat and falls away before the next",
     "bar": "hits on the downbeat and falls away over the bar",
-    "pulse": "beat and bar together: what the glow follows",
+    "pulse": "beat and bar together: beat hits, downbeat hardest",
     "noise": "a fixed random value per cell, 0..1",
     "transition": "0..1 along a via passage out of the scene",
     "bass": "the old coarse bands: 0-2.7 kHz",
@@ -411,7 +411,7 @@ pub const CATALOGUE: &str = r##"{
         "spin": {"type": "param", "default": 0, "doc": "turns per time unit (needs rotation)"},
         "alternate": {"type": "bool", "default": false, "doc": "every other cell spins the other way"},
         "length": {"type": "param", "default": 1, "step": 0.1, "doc": "in cells (needs length to be other than 1)"},
-        "gray": {"type": "param", "default": 0.7, "step": 0.05, "doc": "brightness, times the glow"},
+        "gray": {"type": "param", "default": 0.7, "step": 0.05, "doc": "brightness, times the glow over the cell"},
         "color": {"type": "param", "default": 0, "step": 0.1, "doc": "0 grey .. 1 the colour (needs colour)"}
       }
     },
@@ -447,12 +447,9 @@ pub const CATALOGUE: &str = r##"{
     },
     "glow": {
       "modifier": true,
-      "doc": "How the marks in this region glow (once glow is unlocked), on `level` (0..1): field 0.35..1, inverse 1..0, bounded lo..hi, off. Cells under no glow layer are field on the pulse.",
+      "doc": "The brightness of the marks in this region, once glow is unlocked. Does nothing until then; cells under no glow layer stay lit. Sidechain it to breathe: base 0.35 + 0.65 of the pulse is the old field, base 1 − 1 of it the old inverse.",
       "params": {
-        "level": {"type": "param", "default": 0, "step": 0.1, "doc": "what the glow follows: 0 dark .. 1 lit; the pulse by default — sidechain a band instead"},
-        "mode": {"type": "select", "options": ["field", "inverse", "bounded", "off"], "default": "field"},
-        "lo": {"type": "number", "default": 0.35, "step": 0.05},
-        "hi": {"type": "number", "default": 0.65, "step": 0.05}
+        "level": {"type": "param", "default": 1, "step": 0.05, "doc": "0 dark .. 1 lit; later glow layers over the same cell win"}
       }
     },
     "walk": {
@@ -571,26 +568,14 @@ impl Default for Orbits {
 #[derive(Deserialize)]
 #[serde(default)]
 struct Glow {
-	/// What the glow follows, 0..1. By default the pulse (the beat clock).
+	/// The brightness of the marks under it, 0..1, once glow is unlocked.
 	level: Param,
-	mode: String,
-	lo: f32,
-	hi: f32,
 }
 
 impl Default for Glow {
 	fn default() -> Self {
 		Glow {
-			level: Param {
-				base: 0.0,
-				chains: vec![Sidechain {
-					source: "pulse".into(),
-					..Default::default()
-				}],
-			},
-			mode: "field".into(),
-			lo: 0.35,
-			hi: 0.65,
+			level: Param::new(1.0),
 		}
 	}
 }
@@ -830,16 +815,10 @@ fn gate(scene: &DataScene, model: &Model, layer: &Layer) -> Option<f32> {
 	(factor > 0.0).then_some(factor)
 }
 
-/// The glow of a cell in `mode` at `level` (0..1; see `scenes::glow`): 1 until glow is
-/// unlocked.
-fn lit(model: &Model, level: f32, mode: &str, lo: f32, hi: f32) -> f32 {
-	let lit = match mode {
-		"inverse" => 1.0 - level,
-		"bounded" => lo + (hi - lo) * level,
-		"off" => 1.0,
-		_ => 0.35 + 0.65 * level,
-	};
-	1.0 + (lit - 1.0) * model.reveal(Unlock::Glow)
+/// The glow of a cell at `level` (0..1): 1 until glow is unlocked, easing to the level as
+/// it comes in.
+fn lit(model: &Model, level: f32) -> f32 {
+	1.0 + (level.clamp(0.0, 1.0) - 1.0) * model.reveal(Unlock::Glow)
 }
 
 fn render(
@@ -877,15 +856,15 @@ fn render(
 		})
 	};
 
-	// The modifiers first: how the cell glows and on what, and whether a walk is on it.
-	let (mut mode, mut lo, mut hi, mut level) = ("field", 0.35, 0.65, pulse);
+	// The modifiers first: how bright the cell glows (lit unless a glow layer says), and
+	// whether a walk is on it.
+	let mut level = 1.0;
 	let (mut hot_gray, mut hot_length) = (0.0, 0.0);
 	for rt in active() {
 		match &rt.kind {
 			Kind::Glow(glow) => {
 				if gate(scene, model, &rt.layer).is_some() {
-					(mode, lo, hi) = (glow.mode.as_str(), glow.lo, glow.hi);
-					level = glow.level.value(&signals).clamp(0.0, 1.0);
+					level = glow.level.value(&signals);
 				}
 			}
 			Kind::Walk(walk) => {
@@ -908,8 +887,8 @@ fn render(
 		let Some(factor) = gate(scene, model, &rt.layer) else {
 			continue;
 		};
-		let glow_mode = rt.layer.glow.as_deref().unwrap_or(mode);
-		let lit = lit(model, level, glow_mode, lo, hi) * factor;
+		let own = rt.layer.glow.as_ref().map_or(level, |glow| glow.value(&signals));
+		let lit = lit(model, own) * factor;
 		match &rt.kind {
 			Kind::Marks(marks) => {
 				let angle = match &marks.angle {

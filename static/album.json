@@ -7,7 +7,7 @@
    "hi": 120,
    "attack": 0.005,
    "release": 0.12,
-   "gain": 1.0,
+   "gain": 1,
    "floor": 0.1
   },
   {
@@ -17,7 +17,7 @@
    "hi": 250,
    "attack": 0.01,
    "release": 0.15,
-   "gain": 1.0,
+   "gain": 1,
    "floor": 0.1
   },
   {
@@ -47,7 +47,7 @@
    "hi": 16000,
    "attack": 0.01,
    "release": 0.2,
-   "gain": 2.0,
+   "gain": 2,
    "floor": 0.1
   }
  ],
@@ -73,16 +73,38 @@
      ],
      "layers": [
       {
+       "id": "l-field-glow",
+       "name": "field glow",
+       "region": {},
+       "kind": "glow",
+       "params": {
+        "level": {
+         "base": 0.35,
+         "chains": [
+          {
+           "source": "pulse",
+           "depth": 0.65,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       }
+      },
+      {
        "id": "l1",
        "name": "met ends",
        "region": {
-        "map": "....................\n.#####.######.#####.\n.#.#.#.######...#...\n.#.#.#.##..##...#...\n.#.#.#.######...#...\n.#.#.#.######...#...\n.#.#.#.##.......#...\n.#.#.#.######...#...\n.#.#.#.######...#...\n....................\n....................\n####.####....#.####.\n#..#.#..#....#.#....\n####.#..#.####.####.\n#....#..#.#..#....#.\n####.#..#.####.####.\n....................\n....................\n....................\n...................."
+        "map": "....................\n....................\n....................\n....................\n..####...##..#####..\n..#.#.#.#..#...#....\n..#.#.#.####...#....\n..#.#.#.#......#....\n..#.#.#..###...#....\n....................\n....................\n...##..##....#..##..\n..#..#.#.#...#.#....\n..####.#.#..##.###..\n..#....#.#.#.#...#..\n...###.#.#.###.##...\n....................\n....................\n....................\n...................."
        },
        "kind": "marks",
        "params": {
         "angle": "along",
         "length": {
-         "base": 1.0,
+         "base": 1,
          "chains": []
         },
         "gray": {
@@ -90,11 +112,49 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
-        }
+        },
+        "offset": 0,
+        "spin": {
+         "base": 0,
+         "chains": []
+        },
+        "alternate": false
        },
-       "stage": "met ends"
+       "stage": "met ends",
+       "needs": []
+      },
+      {
+       "id": "lmw4ryunn3is",
+       "name": "met ends copy",
+       "region": {
+        "map": "....................\n....................\n....................\n....................\n..####...##..#####..\n..#.#.#.#..#...#....\n..#.#.#.####...#....\n..#.#.#.#......#....\n..#.#.#..###...#....\n....................\n....................\n...##..##....#..##..\n..#..#.#.#...#.#....\n..####.#.#..##.###..\n..#....#.#.#.#...#..\n...###.#.#.###.##...\n....................\n....................\n....................\n...................."
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "along",
+        "length": {
+         "base": 1,
+         "chains": []
+        },
+        "gray": {
+         "base": 0.9,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        },
+        "offset": 0,
+        "spin": {
+         "base": 0,
+         "chains": []
+        },
+        "alternate": false
+       },
+       "stage": "met ends",
+       "needs": []
       },
       {
        "id": "l2",
@@ -104,7 +164,7 @@
        "params": {
         "angle": "along",
         "length": {
-         "base": 1.0,
+         "base": 1,
          "chains": []
         },
         "gray": {
@@ -112,7 +172,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -137,15 +197,15 @@
        "params": {
         "angle": "along",
         "length": {
-         "base": 1.0,
+         "base": 1,
          "chains": []
         },
         "gray": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -153,7 +213,10 @@
         "hotspot": "square",
         "visible": true
        },
-       "glow": "off",
+       "glow": {
+        "base": 1,
+        "chains": []
+       },
        "stage": "square"
       },
       {
@@ -172,7 +235,7 @@
        "params": {
         "angle": "along",
         "length": {
-         "base": 1.0,
+         "base": 1,
          "chains": []
         },
         "gray": {
@@ -180,7 +243,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -188,7 +251,10 @@
         "hotspot": "square",
         "visible": true
        },
-       "glow": "off",
+       "glow": {
+        "base": 1,
+        "chains": []
+       },
        "stage": "square"
       },
       {
@@ -206,15 +272,15 @@
        "params": {
         "angle": "along",
         "length": {
-         "base": 1.0,
+         "base": 1,
          "chains": []
         },
         "gray": {
-         "base": 1.0,
+         "base": 1,
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -222,7 +288,20 @@
         "hotspot": "square-2",
         "visible": true
        },
-       "glow": "inverse",
+       "glow": {
+        "base": 1,
+        "chains": [
+         {
+          "source": "pulse",
+          "depth": -1,
+          "threshold": 0,
+          "width": 1,
+          "curve": 1,
+          "invert": false,
+          "on": true
+         }
+        ]
+       },
        "stage": "square"
       },
       {
@@ -238,7 +317,7 @@
        "params": {
         "angle": "along",
         "length": {
-         "base": 1.0,
+         "base": 1,
          "chains": []
         },
         "gray": {
@@ -246,7 +325,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -268,7 +347,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -296,7 +375,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -304,7 +383,20 @@
         "hotspot": "patch",
         "visible": true
        },
-       "glow": "inverse",
+       "glow": {
+        "base": 1,
+        "chains": [
+         {
+          "source": "pulse",
+          "depth": -1,
+          "threshold": 0,
+          "width": 1,
+          "curve": 1,
+          "invert": false,
+          "on": true
+         }
+        ]
+       },
        "stage": "stripes"
       },
       {
@@ -326,16 +418,16 @@
           {
            "source": "beat",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -359,11 +451,11 @@
        "kind": "glow",
        "params": {
         "level": {
-         "base": 0,
+         "base": 1,
          "chains": [
           {
            "source": "pulse",
-           "depth": 1,
+           "depth": -1,
            "threshold": 0,
            "width": 1,
            "curve": 1,
@@ -371,8 +463,7 @@
            "on": true
           }
          ]
-        },
-        "mode": "inverse"
+        }
        },
        "stage": "boxes"
       },
@@ -390,11 +481,11 @@
        "kind": "glow",
        "params": {
         "level": {
-         "base": 0,
+         "base": 0.35,
          "chains": [
           {
            "source": "pulse",
-           "depth": 1,
+           "depth": 0.3,
            "threshold": 0,
            "width": 1,
            "curve": 1,
@@ -402,10 +493,7 @@
            "on": true
           }
          ]
-        },
-        "mode": "bounded",
-        "lo": 0.35,
-        "hi": 0.65
+        }
        },
        "stage": "boxes"
       },
@@ -424,18 +512,18 @@
           {
            "source": "bass",
            "depth": 1.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "beat",
            "depth": 0.6,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -446,7 +534,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -465,7 +553,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -492,18 +580,18 @@
           {
            "source": "bass",
            "depth": 1.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "beat",
            "depth": 0.6,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -514,7 +602,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -534,11 +622,11 @@
        "kind": "glow",
        "params": {
         "level": {
-         "base": 0,
+         "base": 1,
          "chains": [
           {
            "source": "pulse",
-           "depth": 1,
+           "depth": -1,
            "threshold": 0,
            "width": 1,
            "curve": 1,
@@ -546,8 +634,7 @@
            "on": true
           }
          ]
-        },
-        "mode": "inverse"
+        }
        },
        "stage": "cross"
       },
@@ -565,11 +652,11 @@
        "kind": "glow",
        "params": {
         "level": {
-         "base": 0,
+         "base": 0.35,
          "chains": [
           {
            "source": "pulse",
-           "depth": 1,
+           "depth": 0.3,
            "threshold": 0,
            "width": 1,
            "curve": 1,
@@ -577,10 +664,7 @@
            "on": true
           }
          ]
-        },
-        "mode": "bounded",
-        "lo": 0.35,
-        "hi": 0.65
+        }
        },
        "stage": "cross"
       },
@@ -604,18 +688,18 @@
           {
            "source": "bass",
            "depth": 1.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "beat",
            "depth": 0.6,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -626,7 +710,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -652,18 +736,18 @@
           {
            "source": "bass",
            "depth": 1.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "beat",
            "depth": 0.6,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -674,7 +758,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -695,18 +779,18 @@
           {
            "source": "bass",
            "depth": 1.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "beat",
            "depth": 0.6,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -717,7 +801,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -736,7 +820,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -763,18 +847,18 @@
           {
            "source": "bass",
            "depth": 1.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "beat",
            "depth": 0.6,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -785,7 +869,7 @@
          "chains": []
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -797,10 +881,10 @@
        "id": "e",
        "name": "the e in met",
        "rect": [
-        7,
-        11,
-        13,
-        19
+        8,
+        15,
+        12,
+        18
        ],
        "needs": [],
        "on": "tap",
@@ -942,6 +1026,19 @@
         }
        ],
        "stage": "cross"
+      },
+      {
+       "id": "hmw4rooy7v5i",
+       "name": "hotspot",
+       "rect": [
+        0,
+        6,
+        4,
+        9
+       ],
+       "needs": [],
+       "on": "tap",
+       "then": []
       }
      ]
     },
@@ -959,7 +1056,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 105.0,
+        "offset": 105,
         "spin": {
          "base": 0.15,
          "chains": []
@@ -971,9 +1068,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -985,41 +1082,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1060,9 +1157,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1074,16 +1171,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -1136,7 +1233,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 126.0,
+        "offset": 126,
         "spin": {
          "base": 0.2,
          "chains": []
@@ -1148,9 +1245,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1162,41 +1259,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1237,9 +1334,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1251,16 +1348,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -1306,7 +1403,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 147.0,
+        "offset": 147,
         "spin": {
          "base": 0.25,
          "chains": []
@@ -1318,9 +1415,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1332,41 +1429,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1407,9 +1504,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1421,16 +1518,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -1481,14 +1578,14 @@
         "far_rate": 1.3,
         "vary": 0.4,
         "pull": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "bass",
-           "depth": 1.0,
+           "depth": 1,
            "threshold": 0.25,
            "width": 0.5,
-           "curve": 1.0,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1502,21 +1599,21 @@
            "depth": 0.3,
            "threshold": 0.25,
            "width": 0.5,
-           "curve": 1.0,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "bass",
-           "depth": 1.0,
+           "depth": 1,
            "threshold": 0.25,
            "width": 0.5,
-           "curve": 1.0,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1544,9 +1641,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1558,16 +1655,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -1613,7 +1710,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 189.0,
+        "offset": 189,
         "spin": {
          "base": 0.35,
          "chains": []
@@ -1625,9 +1722,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1639,41 +1736,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1714,9 +1811,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1728,16 +1825,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -1783,7 +1880,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 210.0,
+        "offset": 210,
         "spin": {
          "base": 0.15,
          "chains": []
@@ -1795,9 +1892,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1809,41 +1906,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1884,9 +1981,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1898,16 +1995,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -1960,7 +2057,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 231.0,
+        "offset": 231,
         "spin": {
          "base": 0.2,
          "chains": []
@@ -1972,9 +2069,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -1986,41 +2083,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2061,9 +2158,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2075,16 +2172,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -2130,7 +2227,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 252.0,
+        "offset": 252,
         "spin": {
          "base": 0.25,
          "chains": []
@@ -2142,9 +2239,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2156,41 +2253,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2231,9 +2328,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2245,16 +2342,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -2300,7 +2397,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 273.0,
+        "offset": 273,
         "spin": {
          "base": 0.30000000000000004,
          "chains": []
@@ -2312,9 +2409,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2326,41 +2423,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2401,9 +2498,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2415,16 +2512,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -2470,7 +2567,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 294.0,
+        "offset": 294,
         "spin": {
          "base": 0.35,
          "chains": []
@@ -2482,9 +2579,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2496,41 +2593,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2571,9 +2668,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2585,16 +2682,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -2640,7 +2737,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 315.0,
+        "offset": 315,
         "spin": {
          "base": 0.15,
          "chains": []
@@ -2652,9 +2749,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2666,41 +2763,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2741,9 +2838,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2755,16 +2852,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -2810,7 +2907,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 336.0,
+        "offset": 336,
         "spin": {
          "base": 0.2,
          "chains": []
@@ -2822,9 +2919,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2836,41 +2933,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2911,9 +3008,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -2925,16 +3022,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -2980,7 +3077,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 357.0,
+        "offset": 357,
         "spin": {
          "base": 0.25,
          "chains": []
@@ -2992,9 +3089,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3006,41 +3103,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3081,9 +3178,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3095,16 +3192,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -3157,7 +3254,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 378.0,
+        "offset": 378,
         "spin": {
          "base": 0.30000000000000004,
          "chains": []
@@ -3169,9 +3266,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3183,41 +3280,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3258,9 +3355,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3272,16 +3369,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -3327,7 +3424,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 399.0,
+        "offset": 399,
         "spin": {
          "base": 0.35,
          "chains": []
@@ -3339,9 +3436,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3353,41 +3450,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3428,9 +3525,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3442,16 +3539,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -3497,7 +3594,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 420.0,
+        "offset": 420,
         "spin": {
          "base": 0.15,
          "chains": []
@@ -3509,9 +3606,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3523,41 +3620,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3598,9 +3695,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3612,16 +3709,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -3667,7 +3764,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 441.0,
+        "offset": 441,
         "spin": {
          "base": 0.2,
          "chains": []
@@ -3679,9 +3776,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3693,41 +3790,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3768,9 +3865,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3782,16 +3879,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -3837,7 +3934,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 462.0,
+        "offset": 462,
         "spin": {
          "base": 0.25,
          "chains": []
@@ -3849,9 +3946,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3863,41 +3960,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3938,9 +4035,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -3952,16 +4049,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -4007,7 +4104,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 483.0,
+        "offset": 483,
         "spin": {
          "base": 0.30000000000000004,
          "chains": []
@@ -4019,9 +4116,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -4033,41 +4130,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -4108,9 +4205,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -4122,16 +4219,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -4177,7 +4274,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 504.0,
+        "offset": 504,
         "spin": {
          "base": 0.35,
          "chains": []
@@ -4189,9 +4286,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -4203,41 +4300,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -4278,9 +4375,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -4292,16 +4389,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },
@@ -4347,7 +4444,7 @@
        "kind": "marks",
        "params": {
         "angle": "noise",
-        "offset": 525.0,
+        "offset": 525,
         "spin": {
          "base": 0.15,
          "chains": []
@@ -4359,9 +4456,9 @@
           {
            "source": "mid",
            "depth": 0.9,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -4373,41 +4470,41 @@
           {
            "source": "noise",
            "depth": 0.45,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "treble",
            "depth": 0.25,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": [
           {
            "source": "noise",
-           "depth": 1.0,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           },
           {
            "source": "bass",
            "depth": 0.5,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -4448,9 +4545,9 @@
           {
            "source": "bass",
            "depth": 0.4,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
@@ -4462,16 +4559,16 @@
           {
            "source": "bar",
            "depth": 0.7,
-           "threshold": 0.0,
-           "width": 1.0,
-           "curve": 1.0,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true
           }
          ]
         },
         "color": {
-         "base": 0.0,
+         "base": 0,
          "chains": []
         }
        },

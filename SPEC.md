@@ -11,7 +11,8 @@ change, and the door that needs it appears.
 
 The spine, in order, regardless of music:
 
-1. **glow** — brightness breathes with the music; some areas breathe in inverse
+1. **glow** — brightness can follow the music (a glow layer's level, sidechained to the
+   pulse or a band; nothing breathes unless a layer says so); some areas breathe in inverse
 2. **lines** — points become lines (still, along the grid, one cell long)
 3. **length** — line length moves
 

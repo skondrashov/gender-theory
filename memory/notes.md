@@ -141,6 +141,14 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   `scenes/album.rs` before 2026-11-05). Knobs per sidechain: depth, threshold, width, curve,
   invert, on; per band: attack, release, gain. The layout is a first draft the owner asked
   to see; expect to rework it.
+- **Glow is only a param** (owner, 2026-11-06): "i don't want the glow of everything to
+  default to the pulse, i want glow to just be sidechainable but require glow unlocked to do
+  anything" — a glow layer has one param, `level` (brightness 0..1, default 1), gated by the
+  glow unlock's reveal; the old modes (field/inverse/bounded/off) and the engine's default
+  field-on-the-pulse are gone. Cells under no glow layer stay lit. A draw layer's `glow`
+  override is now an optional param of its own ("own glow"). Migrated: modes → base + depth
+  on the existing pulse chain; act-1 got an explicit `field glow` layer (0.35 + 0.65 pulse)
+  so its look didn't change — delete it to stop the field breathing.
 - **Pitch** (owner, 2026-11-06): "is there a way to include like pitch of sections in the
   output too somehow? it sucks when there's a melody playing and it's not reflected in any
   way" — chosen: live, from the spectrum ("1 for sure"). Every band also gives `id.pitch`
