@@ -10,7 +10,8 @@
 //!
 //! Numbers that move are **params**: a base value plus any number of **sidechains**, each
 //! taking a source — one of the album's frequency **bands** (`Album::bands`, followed with
-//! attack and release in `Model`) or a built-in signal (beat, bar, pulse, noise,
+//! attack and release in `Model`: its level as `id`, and where in its range the loudest
+//! thing sits as `id.pitch` and `id.chroma`) or a built-in signal (beat, bar, pulse, noise,
 //! transition, and the old bass/mid/treble) — through threshold, width, curve and depth.
 //!
 //! `CATALOGUE` tells the editor what kinds and params exist; the structs here are what
@@ -35,7 +36,10 @@ pub struct Album {
 	pub tracks: Vec<TrackData>,
 }
 
-/// A frequency range of the music, followed as a 0..1 level.
+/// A frequency range of the music, followed as a 0..1 level (source `id`), and as a pitch:
+/// where in the range the loudest thing is, on a log scale 0..1 (`id.pitch`), and that
+/// folded to a pitch class, C = 0 .. B = 11/12 (`id.chroma`). The pitch holds while the
+/// band is below its `floor`, so it doesn't wander in the gaps between notes.
 #[derive(Deserialize, Clone, Debug)]
 #[serde(default)]
 pub struct Band {
@@ -44,11 +48,14 @@ pub struct Band {
 	/// Hz.
 	pub lo: f32,
 	pub hi: f32,
-	/// Seconds the follower takes to rise / fall (time constants).
+	/// Seconds the follower takes to rise / fall (time constants). The pitch glides with
+	/// `attack`.
 	pub attack: f32,
 	pub release: f32,
 	/// Level multiplier (high bands are quiet).
 	pub gain: f32,
+	/// Level (after gain) under which the band is silent: its pitch holds.
+	pub floor: f32,
 }
 
 impl Default for Band {
@@ -61,6 +68,7 @@ impl Default for Band {
 			attack: 0.01,
 			release: 0.15,
 			gain: 1.0,
+			floor: 0.1,
 		}
 	}
 }
@@ -372,6 +380,7 @@ impl Signals<'_> {
 			"bass" => self.bass,
 			"mid" => self.mid,
 			"treble" => self.treble,
+			// a band's level, or `id.pitch` / `id.chroma`
 			band => self.bands.get(band).copied().unwrap_or(0.0),
 		}
 	}

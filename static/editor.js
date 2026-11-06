@@ -417,7 +417,7 @@ function addHotspot() {
 
 function addBand() {
   snapshotForUndo();
-  album.bands.push({ id: uid('b'), name: 'band', lo: 100, hi: 400, attack: 0.01, release: 0.15, gain: 1 });
+  album.bands.push({ id: uid('b'), name: 'band', lo: 100, hi: 400, attack: 0.01, release: 0.15, gain: 1, floor: 0.1 });
   sel = { type: 'band', index: album.bands.length - 1 };
   commit({ silent: true, inspector: true, sources: true });
 }
@@ -657,7 +657,13 @@ function paramRow(params, name, spec) {
 function chainRow(p, c, k, rerender) {
   const id = uid('m');
   chainRefs[id] = c;
-  const sources = [...album.bands.map((b) => ({ value: b.id, label: b.name || b.id })), ...cat.sources.map((s) => ({ value: s, label: s }))];
+  const sources = [
+    ...album.bands.flatMap((b) => [
+      { value: b.id, label: b.name || b.id },
+      { value: b.id + '.pitch', label: (b.name || b.id) + ' · pitch' },
+      { value: b.id + '.chroma', label: (b.name || b.id) + ' · chroma' },
+    ]),
+    ...cat.sources.map((s) => ({ value: s, label: s }))];
   const num = (key, step) => el('input', { type: 'number', value: c[key], step, onchange: (e) => { snapshotForUndo(); c[key] = +e.target.value; commit({ silent: true }); } });
   return el('div', { class: 'chain' + (c.on ? '' : ' off') },
     el('label', {}, el('input', { type: 'checkbox', ...(c.on ? { checked: '' } : {}), title: 'on', onchange: (e) => { snapshotForUndo(); c.on = e.target.checked; commit({ silent: true }); rerender(); } })),
@@ -724,7 +730,10 @@ function bandInspector(b) {
     row('attack', numberInput(b, 'attack', { step: 0.005, min: 0 }), el('span', { class: 'doc' }, 'seconds to rise')),
     row('release', numberInput(b, 'release', { step: 0.01, min: 0 }), el('span', { class: 'doc' }, 'seconds to fall')),
     row('gain', numberInput(b, 'gain', { step: 0.1, min: 0 }), el('span', { class: 'doc' }, 'level multiplier (high bands are quiet)')),
-    row('level', el('div', { class: 'meter', 'data-source': b.id }, el('i'))),
+    row('floor', numberInput(b, 'floor', { step: 0.05, min: 0 }), el('span', { class: 'doc' }, 'level under which the band is silent: its pitch holds')),
+    row('level', el('div', { class: 'meter', 'data-source': b.id }, el('i')), el('span', { class: 'doc' }, `source ${b.id}`)),
+    row('pitch', el('div', { class: 'meter', 'data-source': b.id + '.pitch' }, el('i')), el('span', { class: 'doc' }, `where in the range the loudest thing is, lo..hi on a log scale (${b.id}.pitch); glides with the attack`)),
+    row('chroma', el('div', { class: 'meter', 'data-source': b.id + '.chroma' }, el('i')), el('span', { class: 'doc' }, `its note, C = 0 .. B = 11/12 (${b.id}.chroma)`)),
   ];
 }
 
@@ -929,6 +938,14 @@ function drawSpectrum() {
     g.fillRect(x0, 0, 1, height); g.fillRect(x1 - 1, 0, 1, height);
     const level = st.bands?.[b.id] ?? 0;
     g.fillRect(x0, height - level * height, x1 - x0, 2);
+    const pitch = st.bands?.[b.id + '.pitch'];
+    if (pitch !== undefined) {
+      // the held pitch, as a tick on the band's lower edge: lo..hi on a log scale
+      const x = fx(b.lo * Math.pow(b.hi / b.lo, pitch), width);
+      g.fillStyle = '#fff';
+      g.fillRect(x - 1, height - 14, 2, 14);
+      g.fillStyle = color;
+    }
     g.font = '10px system-ui'; g.fillText(b.name || b.id, x0 + 3, 11);
   });
   // ticks
@@ -948,7 +965,9 @@ function renderSources() {
     el('span', { class: 'dim' }, 'att'), numberInput(b, 'attack', { step: 0.005, min: 0 }),
     el('span', { class: 'dim' }, 'rel'), numberInput(b, 'release', { step: 0.01, min: 0 }),
     el('span', { class: 'dim' }, 'gain'), numberInput(b, 'gain', { step: 0.1, min: 0 }),
-    el('div', { class: 'meter', 'data-source': b.id }, el('i')))));
+    el('div', { class: 'meter', 'data-source': b.id, title: 'level' }, el('i')),
+    el('div', { class: 'meter pitch', 'data-source': b.id + '.pitch', title: 'pitch: where in the range the loudest thing is' }, el('i')),
+    el('div', { class: 'meter pitch', 'data-source': b.id + '.chroma', title: 'chroma: its note, C = 0 .. B' }, el('i')))));
   $('#builtins').replaceChildren(...cat.sources.map((s) => el('div', { class: 'builtin', title: cat.sourceDocs?.[s] || '' },
     el('span', { class: 'name' }, s), el('div', { class: 'meter', 'data-source': s }, el('i')))));
 }

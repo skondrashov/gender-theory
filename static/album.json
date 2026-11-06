@@ -7,7 +7,8 @@
    "hi": 120,
    "attack": 0.005,
    "release": 0.12,
-   "gain": 1.0
+   "gain": 1.0,
+   "floor": 0.1
   },
   {
    "id": "b-bass",
@@ -16,7 +17,8 @@
    "hi": 250,
    "attack": 0.01,
    "release": 0.15,
-   "gain": 1.0
+   "gain": 1.0,
+   "floor": 0.1
   },
   {
    "id": "b-mids",
@@ -25,7 +27,8 @@
    "hi": 2000,
    "attack": 0.01,
    "release": 0.15,
-   "gain": 1.2
+   "gain": 1.2,
+   "floor": 0.1
   },
   {
    "id": "b-highs",
@@ -34,7 +37,8 @@
    "hi": 8000,
    "attack": 0.01,
    "release": 0.15,
-   "gain": 1.5
+   "gain": 1.5,
+   "floor": 0.1
   },
   {
    "id": "b-air",
@@ -43,7 +47,8 @@
    "hi": 16000,
    "attack": 0.01,
    "release": 0.2,
-   "gain": 2.0
+   "gain": 2.0,
+   "floor": 0.1
   }
  ],
  "tracks": [

@@ -63,8 +63,10 @@ interpolation probably won't work on most tracks. Changes land on the next bar, 
 The album is data (`static/album.json`), made in the editor (`/editor.html`): per track, the
 scenes (loops), the layers (a region, a mechanic, its parameters, its bars) and the hotspots,
 all in bars. Any parameter can be **sidechained**: it takes a base value plus any number of
-sources — frequency bands the owner defines in one place (Hz range, attack, release, gain)
-or the built-in events (beat, bar, pulse) — each through threshold, width, curve and depth.
+sources — frequency bands the owner defines in one place (Hz range, attack, release, gain),
+each giving its level and the **pitch** of what's loudest in it (as a position in the range,
+and as a note), or the built-in events (beat, bar, pulse) — each through threshold, width,
+curve and depth.
 So "length follows the bass" or "gray breathes with the kick" is a knob, not code; code is
 for new *kinds* of mechanic (`scenes/data.rs`).
 

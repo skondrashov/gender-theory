@@ -75,6 +75,8 @@ main { display: flex; height: 500px; flex: none; border-bottom: 1px solid var(--
 #bands .band .swatch { width: 10px; height: 10px; border-radius: 2px; flex: none; }
 .meter { width: 70px; height: 8px; background: #000; border: 1px solid var(--line); position: relative; flex: none; }
 .meter i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); width: 0; }
+.meter.pitch { width: 40px; }
+.meter.pitch i { background: #ddd; }
 #builtins { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 6px; }
 #builtins .builtin { width: 150px; }
 #builtins .builtin .name { width: 60px; color: var(--dim); }

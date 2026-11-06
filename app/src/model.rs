@@ -74,7 +74,8 @@ pub struct Model {
 	seek: Option<(String, usize)>,
 	/// Cells the editor wants outlined.
 	highlight: Vec<(usize, usize)>,
-	/// The album's frequency bands, followed: id → level 0..1.
+	/// The album's frequency bands, followed: id → level 0..1, and `id.pitch`, `id.chroma`
+	/// (see `data::Band`).
 	bands: HashMap<String, f32>,
 
 	scene: &'static Scene,
@@ -250,7 +251,10 @@ impl Model {
 	}
 
 	/// Follow every band of the album: its level is the mean of its bins, through a
-	/// one-pole follower with the band's attack and release.
+	/// one-pole follower with the band's attack and release; its pitch is the loudest bin
+	/// in the range (parabolically interpolated, as the analyser's bins are in dB), on a log
+	/// scale across the range, gliding with the attack, held while the band is under its
+	/// floor; its chroma is that frequency folded to a pitch class.
 	fn follow_bands(&mut self, dt: f32) {
 		let bands = data::bands();
 		if bands.is_empty() {
@@ -273,8 +277,30 @@ impl Model {
 			let tau = if level > *env { band.attack } else { band.release };
 			let k = if tau > 0.0 { 1.0 - (-dt / tau).exp() } else { 1.0 };
 			*env += (level - *env) * k;
+
+			if level >= band.floor && !bins.is_empty() {
+				let (peak, _) = bins.iter().enumerate().max_by_key(|(_, &b)| b).unwrap();
+				let offset = if peak > 0 && peak + 1 < bins.len() {
+					let (a, b, c) = (bins[peak - 1] as f32, bins[peak] as f32, bins[peak + 1] as f32);
+					let d = a - 2.0 * b + c;
+					if d.abs() > f32::EPSILON { (0.5 * (a - c) / d).clamp(-0.5, 0.5) } else { 0.0 }
+				} else {
+					0.0
+				};
+				let hz = ((lo + peak) as f32 + offset) * bin_hz;
+				let (b_lo, b_hi) = (band.lo.max(1.0), band.hi.max(band.lo.max(1.0) * 1.001));
+				let pitch = ((hz.max(1.0) / b_lo).ln() / (b_hi / b_lo).ln()).clamp(0.0, 1.0);
+				let chroma = ((hz.max(1.0) / 16.3516).log2() * 12.0).rem_euclid(12.0) / 12.0;
+				let glide = if band.attack > 0.0 { 1.0 - (-dt / band.attack).exp() } else { 1.0 };
+				let held = self.bands.entry(format!("{}.pitch", band.id)).or_insert(pitch);
+				*held += (pitch - *held) * glide;
+				self.bands.insert(format!("{}.chroma", band.id), chroma);
+			}
 		}
-		self.bands.retain(|id, _| bands.iter().any(|band| band.id == *id));
+		self.bands.retain(|id, _| {
+			let id = id.strip_suffix(".pitch").or(id.strip_suffix(".chroma")).unwrap_or(id);
+			bands.iter().any(|band| band.id == id)
+		});
 	}
 
 	/// The album was reinstalled (the editor): point at the same scene again.

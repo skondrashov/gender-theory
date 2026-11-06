@@ -141,6 +141,14 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   `scenes/album.rs` before 2026-11-05). Knobs per sidechain: depth, threshold, width, curve,
   invert, on; per band: attack, release, gain. The layout is a first draft the owner asked
   to see; expect to rework it.
+- **Pitch** (owner, 2026-11-06): "is there a way to include like pitch of sections in the
+  output too somehow? it sucks when there's a melody playing and it's not reflected in any
+  way" — chosen: live, from the spectrum ("1 for sure"). Every band also gives `id.pitch`
+  (loudest bin in its range, parabolic interpolation, log position lo..hi, glides with the
+  attack, holds while the level is under the band's new `floor`) and `id.chroma` (that
+  frequency folded to a pitch class, C = 0 .. B = 11/12). Caveat: over a mix the peak is the
+  loudest *thing* in the range, not necessarily the melody. The exact route (MIDI from
+  Ableton → a `notes` lane, `note`/`note.on`/piano-roll regions) is offered for later.
 - **Stretches and stages** (owner, 2026-11-05): "it's probably fine to have a stretch of a
   track last as long as it takes to get through a few scenes, and then just loop at the end
   waiting for the trigger into the next part" — so a scene is a stretch (`bars`, `loop`)
