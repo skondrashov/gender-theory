@@ -395,12 +395,15 @@ function addScene() {
   commit({ silent: true, inspector: true });
 }
 
+// New layers and hotspots go in the stage the lists are filtered to, if any.
+const inFilteredStage = () => (stageFilter ? { stage: stageFilter } : {});
+
 function addLayer() {
   const s = scene();
   if (!s) { setStatus('add a scene first'); return; }
   snapshotForUndo();
   s.layers ??= [];
-  s.layers.push({ id: uid('l'), name: 'layer', region: {}, kind: 'marks', params: defaultParams('marks') });
+  s.layers.push({ id: uid('l'), name: 'layer', region: {}, kind: 'marks', params: defaultParams('marks'), ...inFilteredStage() });
   sel = { type: 'layer', index: s.layers.length - 1 };
   commit({ silent: true, inspector: true });
 }
@@ -410,7 +413,7 @@ function addHotspot() {
   if (!s) { setStatus('add a scene first'); return; }
   snapshotForUndo();
   s.hotspots ??= [];
-  s.hotspots.push({ id: uid('h'), name: 'hotspot', rect: [8, 8, 12, 12], needs: [], on: 'tap', then: [] });
+  s.hotspots.push({ id: uid('h'), name: 'hotspot', rect: [8, 8, 12, 12], needs: [], on: 'tap', then: [], ...inFilteredStage() });
   sel = { type: 'hotspot', index: s.hotspots.length - 1 };
   commit({ silent: true, inspector: true });
 }
