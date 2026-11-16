@@ -22,6 +22,22 @@ songs. Known so far: **rotation** (lines move — a still line may point anywher
 more colours = more unlocks), **hexes** (the square grid sheared into a triangular lattice
 — the next song's mechanic). **open:** which song teaches which, after `length`.
 
+**The system of unlocks** (owner, 2026-11-15): what a cell can be is **dots, lines and
+shapes** — lines and shapes can coexist on one cell (a clock: a circle with a line turning
+inside it). Each is a thing that exists, then parameters of it, each its own unlock. Lots of
+minor unlocks is the point: a player needn't notice they got one — it reads as the game
+progressing.
+
+- global: **opacity**, **colour**, **root position motion** (the mark's origin leaves the
+  lattice — "probably actually way later")
+- **line**: exists → **length**, **angle**, **bend**
+- **shape**: exists (100% circle, 0% square by default) → **size**, **fill**, **morph**
+  (circle ↔ square), **flatness**, **rotation** (maybe its own unlock)
+
+**open:** whether *opacity* is the glow unlock under its real name; where this leaves
+"rotation means motion" (now *angle*); the engine still has the old six (lines, length,
+rotation, circles, color, glow) — to be regrown into this list.
+
 A mechanic is introduced by a phase built to teach it: the hint is in the drawing (the
 blocky e, the glowing gap in the stripes), the action is a tap or a stroke, and the phase
 visibly changes under you when you get it.

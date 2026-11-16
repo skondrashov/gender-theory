@@ -159,6 +159,14 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   hotspots have a `region` like layers (`Hotspot.inside` narrows the bounding `cells`;
   outline/hints use the rectangle round it; old `rect` still reads). The drag-paint bug was
   an operator-precedence inversion in the grid's mousemove.
+- **The system of unlocks** (owner, 2026-11-15): "opacity, line (existence of), root
+  position motion, line length/bend/angle, shape (existence of), shape size/fill/morph
+  (between square and circle), color … the idea of there just being dots, lines, and shapes
+  is cool. lines and shapes can coexist. one level will have something like clocks with a
+  circle and a line rotating inside of it. shape default unlock should be 100% circle, 0%
+  square. oh i also want shape flatness. shape rotation maybe a separate unlock too? it's
+  kinda nice to have a ton of minor unlocks and players might not even realize they've
+  unlocked something". Recorded in SPEC.md layer 1; engine not yet regrown to match.
 - **Glow is only a param** (owner, 2026-11-06): "i don't want the glow of everything to
   default to the pulse, i want glow to just be sidechainable but require glow unlocked to do
   anything" — a glow layer has one param, `level` (brightness 0..1, default 1), gated by the
