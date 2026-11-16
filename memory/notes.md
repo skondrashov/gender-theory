@@ -166,7 +166,14 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   circle and a line rotating inside of it. shape default unlock should be 100% circle, 0%
   square. oh i also want shape flatness. shape rotation maybe a separate unlock too? it's
   kinda nice to have a ton of minor unlocks and players might not even realize they've
-  unlocked something". Recorded in SPEC.md layer 1; engine not yet regrown to match.
+  unlocked something". Then: opacity = glow (kept the name `glow`); "lines" stays the
+  unlock name; lines point anywhere from the start, the `angle` unlock is motion ("just like
+  dots can appear or not even without opacity unlocked"); "ring" not "shape"; "color not
+  color"; "the order shouldn't really matter, you can just build everything". Built: twelve
+  unlocks — bits 0–5 are the old ones renamed (rotation → `angle`, circles → `rings`), bend,
+  size, fill, morph, flatness, rotation appended; `Shape::Line` has `bend`, `Shape::Ring`
+  has fill/square/flat/angle and draws as a 48-gon; the `rings` kind gates each param at its
+  default until its unlock (`gated` off = scenery). Not built: root position motion.
 - **Glow is only a param** (owner, 2026-11-06): "i don't want the glow of everything to
   default to the pulse, i want glow to just be sidechainable but require glow unlocked to do
   anything" — a glow layer has one param, `level` (brightness 0..1, default 1), gated by the
@@ -216,4 +223,4 @@ onto their neighbours), which leaves a contiguous blank band around the box.
 - Canvas is fixed at 20 cells × 40 px = 800 px; doesn't fit phones or resize. Scale
   `SCALING` to `min(w, h) / 20` and handle `resized` when the owner wants phone-first.
 - Free-form path matching for "draw" gestures beyond `Outline`.
-- Per-song unique unlocks; more colours as more unlocks.
+- Per-song unique unlocks; more colors as more unlocks.

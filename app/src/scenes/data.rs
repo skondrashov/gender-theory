@@ -442,15 +442,16 @@ pub const CATALOGUE: &str = r##"{
   },
   "kinds": {
     "marks": {
-      "doc": "The cell's mark: a point until lines are unlocked, then a line; its length moves once length is, its angle once rotation is.",
+      "doc": "The cell's mark: a point until lines are unlocked, then a line pointing where `angle` says; its length is 1 until length is unlocked, it turns once angle is, it bends once bend is.",
       "params": {
         "angle": {"type": "angle", "default": "along", "doc": "along / across / noise / checker (along or across by the cell's noise) / around (clockwise round the region's rectangle) / degrees"},
         "offset": {"type": "number", "default": 0, "step": 15, "doc": "degrees added to the angle"},
-        "spin": {"type": "param", "default": 0, "doc": "turns per time unit (needs rotation)"},
+        "spin": {"type": "param", "default": 0, "doc": "radians per time unit (needs angle)"},
         "alternate": {"type": "bool", "default": false, "doc": "every other cell spins the other way"},
         "length": {"type": "param", "default": 1, "step": 0.1, "doc": "in cells (needs length to be other than 1)"},
+        "bend": {"type": "param", "default": 0, "step": 0.1, "doc": "0 straight .. 1 a half circle, turning left; negative turns right (needs bend)"},
         "gray": {"type": "param", "default": 0.7, "step": 0.05, "doc": "brightness, times the glow over the cell"},
-        "color": {"type": "param", "default": 0, "step": 0.1, "doc": "0 grey .. 1 the colour (needs colour)"}
+        "color": {"type": "param", "default": 0, "step": 0.1, "doc": "0 grey .. 1 the color (needs color)"}
       }
     },
     "snake": {
@@ -476,13 +477,18 @@ pub const CATALOGUE: &str = r##"{
       }
     },
     "rings": {
-      "doc": "A ring on each cell.",
+      "doc": "A ring on each cell, once rings are unlocked (it grows in). A circle 0.4 cells across its radius until size is unlocked; each of fill, morph, flatness and rotation does nothing until its own unlock. A line turning inside one is a clock.",
       "params": {
-        "radius": {"type": "param", "default": 0.4, "step": 0.05, "doc": "in cells"},
+        "radius": {"type": "param", "default": 0.4, "step": 0.05, "doc": "in cells (needs size to be other than 0.4)"},
         "weight": {"type": "number", "default": 1.5, "step": 0.5, "doc": "stroke, px"},
+        "fill": {"type": "param", "default": 0, "step": 0.1, "doc": "0 an outline .. 1 a disc (needs fill)"},
+        "morph": {"type": "param", "default": 0, "step": 0.1, "doc": "0 a circle .. 1 a square (needs morph)"},
+        "flatness": {"type": "param", "default": 0, "step": 0.1, "doc": "0 round .. 1 squashed flat (needs flatness)"},
+        "angle": {"type": "number", "default": 0, "step": 15, "doc": "degrees the shape is turned"},
+        "spin": {"type": "param", "default": 0, "doc": "radians per time unit (needs rotation)"},
         "gray": {"type": "param", "default": 0.7, "step": 0.05},
         "color": {"type": "param", "default": 0, "step": 0.1},
-        "circles": {"type": "bool", "default": true, "doc": "only once circles are unlocked (grows in)"}
+        "gated": {"type": "bool", "default": true, "doc": "off: scenery, drawn as given whatever is unlocked"}
       }
     },
     "orbits": {
@@ -534,6 +540,7 @@ struct Marks {
 	spin: Param,
 	alternate: bool,
 	length: Param,
+	bend: Param,
 	gray: Param,
 	color: Param,
 }
@@ -546,6 +553,7 @@ impl Default for Marks {
 			spin: Param::new(0.0),
 			alternate: false,
 			length: Param::new(1.0),
+			bend: Param::new(0.0),
 			gray: Param::new(0.7),
 			color: Param::new(0.0),
 		}
@@ -612,19 +620,31 @@ impl Default for Points {
 struct Rings {
 	radius: Param,
 	weight: f32,
+	fill: Param,
+	morph: Param,
+	flatness: Param,
+	/// Degrees.
+	angle: f32,
+	spin: Param,
 	gray: Param,
 	color: Param,
-	circles: bool,
+	/// Through the ring unlocks; off is scenery.
+	gated: bool,
 }
 
 impl Default for Rings {
 	fn default() -> Self {
 		Rings {
-			radius: Param::new(0.4),
+			radius: Param::new(RING),
 			weight: 1.5,
+			fill: Param::new(0.0),
+			morph: Param::new(0.0),
+			flatness: Param::new(0.0),
+			angle: 0.0,
+			spin: Param::new(0.0),
 			gray: Param::new(0.7),
 			color: Param::new(0.0),
-			circles: true,
+			gated: true,
 		}
 	}
 }
@@ -1034,7 +1054,7 @@ fn render(
 				let turn = marks.spin.value(&signals) * time * dir;
 				let length = (marks.length.value(&signals) + hot_length) * unit;
 				let gray = (marks.gray.value(&signals) + hot_gray) * lit;
-				mark(
+				mark_bent(
 					draw,
 					model,
 					x,
@@ -1042,6 +1062,7 @@ fn render(
 					angle + marks.offset.to_radians(),
 					turn,
 					length,
+					marks.bend.value(&signals),
 					gray,
 					marks.color.value(&signals),
 				);
@@ -1108,16 +1129,32 @@ fn render(
 				dot(draw, model, x, y, paint(model, gray, points.color.value(&signals)));
 			}
 			Kind::Rings(rings) => {
-				let grown = if rings.circles { model.reveal(Unlock::Circles) } else { 1.0 };
-				let radius = (rings.radius.value(&signals) + hot_length) * unit * grown;
+				// Each parameter sits at its default until its unlock, then eases to the layer's
+				// value; the ring itself grows in with `rings`. Scenery (`gated` off) is as given.
+				let gate = |value: f32, default: f32, unlock: Unlock| {
+					if rings.gated {
+						default + (value - default) * model.reveal(unlock)
+					} else {
+						value
+					}
+				};
+				let grown = gate(1.0, 0.0, Unlock::Rings);
+				let radius = (gate(rings.radius.value(&signals), RING, Unlock::Size) + hot_length) * unit * grown;
+				let spin = gate(rings.spin.value(&signals), 0.0, Unlock::Rotation) * time;
 				let gray = (rings.gray.value(&signals) + hot_gray) * lit;
-				ring(
+				shape(
 					draw,
 					model,
 					x,
 					y,
-					radius,
-					rings.weight,
+					Shape::Ring {
+						radius,
+						weight: rings.weight,
+						fill: gate(rings.fill.value(&signals), 0.0, Unlock::Fill),
+						square: gate(rings.morph.value(&signals), 0.0, Unlock::Morph),
+						flat: gate(rings.flatness.value(&signals), 0.0, Unlock::Flatness),
+						angle: rings.angle.to_radians() + spin,
+					},
 					paint(model, gray, rings.color.value(&signals)),
 				);
 			}

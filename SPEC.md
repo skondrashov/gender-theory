@@ -9,34 +9,28 @@ The player learns to *see*: each mechanic is an unlock, global across the album,
 changes how every scene is drawn. Unlocks never move you; you watch the one you're on
 change, and the door that needs it appears.
 
-The spine, in order, regardless of music:
+**The system** (owner, 2026-11-15): what a cell can be is **dots, lines and rings** — lines
+and rings can coexist on one cell (a clock: a ring with a line turning inside it). Each is a
+thing that exists, then parameters of it, each its own unlock. Lots of minor unlocks is the
+point: a player needn't notice they got one — it reads as the game progressing. A static
+look is free from the start (a line points wherever its layer says, dots appear or not
+without glow); an unlock lets a parameter leave its default or move.
 
-1. **glow** — brightness can follow the music (a glow layer's level, sidechained to the
-   pulse or a band; nothing breathes unless a layer says so); some areas breathe in inverse
-2. **lines** — points become lines (still, along the grid, one cell long)
-3. **length** — line length moves
+- global: **glow** (the owner's "opacity": brightness follows the music where a glow layer
+  says, sidechained to the pulse or a band; nothing breathes unless a layer says so),
+  **color** (one color, a range from white to it; more colors = more unlocks), and later
+  **root position motion** (the mark's origin leaves the lattice — "probably actually way
+  later"; not built)
+- **lines**: points become lines, pointing where the layer says, one cell long →
+  **length**, **angle** (they turn), **bend** (into arcs)
+- **rings**: a circle, 0.4 cells → **size**, **fill** (outline → disc), **morph**
+  (circle → square), **flatness**, **rotation** (they turn)
+- **hexes** (the square grid sheared into a triangular lattice — the next song's mechanic;
+  not built)
 
-After the basics the order is free; they can come in different orders, in different
-songs. Known so far: **rotation** (lines move — a still line may point anywhere, and
-"rotation" means motion), **circles**, **colour** (one colour, a range from white to it;
-more colours = more unlocks), **hexes** (the square grid sheared into a triangular lattice
-— the next song's mechanic). **open:** which song teaches which, after `length`.
-
-**The system of unlocks** (owner, 2026-11-15): what a cell can be is **dots, lines and
-shapes** — lines and shapes can coexist on one cell (a clock: a circle with a line turning
-inside it). Each is a thing that exists, then parameters of it, each its own unlock. Lots of
-minor unlocks is the point: a player needn't notice they got one — it reads as the game
-progressing.
-
-- global: **opacity**, **colour**, **root position motion** (the mark's origin leaves the
-  lattice — "probably actually way later")
-- **line**: exists → **length**, **angle**, **bend**
-- **shape**: exists (100% circle, 0% square by default) → **size**, **fill**, **morph**
-  (circle ↔ square), **flatness**, **rotation** (maybe its own unlock)
-
-**open:** whether *opacity* is the glow unlock under its real name; where this leaves
-"rotation means motion" (now *angle*); the engine still has the old six (lines, length,
-rotation, circles, color, glow) — to be regrown into this list.
+The first act teaches glow → lines → length; after that the order is free, per song
+("the order shouldn't really matter"). **open:** which song teaches which. Each reveal
+eases in over 2.5 s: the line grows out of the point, stretches, winds up to speed.
 
 A mechanic is introduced by a phase built to teach it: the hint is in the drawing (the
 blocky e, the glowing gap in the stripes), the action is a tap or a stroke, and the phase
@@ -111,7 +105,7 @@ for new *kinds* of mechanic (`scenes/data.rs`).
 ## Open questions, collected
 
 - The hidden box in sine's 4th phase: what does tapping it do?
-- After `length`: the order of rotation / circles / colour / hexes, and which song teaches which.
+- After `length`: the order of rotation / circles / color / hexes, and which song teaches which.
 - Where the mid-song exits are.
 - pisser's and for.against's themes.
 - Transitions (deferred by decision).

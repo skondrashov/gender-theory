@@ -160,7 +160,7 @@ pub const SCENES: &[&Scene] = &[
 					model,
 					x,
 					y,
-					unit * 0.4 * (0.5 + mid) * model.reveal(Unlock::Circles),
+					unit * 0.4 * (0.5 + mid) * model.reveal(Unlock::Rings),
 					1.5,
 					paint(model, 0.8, 1.0),
 				),
@@ -198,7 +198,7 @@ pub const SCENES: &[&Scene] = &[
 			},
 			Hotspot {
 				cells: area(15, 1, 19, 5),
-				needs: Unlocks::of(&[Unlock::Circles]),
+				needs: Unlocks::of(&[Unlock::Rings]),
 				on: Gesture::Tap,
 				then: Action::Go("color_gate"),
 				tag: 2,
@@ -284,14 +284,14 @@ pub const SCENES: &[&Scene] = &[
 				cells: area(2, 14, 6, 18),
 				needs: NONE,
 				on: Gesture::Tap,
-				then: Action::Unlock(Unlock::Rotation),
+				then: Action::Unlock(Unlock::Angle),
 				tag: 0,
 				stage: None,
 				inside: None,
 			},
 			Hotspot {
 				cells: area(2, 14, 6, 18),
-				needs: Unlocks::of(&[Unlock::Rotation]),
+				needs: Unlocks::of(&[Unlock::Angle]),
 				on: Gesture::Tap,
 				then: Action::GoVia("spin", 0..2),
 				tag: 2,
@@ -355,7 +355,7 @@ pub const SCENES: &[&Scene] = &[
 					x,
 					y,
 					unit * (0.35 + 2.0 * transition * noise.abs())
-						* (0.5 + bass) * model.reveal(Unlock::Circles),
+						* (0.5 + bass) * model.reveal(Unlock::Rings),
 					1.5,
 					paint(model, gray * spread, 1.0),
 				);
@@ -365,16 +365,16 @@ pub const SCENES: &[&Scene] = &[
 		hotspots: &[
 			Hotspot {
 				cells: BOX,
-				needs: Unlocks::of(&[Unlock::Rotation]),
+				needs: Unlocks::of(&[Unlock::Angle]),
 				on: Gesture::Outline,
-				then: Action::Unlock(Unlock::Circles),
+				then: Action::Unlock(Unlock::Rings),
 				tag: 0,
 				stage: None,
 				inside: None,
 			},
 			Hotspot {
 				cells: BOX,
-				needs: Unlocks::of(&[Unlock::Circles]),
+				needs: Unlocks::of(&[Unlock::Rings]),
 				on: Gesture::Tap,
 				then: Action::GoVia("color_gate", 10..14),
 				tag: 2,
@@ -411,7 +411,7 @@ pub const SCENES: &[&Scene] = &[
 					model,
 					x,
 					y,
-					unit * (0.3 + 0.5 * bass) * model.reveal(Unlock::Circles),
+					unit * (0.3 + 0.5 * bass) * model.reveal(Unlock::Rings),
 					2.0,
 					paint(model, 0.6 + 0.4 * bass, 1.0),
 				),
@@ -433,7 +433,7 @@ pub const SCENES: &[&Scene] = &[
 		hotspots: &[
 			Hotspot {
 				cells: CENTRE,
-				needs: Unlocks::of(&[Unlock::Circles]),
+				needs: Unlocks::of(&[Unlock::Rings]),
 				on: Gesture::Tap,
 				then: Action::Unlock(Unlock::Color),
 				tag: 0,

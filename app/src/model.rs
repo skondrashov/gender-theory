@@ -83,7 +83,7 @@ pub struct Model {
 	stage: usize,
 	unlocks: Unlocks,
 	/// When each unlock was granted (app time), for easing it in. `-inf` = always had it.
-	revealed: [f32; 6],
+	revealed: [f32; Unlock::COUNT],
 	/// App time, as of the last update.
 	time: f32,
 	pending: Option<Pending>,
@@ -160,7 +160,7 @@ impl Model {
 			scene,
 			stage: 0,
 			unlocks,
-			revealed: [f32::NEG_INFINITY; 6],
+			revealed: [f32::NEG_INFINITY; Unlock::COUNT],
 			time: 0.0,
 			pending: None,
 			started: false,
@@ -909,7 +909,7 @@ fn menu_row(window: Rect) -> f32 {
 	let room = window.h() - 90.0 - MENU_MARGIN;
 	MENU_ROW.min(room / scenes::all().len().max(1) as f32)
 }
-const MENU_UNLOCK_WIDTH: f32 = 90.0;
+const MENU_UNLOCK_WIDTH: f32 = 63.0;
 
 fn menu_unlocks_y(window: Rect) -> f32 {
 	window.top() - 50.0
@@ -945,7 +945,7 @@ fn draw_menu(draw: &Draw, model: &Model, window: Rect) {
 		let on = model.has(*unlock);
 		draw.text(unlock.name())
 			.left_justify()
-			.font_size(14)
+			.font_size(13)
 			.x_y(x + MENU_UNLOCK_WIDTH / 2.0, y)
 			.w(MENU_UNLOCK_WIDTH)
 			.gray(if on { 1.0 } else { 0.35 });

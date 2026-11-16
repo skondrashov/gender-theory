@@ -89,41 +89,76 @@ pub enum Action {
 	All(&'static [Action]),
 }
 
-/// Things the player can learn to see. Global across the album. Add freely; the order only
-/// matters for saved progress, so don't reorder existing ones.
+/// Things the player can learn to see. Global across the album. The owner's system: a cell
+/// is dots, lines and rings; each of those exists, then has parameters, each its own small
+/// unlock — a player needn't notice getting one. A static look is free (a line points where
+/// its layer says from the start); what an unlock gates is the thing, or the parameter
+/// leaving its default, or its motion.
+///
+/// Add freely; the discriminant is the bit in saved progress, so don't reorder existing
+/// ones — `ALL` is the display order.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Unlock {
-	/// Points become lines.
+	/// Points become lines, pointing wherever the layer says.
 	Lines = 0,
-	/// Lines get to have a length other than one grid interval.
+	/// Lines get a length other than one grid interval.
 	Length,
-	/// Lines get to point somewhere other than right.
-	Rotation,
-	Circles,
-	/// The one colour (see `COLOR`). More colours can be more unlocks.
+	/// Lines get to turn (the bit that used to be "rotation").
+	Angle,
+	/// Rings appear (the bit that used to be "circles").
+	Rings,
+	/// The one color (see `COLOR`). More colors can be more unlocks.
 	Color,
-	/// Everything breathes in brightness (see `glow`). The first thing there is.
+	/// Brightness follows the music where a glow layer says (see `glow`). The owner's
+	/// "opacity".
 	Glow,
+	/// Lines bend into arcs.
+	Bend,
+	/// Rings get a size other than the default.
+	Size,
+	/// Rings fill in.
+	Fill,
+	/// Rings morph toward squares.
+	Morph,
+	/// Rings flatten.
+	Flatness,
+	/// Rings get to turn.
+	Rotation,
 }
 
 impl Unlock {
-	pub const ALL: [Unlock; 6] = [
+	pub const COUNT: usize = 12;
+
+	/// Display order.
+	pub const ALL: [Unlock; Unlock::COUNT] = [
+		Unlock::Glow,
 		Unlock::Lines,
 		Unlock::Length,
+		Unlock::Angle,
+		Unlock::Bend,
+		Unlock::Rings,
+		Unlock::Size,
+		Unlock::Fill,
+		Unlock::Morph,
+		Unlock::Flatness,
 		Unlock::Rotation,
-		Unlock::Circles,
 		Unlock::Color,
-		Unlock::Glow,
 	];
 
 	pub fn name(self) -> &'static str {
 		match self {
 			Unlock::Lines => "lines",
 			Unlock::Length => "length",
-			Unlock::Rotation => "rotation",
-			Unlock::Circles => "circles",
+			Unlock::Angle => "angle",
+			Unlock::Rings => "rings",
 			Unlock::Color => "color",
 			Unlock::Glow => "glow",
+			Unlock::Bend => "bend",
+			Unlock::Size => "size",
+			Unlock::Fill => "fill",
+			Unlock::Morph => "morph",
+			Unlock::Flatness => "flatness",
+			Unlock::Rotation => "rotation",
 		}
 	}
 }
@@ -305,12 +340,12 @@ pub fn cell_at(model: &Model, x: f32, y: f32) -> Option<(usize, usize)> {
 		.then(|| (i as usize, j as usize))
 }
 
-/// The one colour there is, for now. A placeholder: the owner's call.
+/// The one color there is, for now. A placeholder: the owner's call.
 pub const COLOR: (f32, f32, f32) = (1.0, 0.45, 0.2);
 
-/// Grey at this brightness, warmed toward `COLOR` by `color` (0 = grey, 1 = the colour) —
-/// once colour is unlocked. Scenes pick `color` per cell, so the whole range from white to
-/// the colour is theirs to use.
+/// Grey at this brightness, warmed toward `COLOR` by `color` (0 = grey, 1 = the color) —
+/// once color is unlocked. Scenes pick `color` per cell, so the whole range from white to
+/// the color is theirs to use.
 pub fn paint(model: &Model, gray: f32, color: f32) -> Rgb {
 	let c = (color * model.reveal(Unlock::Color)).clamp(0.0, 1.0);
 	let (r, g, b) = COLOR;
@@ -334,11 +369,25 @@ pub struct Mark {
 
 #[derive(Clone, Copy, Debug)]
 pub enum Shape {
-	/// From (x, y): `length` px at `angle` radians anticlockwise from right.
-	Line { angle: f32, length: f32 },
-	/// Centred on (x, y).
-	Ring { radius: f32, weight: f32 },
+	/// From (x, y): `length` px at `angle` radians anticlockwise from right. `bend` curves
+	/// it into an arc of that length: 0 straight, 1 a half circle (turning left; negative
+	/// turns right).
+	Line { angle: f32, length: f32, bend: f32 },
+	/// Centred on (x, y): a `radius` px outline `weight` px thick — `fill` (0..1) thickens
+	/// it inward until it's a disc, `square` (0..1) morphs it from a circle to a square,
+	/// `flat` (0..1) squashes it to nothing across its own `angle`.
+	Ring {
+		radius: f32,
+		weight: f32,
+		fill: f32,
+		square: f32,
+		flat: f32,
+		angle: f32,
+	},
 }
+
+/// The default radius of a ring, in cells: what a ring is until size is unlocked.
+pub const RING: f32 = 0.4;
 
 impl Mark {
 	pub fn is_line(&self) -> bool {
@@ -347,20 +396,61 @@ impl Mark {
 
 	pub fn draw(&self, draw: &Draw) {
 		match self.shape {
-			Shape::Line { angle, length } => {
-				draw.line().color(self.color).points(
-					pt2(self.x, self.y),
-					pt2(self.x + length * angle.cos(), self.y + length * angle.sin()),
-				);
+			Shape::Line { angle, length, bend } => {
+				if bend.abs() < 1e-3 {
+					draw.line().color(self.color).points(
+						pt2(self.x, self.y),
+						pt2(self.x + length * angle.cos(), self.y + length * angle.sin()),
+					);
+				} else {
+					// An arc of this length turning `bend` half-turns, tangent to `angle` at
+					// the start.
+					let theta = bend * PI;
+					let r = length / theta;
+					let (cx, cy) = (self.x - r * angle.sin(), self.y + r * angle.cos());
+					const N: usize = 16;
+					let points = (0..=N).map(|k| {
+						let a = angle - PI / 2.0 + theta * k as f32 / N as f32;
+						pt2(cx + r * a.cos(), cy + r * a.sin())
+					});
+					draw.polyline().weight(1.0).color(self.color).points(points);
+				}
 			}
-			Shape::Ring { radius, weight } => {
+			Shape::Ring {
+				radius,
+				weight,
+				fill,
+				square,
+				flat,
+				angle,
+			} => {
 				if radius > 0.0 {
-					draw.ellipse()
-						.no_fill()
-						.stroke_weight(weight)
-						.stroke_color(self.color)
-						.x_y(self.x, self.y)
-						.radius(radius);
+					// A closed polygon between the circle and the square of this radius,
+					// squashed, turned. The outer edge stays at `radius` as the fill thickens
+					// the stroke inward.
+					const N: usize = 48;
+					let fill = fill.clamp(0.0, 1.0);
+					let solid = fill >= 0.999;
+					let thick = weight + (radius - weight).max(0.0) * fill;
+					let scale = if solid { 1.0 } else { (radius - thick / 2.0).max(0.0) / radius };
+					let (sin, cos) = angle.sin_cos();
+					let points = (0..N).map(|k| {
+						let t = TAU * k as f32 / N as f32;
+						let (st, ct) = t.sin_cos();
+						let m = ct.abs().max(st.abs());
+						let (px, py) = (ct + (ct / m - ct) * square, st + (st / m - st) * square);
+						let (px, py) = (px * radius * scale, py * radius * scale * (1.0 - flat.clamp(0.0, 1.0)));
+						pt2(self.x + px * cos - py * sin, self.y + px * sin + py * cos)
+					});
+					if solid {
+						draw.polygon().color(self.color).points(points);
+					} else {
+						draw.polygon()
+							.no_fill()
+							.stroke_weight(thick)
+							.stroke_color(self.color)
+							.points(points);
+					}
 				}
 			}
 		}
@@ -370,8 +460,26 @@ impl Mark {
 	fn nothing(&self) -> Mark {
 		Mark {
 			shape: match self.shape {
-				Shape::Line { angle, .. } => Shape::Line { angle, length: 0.0 },
-				Shape::Ring { weight, .. } => Shape::Ring { radius: 0.0, weight },
+				Shape::Line { angle, bend, .. } => Shape::Line {
+					angle,
+					length: 0.0,
+					bend,
+				},
+				Shape::Ring {
+					weight,
+					fill,
+					square,
+					flat,
+					angle,
+					..
+				} => Shape::Ring {
+					radius: 0.0,
+					weight,
+					fill,
+					square,
+					flat,
+					angle,
+				},
 			},
 			color: rgb(0.0, 0.0, 0.0),
 			..*self
@@ -389,23 +497,56 @@ impl Mark {
 			(None, None) => return None,
 		};
 		let lerp = |p: f32, q: f32| p + (q - p) * t;
+		// Angles turn the short way round.
+		let swing = |a0: f32, a1: f32| {
+			let mut turn = (a1 - a0).rem_euclid(TAU);
+			if turn > PI {
+				turn -= TAU;
+			}
+			a0 + turn * t
+		};
 		let shape = match (a.shape, b.shape) {
-			(Shape::Line { angle: a0, length: l0 }, Shape::Line { angle: a1, length: l1 }) => {
-				let mut turn = (a1 - a0).rem_euclid(TAU);
-				if turn > PI {
-					turn -= TAU;
-				}
+			(
 				Shape::Line {
-					angle: a0 + turn * t,
-					length: lerp(l0, l1),
-				}
-			}
-			(Shape::Ring { radius: r0, weight: w0 }, Shape::Ring { radius: r1, weight: w1 }) => {
+					angle: a0,
+					length: l0,
+					bend: b0,
+				},
+				Shape::Line {
+					angle: a1,
+					length: l1,
+					bend: b1,
+				},
+			) => Shape::Line {
+				angle: swing(a0, a1),
+				length: lerp(l0, l1),
+				bend: lerp(b0, b1),
+			},
+			(
 				Shape::Ring {
-					radius: lerp(r0, r1),
-					weight: lerp(w0, w1),
-				}
-			}
+					radius: r0,
+					weight: w0,
+					fill: f0,
+					square: s0,
+					flat: q0,
+					angle: a0,
+				},
+				Shape::Ring {
+					radius: r1,
+					weight: w1,
+					fill: f1,
+					square: s1,
+					flat: q1,
+					angle: a1,
+				},
+			) => Shape::Ring {
+				radius: lerp(r0, r1),
+				weight: lerp(w0, w1),
+				fill: lerp(f0, f1),
+				square: lerp(s0, s1),
+				flat: lerp(q0, q1),
+				angle: swing(a0, a1),
+			},
 			// `blend` pairs like with like; should that ever not hold, cut over halfway.
 			_ => {
 				if t < 0.5 {
@@ -449,15 +590,31 @@ pub fn blend(from: &[Mark], to: &[Mark], t: f32) -> Vec<Mark> {
 /// - no unlocks: a point
 /// - Lines: a line one grid interval long at `angle`, which holds still
 /// - Length: its length is `length` px instead
-/// - Rotation: it moves: `turn` is added to the angle (so pass the time-varying part there)
+/// - Angle: it moves: `turn` is added to the angle (so pass the time-varying part there)
+/// - Bend (`mark_bent`): it curves, `bend` half-turns over its length
 /// - Color: it's warmed toward `COLOR` by `color` (0..1, see `paint`)
 ///
 /// Each of these eases in over a couple of seconds from the moment it's unlocked (see
 /// `Model::reveal`): the line grows out of the point, stretches to its length, winds up
-/// to speed, takes on colour.
+/// to speed, takes on color.
 ///
 /// Recorded, not drawn (see `Mark`); `draw` is here so scenes read naturally.
 pub fn mark(
+	draw: &Draw,
+	model: &Model,
+	x: f32,
+	y: f32,
+	angle: f32,
+	turn: f32,
+	length: f32,
+	gray: f32,
+	color: f32,
+) {
+	mark_bent(draw, model, x, y, angle, turn, length, 0.0, gray, color);
+}
+
+/// `mark`, with `bend` (0 straight .. 1 a half circle) once bend is unlocked.
+pub fn mark_bent(
 	_draw: &Draw,
 	model: &Model,
 	x: f32,
@@ -465,6 +622,7 @@ pub fn mark(
 	angle: f32,
 	turn: f32,
 	length: f32,
+	bend: f32,
 	gray: f32,
 	color: f32,
 ) {
@@ -475,12 +633,14 @@ pub fn mark(
 		Shape::Line {
 			angle: PI / 4.0,
 			length: SQRT_2,
+			bend: 0.0,
 		}
 	} else {
 		let unit = model.scaling as f32;
 		Shape::Line {
-			angle: angle + turn * model.reveal(Unlock::Rotation),
+			angle: angle + turn * model.reveal(Unlock::Angle),
 			length: (unit + (length - unit) * model.reveal(Unlock::Length)) * lines,
+			bend: bend * model.reveal(Unlock::Bend),
 		}
 	};
 	model.record(Mark { x, y, shape, color });
@@ -492,7 +652,11 @@ pub fn stroke(_draw: &Draw, model: &Model, x: f32, y: f32, angle: f32, length: f
 	model.record(Mark {
 		x,
 		y,
-		shape: Shape::Line { angle, length },
+		shape: Shape::Line {
+			angle,
+			length,
+			bend: 0.0,
+		},
 		color,
 	});
 }
@@ -516,15 +680,30 @@ pub fn pulse(modifiers: &[f32; 8]) -> f32 {
 	hit(quarter, 2.5) * (0.7 + 0.3 * hit(whole, 1.5))
 }
 
-/// A ring centred on (x, y). Recorded like `mark`. Scenes gate it on `Unlock::Circles`
-/// themselves (usually by scaling `radius` with `model.reveal(Unlock::Circles)`).
-pub fn ring(_draw: &Draw, model: &Model, x: f32, y: f32, radius: f32, weight: f32, color: Rgb) {
-	model.record(Mark {
+/// A plain ring centred on (x, y). Recorded like `mark`. Scenes gate it on `Unlock::Rings`
+/// themselves (usually by scaling `radius` with `model.reveal(Unlock::Rings)`); the data
+/// renderer's `rings` kind goes through `shape` with the ring unlocks applied.
+pub fn ring(draw: &Draw, model: &Model, x: f32, y: f32, radius: f32, weight: f32, color: Rgb) {
+	shape(
+		draw,
+		model,
 		x,
 		y,
-		shape: Shape::Ring { radius, weight },
+		Shape::Ring {
+			radius,
+			weight,
+			fill: 0.0,
+			square: 0.0,
+			flat: 0.0,
+			angle: 0.0,
+		},
 		color,
-	});
+	);
+}
+
+/// Any shape at (x, y), as given. Recorded like `mark`.
+pub fn shape(_draw: &Draw, model: &Model, x: f32, y: f32, shape: Shape, color: Rgb) {
+	model.record(Mark { x, y, shape, color });
 }
 
 fn u8_to_f32(n: u8) -> f32 {

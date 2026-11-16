@@ -55,7 +55,7 @@ pub async fn main_web(album: String) {
 
 		// URL flags: ?debug shows the overlay, ?msaa=N sets window multisampling (default 4),
 		// ?scene=<id> starts on that scene, ?reset forgets saved progress,
-		// ?unlock=lines+rotation grants those unlocks.
+		// ?unlock=lines+angle grants those unlocks.
 		let search = web_sys::window()
 			.and_then(|w| w.location().search().ok())
 			.unwrap_or_default();
