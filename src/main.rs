@@ -1,10 +1,29 @@
 use actix_files::Files;
-use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer};
+use actix_web::{middleware::Logger, web, App, HttpRequest, HttpResponse, HttpServer};
 
-/// The editor saves the album here. Dev only: the server binds 127.0.0.1.
-async fn save_album(body: web::Bytes) -> HttpResponse {
+/// A fingerprint of the album file (32-bit FNV-1a, hex), the same as the editor computes
+/// over the text it read or wrote.
+fn fingerprint(bytes: &[u8]) -> String {
+	let mut h: u32 = 0x811c9dc5;
+	for &b in bytes {
+		h = (h ^ b as u32).wrapping_mul(16777619);
+	}
+	format!("{h:08x}")
+}
+
+/// The editor saves the album here. Dev only: the server binds 127.0.0.1. A save that says
+/// which file it's based on (`X-Album-Base`) is refused with 409 if the file on disk is
+/// another — a tab that loaded before a later save (or a git checkout) shouldn't overwrite
+/// it without meaning to.
+async fn save_album(req: HttpRequest, body: web::Bytes) -> HttpResponse {
 	if serde_json::from_slice::<serde_json::Value>(&body).is_err() {
 		return HttpResponse::BadRequest().body("not JSON");
+	}
+	if let Some(base) = req.headers().get("x-album-base").and_then(|v| v.to_str().ok()) {
+		let current = std::fs::read("./static/album.json").map(|bytes| fingerprint(&bytes)).unwrap_or_default();
+		if current != base {
+			return HttpResponse::Conflict().body("album.json on disk is not the one this editor loaded");
+		}
 	}
 	match std::fs::write("./static/album.json", &body) {
 		Ok(()) => HttpResponse::Ok().body("saved"),

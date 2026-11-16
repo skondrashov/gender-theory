@@ -163,6 +163,12 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   hotspots have a `region` like layers (`Hotspot.inside` narrows the bounding `cells`;
   outline/hints use the rectangle round it; old `rect` still reads). The drag-paint bug was
   an operator-precedence inversion in the grid's mousemove.
+- **Autosave** (owner, 2026-11-15: "can we implement like an autosave in the interface"):
+  1.5 s after the last edit, toggle `#autosave` (localStorage `gt-autosave`). The stale-tab
+  hazard (a tab that predates a migration saving over it) is now caught: PUT carries
+  `X-Album-Base` = FNV-1a of the file as the tab read/wrote it, `src/main.rs` returns 409 on
+  a mismatch, the tab stops autosaving and says so; ctrl+s after a conflict overwrites. The
+  dev server must be restarted for a `main.rs` change (`cargo run`).
 - **The system of unlocks** (owner, 2026-11-15): "opacity, line (existence of), root
   position motion, line length/bend/angle, shape (existence of), shape size/fill/morph
   (between square and circle), color … the idea of there just being dots, lines, and shapes

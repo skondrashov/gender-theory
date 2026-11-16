@@ -39,6 +39,12 @@ let sel = null;            // {type: 'scene'|'layer'|'hotspot'|'band', index}
 let st = {};               // last state from the app
 let history = [], future = [];
 let dirty = false;
+let edits = 0;             // counts commits, so a save knows whether edits came in behind it
+let base = '';             // fingerprint of album.json as this tab last read or wrote it
+let autosave = (localStorage.getItem('gt-autosave') ?? 'on') === 'on';
+let saveTimer = null, saving = false;
+let conflict = false;      // the file on disk moved on without this tab: saves need a say-so
+let noServer = false;      // PUT failed outright: the deployed site, or the dev server is down
 let pushTimer = null;
 const waves = {};          // track id → {peaks, bars, duration}
 let audioCtx;
@@ -72,7 +78,9 @@ function fitScene(s, oldBars) {
 async function boot() {
   // The app reads its flags from this page's URL: it must know it's in the editor.
   if (!/[?&]editor/.test(location.search)) { location.replace(`editor.html?editor=${STAGE}`); return; }
-  album = await (await fetch('album.json', { cache: 'no-store' })).json();
+  const text = await (await fetch('album.json', { cache: 'no-store' })).text();
+  base = fingerprint(text);
+  album = JSON.parse(text);
   await init();
   cat = JSON.parse(readCatalogue());
   main_web(JSON.stringify(album)); // runs forever
@@ -88,6 +96,14 @@ async function boot() {
   $('#undo').onclick = undo;
   $('#redo').onclick = redo;
   $('#save').onclick = save;
+  $('#autosave').checked = autosave;
+  $('#autosave').onchange = (e) => {
+    autosave = e.target.checked;
+    localStorage.setItem('gt-autosave', autosave ? 'on' : 'off');
+    if (autosave && dirty) scheduleAutosave();
+    setStatus(autosave ? 'autosave on' : 'autosave off');
+  };
+  window.addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
   $('#add-scene').onclick = addScene;
   $('#add-layer').onclick = addLayer;
   $('#add-hotspot').onclick = addHotspot;
@@ -124,8 +140,7 @@ function commit(opts = {}) {
     if (history.length > 200) history.shift();
     future = [];
   }
-  dirty = true;
-  setStatus('unsaved');
+  touched();
   push();
   if (opts.lists !== false) renderLists();
   if (opts.inspector) renderInspector();
@@ -142,7 +157,7 @@ function undo() {
   album = JSON.parse(history.pop());
   ti = Math.min(ti, album.tracks.length - 1);
   sel = null;
-  dirty = true; setStatus('unsaved'); push(); renderAll();
+  touched(); push(); renderAll();
 }
 
 function redo() {
@@ -150,20 +165,64 @@ function redo() {
   history.push(JSON.stringify(album));
   album = JSON.parse(future.pop());
   sel = null;
-  dirty = true; setStatus('unsaved'); push(); renderAll();
+  touched(); push(); renderAll();
 }
 
-async function save() {
+// Something changed: unsaved, and an autosave is due in a moment.
+function touched() {
+  dirty = true; edits++;
+  setStatus('unsaved');
+  scheduleAutosave();
+}
+
+function scheduleAutosave() {
+  clearTimeout(saveTimer);
+  if (!autosave || noServer || conflict) return;
+  saveTimer = setTimeout(() => { if (saving) scheduleAutosave(); else put({}); }, 1500);
+}
+
+// 32-bit FNV-1a over the text's bytes, hex: how the server tells which file a save is based on.
+function fingerprint(text) {
+  let h = 0x811c9dc5;
+  for (const b of new TextEncoder().encode(text)) h = Math.imul(h ^ b, 16777619) >>> 0;
+  return h.toString(16).padStart(8, '0');
+}
+
+// The save button / ctrl+s. After a conflict, pressing it again overwrites the file on disk.
+function save() { put({ manual: true, force: conflict }); }
+
+// PUT the album to the dev server, saying which file it's based on unless `force`. 409 means
+// the file on disk is not the one this tab loaded (another tab saved, or git did): hold off.
+async function put({ manual = false, force = false }) {
+  if (saving) return;
+  saving = true;
+  const at = edits;
+  const body = JSON.stringify(album, null, 1) + '\n';
   setStatus('saving…');
   try {
-    const r = await fetch('album.json', { method: 'PUT', body: JSON.stringify(album, null, 1) + '\n' });
+    const r = await fetch('album.json', { method: 'PUT', body, headers: force ? {} : { 'X-Album-Base': base } });
+    if (r.status === 409) {
+      conflict = true;
+      setStatus('album.json on disk is not what this tab loaded (another tab saved?) — reload to keep it, or save (ctrl+s) to overwrite it');
+      return;
+    }
     if (!r.ok) throw new Error(await r.text());
-    dirty = false;
-    setStatus('saved ' + new Date().toLocaleTimeString());
+    base = fingerprint(body);
+    conflict = false;
+    if (edits === at) dirty = false;
+    setStatus((manual ? 'saved ' : 'autosaved ') + new Date().toLocaleTimeString());
+    if (edits !== at) scheduleAutosave();
   } catch (e) {
-    setStatus('no dev server to save to — downloaded album.json instead');
-    const a = el('a', { href: URL.createObjectURL(new Blob([JSON.stringify(album, null, 1) + '\n'], { type: 'application/json' })), download: 'album.json' });
-    document.body.append(a); a.click(); a.remove();
+    noServer = true;
+    if (manual) {
+      setStatus('no dev server to save to — downloaded album.json instead');
+      const a = el('a', { href: URL.createObjectURL(new Blob([body], { type: 'application/json' })), download: 'album.json' });
+      document.body.append(a); a.click(); a.remove();
+    } else {
+      setStatus('no dev server — autosave off; save downloads the file');
+    }
+  } finally {
+    saving = false;
   }
 }
 

@@ -50,6 +50,7 @@ label { white-space: nowrap; }
 #where { min-width: 180px; }
 .unlocks label { margin-right: 8px; color: var(--dim); }
 .unlocks label.on { color: var(--text); }
+.autosave { color: var(--dim); margin-right: 6px; }
 #status { color: var(--dim); min-width: 140px; }
 #status.dirty { color: var(--accent); }
 
