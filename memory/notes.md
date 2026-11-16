@@ -121,6 +121,10 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   their own rates (one near, one far, opposite ways); a line runs dot → near point and is
   pulled toward the far one as the bass comes up, back as it fades. Built for the growly
   part (`sasha-grips/2`, bars 33–60); the pull maps bass 0.25..0.75 → 0..1, smoothstepped.
+- Headless Edge for tests: launch with `--mute-audio` (a straggler once played sine out of
+  the owner's speakers) and kill it by the `msedge.exe` PID found via its `--user-data-dir`
+  (`Get-CimInstance Win32_Process`), not by the bash job — `kill $EDGE` only takes the
+  wrapper. Never kill all msedge.
 - Headless screenshots are unreliable for scenes on the bigger tracks: the virtual-time
   budget races the real decode and the DevTools `captureScreenshot` starves under software
   GL. The app logs `loaded <path>` on every decode; read that over DevTools (`cdp_click.py`)
