@@ -308,7 +308,7 @@ function builtins() {
   const per = spec.length / 16;
   return {
     beat, bar, pulse: beat * (0.7 + 0.3 * bar),
-    span: NaN, noise: NaN, distance: NaN, bearing: NaN, transition: 0,
+    span: NaN, noise: NaN, distance: NaN, bearing: NaN, around: NaN, transition: 0,
     bass: coarse(0, 2 * per), mid: coarse(2 * per, 8 * per), treble: coarse(8 * per, 16 * per),
   };
 }
@@ -446,11 +446,15 @@ const defaultParam = (spec) => (typeof spec.default === 'object' ? JSON.parse(JS
 
 function defaultParams(kind) {
   const out = {};
+  if (cat.kinds[kind]?.rows) return { brightness: newRow(rowSpec('brightness')) };
   for (const [name, spec] of Object.entries(cat.kinds[kind].params)) {
     out[name] = spec.type === 'param' ? defaultParam(spec) : spec.default;
   }
   return out;
 }
+
+const rowSpec = (name) => cat.rows.find((r) => r.name === name);
+const newRow = (spec) => ({ op: 'set', base: spec.default, chains: [] });
 
 // ---- presets: layers kept to drop into any scene ----
 
@@ -485,7 +489,7 @@ function addScene() {
   const t = track();
   const end = Math.max(0, ...t.scenes.map((s) => s.bars[1]));
   snapshotForUndo();
-  // The base layer: every dot at gray 1, nothing sidechained — what everything else transforms.
+  // The base layer: every dot at brightness 1, nothing sidechained — what everything else transforms.
   const id = `${t.id}/${t.scenes.length}`;
   t.scenes.push({ id, bars: [end, end + 16], loop: end, stages: [], layers: [baseLayer()], hotspots: [] });
   si = t.scenes.length - 1;
@@ -497,7 +501,7 @@ function addScene() {
   send(JSON.stringify({ album, seek: { scene: id, bar: end } }));
 }
 
-const baseLayer = () => ({ id: uid('l'), name: 'field', region: {}, kind: 'marks', params: defaultParams('marks') });
+const baseLayer = () => ({ id: uid('l'), name: 'field', region: {}, kind: 'cells', params: defaultParams('cells') });
 
 // New layers and hotspots go in the stage the lists are filtered to, if any.
 const inFilteredStage = () => (stageFilter ? { stage: stageFilter } : {});
@@ -509,7 +513,7 @@ function addLayer() {
   if (!s) { setStatus('add a scene first'); return; }
   snapshotForUndo();
   s.layers ??= [];
-  s.layers.push({ id: uid('l'), name: 'layer', region: emptyRegion(), kind: 'marks', params: defaultParams('marks'), ...inFilteredStage() });
+  s.layers.push({ id: uid('l'), name: 'layer', region: emptyRegion(), kind: 'cells', params: defaultParams('cells'), ...inFilteredStage() });
   sel = { type: 'layer', index: s.layers.length - 1 };
   commit({ silent: true, inspector: true });
 }
@@ -684,25 +688,13 @@ function moveRow() {
 function layerInspector(l) {
   const s = scene();
   const kinds = Object.keys(cat.kinds);
-  const spec = cat.kinds[l.kind] || cat.kinds.marks;
+  const spec = cat.kinds[l.kind] || cat.kinds.cells;
   l.params ??= {};
-  const out = [
-    row('name', textInput(l, 'name')),
-    row('kind', selectInput(l, 'kind', kinds, { commit: { inspector: true }, then: () => { l.params = defaultParams(l.kind); commit({ silent: true, inspector: true }); } }),
-      el('span', { class: 'doc' }, spec.doc)),
-    barsRow(l),
-    stageRow(l),
-    moveRow(),
-    row('', checkInput(l, 'muted', 'muted'), el('button', { class: 'small', onclick: () => savePreset(l), title: 'keep a copy in the presets list, to drop into any scene' }, 'save as preset')),
-    el('fieldset', {}, el('legend', {}, 'params'), ...Object.entries(spec.params).map(([name, p]) => paramRow(l.params, name, p))),
-  ];
-  if (!spec.modifier) {
-    delete l.glow; // the old per-layer glow; brightness is gray now
-    out.push(row('glow', checkInput(l, 'ignore_glow', 'ignore the glow layers over it'),
-      el('span', { class: 'doc' }, 'brightness is gray; its sidechains act once glow is unlocked; glow layers dim what\'s under them')));
-  }
-  // gates
-  const gates = el('fieldset', {}, el('legend', {}, 'showing when'));
+  delete l.ignore_glow; delete l.glow; // older files
+
+  // When it shows, first: the stage, its bars, a hotspot it's tied to, an unlock it fades with, unlocks it needs.
+  const gates = el('fieldset', { class: 'gates' }, el('legend', {}, 'showing when'));
+  gates.append(stageRow(l), barsRow(l));
   const when = l.when;
   gates.append(row('hotspot', el('select', { onchange: (e) => {
       snapshotForUndo();
@@ -726,9 +718,72 @@ function layerInspector(l) {
     snapshotForUndo();
     l.needs = UNLOCKS.filter((v) => (v === u ? e.target.checked : l.needs.includes(v)));
     commit({ silent: true });
-  } }), u)), el('span', { class: 'doc' }, 'black without these')));
-  out.push(gates);
-  return out;
+  } }), u)), el('span', { class: 'doc' }, 'nothing without these')));
+
+  return [
+    row('name', textInput(l, 'name')),
+    row('kind', selectInput(l, 'kind', kinds, { commit: { inspector: true }, then: () => { l.params = defaultParams(l.kind); commit({ silent: true, inspector: true }); } }),
+      el('span', { class: 'doc' }, spec.doc)),
+    gates,
+    moveRow(),
+    row('', checkInput(l, 'muted', 'muted'), el('button', { class: 'small', onclick: () => savePreset(l), title: 'keep a copy in the presets list, to drop into any scene' }, 'save as preset')),
+    spec.rows
+      ? rowsEditor(l)
+      : el('fieldset', {}, el('legend', {}, 'params'), ...Object.entries(spec.params).map(([name, p]) => paramRow(l.params, name, p))),
+  ];
+}
+
+// A cells layer's rows: the ones it has, in the order of the unlocks, and a picker for the rest.
+function rowsEditor(l) {
+  const have = cat.rows.filter((r) => l.params[r.name] !== undefined);
+  const missing = cat.rows.filter((r) => l.params[r.name] === undefined);
+  const add = el('select', { onchange: (e) => {
+    const r = rowSpec(e.target.value);
+    if (!r) return;
+    snapshotForUndo();
+    l.params[r.name] = newRow(r);
+    commit({ silent: true, inspector: true });
+  } }, el('option', { value: '' }, '+ row'), ...missing.map((r) => el('option', { value: r.name }, `${r.name} · ${r.unlock}`)));
+  return el('fieldset', { class: 'rows' }, el('legend', {}, 'rows'),
+    ...have.map((r) => rowEditor(l, r)),
+    missing.length ? row('', add, el('span', { class: 'doc' }, have.length ? 'one row per unlock' : 'nothing: the cells are as the layers before leave them')) : null);
+}
+
+const ROW_OPS = [{ value: 'set', label: 'set' }, { value: 'add', label: 'add' }, { value: 'multiply', label: 'multiply' }];
+
+function rowEditor(l, spec) {
+  let p = l.params[spec.name];
+  if (typeof p !== 'object' || p === null) p = l.params[spec.name] = { op: 'set', base: typeof p === 'number' ? p : spec.default, chains: [] };
+  p.op ??= 'set'; p.chains ??= [];
+  const turns = spec.name === 'angle' || spec.name === 'rotation';
+  const [toggle, chainsBox] = chainsUi(p, spec.step);
+  const gate = spec.before === 'static'
+    ? `the ${spec.unlock} unlock lets it move; until then only its pattern sidechains (noise, distance, bearing, around) act`
+    : `${spec.before} until ${spec.unlock} is unlocked`;
+  return el('div', { class: 'rowed' }, row(spec.name,
+    selectInput(p, 'op', ROW_OPS),
+    numberInput(p, 'base', { step: spec.step }),
+    turns ? el('span', { class: 'lbl' }, 'spin') : null,
+    turns ? numberInput(p, 'spin', { step: 5 }) : null,
+    turns ? checkInput(p, 'alternate', 'alternate') : null,
+    toggle,
+    el('span', { class: 'tag', title: gate }, spec.unlock),
+    el('button', { class: 'link danger', title: 'take the row out of this layer', onclick: () => { snapshotForUndo(); delete l.params[spec.name]; commit({ silent: true, inspector: true }); } }, '×'),
+    el('span', { class: 'doc' }, spec.doc)), chainsBox);
+}
+
+// A param's sidechains: the button that shows them, and the box they're in.
+function chainsUi(p, step) {
+  const chainsBox = el('div', { class: 'chains' });
+  const renderChains = () => {
+    chainsBox.replaceChildren(...p.chains.map((c, k) => chainRow(p, c, k, renderChains)),
+      el('button', { class: 'link', onclick: () => { snapshotForUndo(); p.chains.push({ source: album.bands[0]?.id ?? 'beat', depth: step >= 1 ? 360 : 1, threshold: 0, width: 1, curve: 1, invert: false, on: true, delay: 0 }); commit({ silent: true }); renderChains(); } }, '+ sidechain'));
+  };
+  renderChains();
+  chainsBox.hidden = p.chains.length === 0;
+  const toggle = el('button', { class: 'link', title: 'sidechain this from a source: distance, bearing or around for a mask, the music for motion', onclick: () => { chainsBox.hidden = !chainsBox.hidden; } },
+    p.chains.length ? `${p.chains.length} sidechain${p.chains.length > 1 ? 's' : ''}` : 'sidechain');
+  return [toggle, chainsBox];
 }
 
 function paramRow(params, name, spec) {
@@ -738,27 +793,13 @@ function paramRow(params, name, spec) {
     if (typeof params[name] !== 'object' || params[name] === null) params[name] = { base: typeof params[name] === 'number' ? params[name] : (defaultParam(spec).base), chains: [] };
     const p = params[name];
     p.chains ??= [];
-    const chainsBox = el('div', { class: 'chains' });
-    const renderChains = () => {
-      chainsBox.replaceChildren(...p.chains.map((c, k) => chainRow(p, c, k, renderChains)),
-        el('button', { class: 'link', onclick: () => { snapshotForUndo(); p.chains.push({ source: album.bands[0]?.id ?? 'beat', depth: 1, threshold: 0, width: 1, curve: 1, invert: false, on: true, delay: 0 }); commit({ silent: true }); renderChains(); } }, '+ sidechain'));
-    };
-    renderChains();
-    chainsBox.hidden = p.chains.length === 0;
-    return el('div', {}, row(name, numberInput(p, 'base', { step: spec.step ?? 0.1 }),
-      el('button', { class: 'link', title: 'sidechain this parameter from a source', onclick: () => { chainsBox.hidden = !chainsBox.hidden; } }, p.chains.length ? `${p.chains.length} sidechain${p.chains.length > 1 ? 's' : ''}` : 'sidechain'),
+    const [toggle, chainsBox] = chainsUi(p, spec.step ?? 0.1);
+    return el('div', {}, row(name, numberInput(p, 'base', { step: spec.step ?? 0.1 }), toggle,
       spec.doc ? el('span', { class: 'doc' }, spec.doc) : null), chainsBox);
   }
   if (spec.type === 'number') return row(name, numberInput(params, name, { step: spec.step ?? 0.1 }), spec.doc ? el('span', { class: 'doc' }, spec.doc) : null);
   if (spec.type === 'bool') return row(name, checkInput(params, name, spec.doc || ''));
   if (spec.type === 'select') return row(name, selectInput(params, name, spec.options), spec.doc ? el('span', { class: 'doc' }, spec.doc) : null);
-  if (spec.type === 'angle') {
-    const named = ['along', 'across', 'noise', 'checker', 'around', 'radial', 'tangent'];
-    const isNum = typeof params[name] === 'number';
-    const sel = el('select', { onchange: (e) => { snapshotForUndo(); params[name] = e.target.value === 'degrees' ? 0 : e.target.value; commit({ silent: true, inspector: true }); } },
-      ...named.map((o) => el('option', { value: o, ...(params[name] === o ? { selected: '' } : {}) }, o)), el('option', { value: 'degrees', ...(isNum ? { selected: '' } : {}) }, 'degrees'));
-    return row(name, sel, isNum ? numberInput(params, name, { step: 15 }) : null, el('span', { class: 'doc' }, spec.doc));
-  }
   return row(name, el('span', { class: 'doc' }, 'unknown param type ' + spec.type));
 }
 
@@ -977,6 +1018,7 @@ function renderGrid() {
     btn('map', r.map != null, () => { if (r.map == null) { const rows = mapRows(''); r.map = rows.map((row, k) => Array.from(row, (_, i) => inRegion({ rect: r.rect }, i, H - 1 - k) ? '#' : '.').join('')).join('\n'); delete r.rect; } }),
     btn('rect', !!r.rect && r.map == null, () => { delete r.map; r.rect ??= [5, 5, 15, 15]; }),
     btn('whole', !r.rect && r.map == null, () => { delete r.rect; delete r.map; }),
+    el('button', { class: 'small', title: 'no cells: an empty map to paint on', onclick: () => { snapshotForUndo(); delete r.rect; r.map = mapRows('').join('\n'); go(); } }, 'clear'),
     el('label', {}, el('input', { type: 'checkbox', ...(r.perimeter ? { checked: '' } : {}), onchange: (e) => { snapshotForUndo(); if (e.target.checked) r.perimeter = true; else delete r.perimeter; go(); } }), 'perimeter'),
     el('span', {}, 'rows every ', stepInput(r, 'rows'), ' cols every ', stepInput(r, 'cols')),
     el('span', {}, 'checker ', el('select', { onchange: (e) => { snapshotForUndo(); if (e.target.value === '') delete r.checker; else r.checker = +e.target.value; go(); } },

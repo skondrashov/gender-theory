@@ -16,9 +16,17 @@ point: a player needn't notice they got one — it reads as the game progressing
 look is free from the start (a line points wherever its layer says, dots appear or not
 without glow); an unlock lets a parameter leave its default or move.
 
-- global: **glow** (the owner's "opacity": brightness gets to follow the music — a draw
-  layer's gray sidechains act, and glow layers dim what's under them; nothing breathes
-  unless a layer says so),
+**One system** (owner, 2026-11-18: "i want everything really structured so there's a
+relatively simple uniform system for the entire thing — one unlock unlocks one row"): a cell
+is twelve **rows**, one per unlock — brightness; lines, length, angle, bend; rings, radius,
+fill, morph, flatness, rotation; color. A layer is a region plus the rows it changes, each
+*set*, *added to* or *multiplied* over what the layers before it left; a cell under no layer
+is a dark dot (dots always exist; brightness can be 0). Any row can be masked by distance,
+bearing or the way round the layer's rectangle (fixed patterns, always on) and moved by the
+music (comes in with its unlock). A new layer is one row: brightness 1.
+
+- global: **glow** (the owner's "opacity": brightness gets to follow the music; nothing
+  breathes unless a layer says so),
   **color** (one color, a range from white to it; more colors = more unlocks), and later
   **root position motion** (the mark's origin leaves the lattice — "probably actually way
   later"; not built)
@@ -112,9 +120,9 @@ for new *kinds* of mechanic (`scenes/data.rs`).
 - Dots **3 px**; lines **3 px, round caps**, so a line covers its dot exactly and no more.
 - **Distance and angle**: anything can be a function of a cell's distance from the centre
   dot or its bearing (sources `distance`, `bearing`), and the beat can arrive later further
-  out (a chain's `delay`) — ripples. Brightness masks (glow layers) stack, each on its own
-  cells, multiplying or adding; so a missing dot is a dot nothing draws, and a ripple only
-  touches the cells its mask is painted on (owner: "these masks can stack and each mask is
+  out (a chain's `delay`) — ripples. Layers stack, each on its own cells, setting, adding to
+  or multiplying any row; so a missing dot is a dot nothing lights, and a ripple only
+  touches the cells its layer is painted on (owner: "these masks can stack and each mask is
   enabled on certain cells with the same editor as the hotspot and layers").
 - The old 20 × 20 designs were rescaled to 11 × 11 mechanically; act 1 needs redrawing.
 

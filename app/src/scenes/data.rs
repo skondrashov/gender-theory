@@ -14,8 +14,16 @@
 //! thing sits as `id.pitch` and `id.chroma`) or a built-in signal (beat, bar, pulse, noise,
 //! transition, and the old bass/mid/treble) — through threshold, width, curve and depth.
 //!
-//! `CATALOGUE` tells the editor what kinds and params exist; the structs here are what
-//! they mean. Keep the two together.
+//! Most layers are **cells**: every cell in the region is a dot with a line out of it and
+//! a ring round it, described by twelve **rows** — one per unlock (`ROWS`): brightness;
+//! lines, length, angle, bend; rings, radius, fill, morph, flatness, rotation; color. A
+//! cells layer carries the rows it wants to change and, for each, how: set it, add to it
+//! or multiply it, over what the layers before it left. Nothing: a dark dot. A row's
+//! sidechains on distance, bearing and around are masks; on the music, motion — which
+//! comes in with the row's unlock.
+//!
+//! `catalogue()` tells the editor what rows, kinds and params exist; the structs here are
+//! what they mean. Keep the two together.
 
 use {
 	crate::{
@@ -200,8 +208,6 @@ pub struct Layer {
 	pub fade: Option<Fade>,
 	/// Brightness is the product of these unlocks' reveals (0 without them).
 	pub needs: Vec<String>,
-	/// Draw it at its own gray, whatever glow layers cover the cell.
-	pub ignore_glow: bool,
 	/// Only in this stage of the scene (by name).
 	pub stage: Option<String>,
 	pub muted: bool,
@@ -219,7 +225,6 @@ impl Default for Layer {
 			when: None,
 			fade: None,
 			needs: vec![],
-			ignore_glow: false,
 			stage: None,
 			muted: false,
 		}
@@ -386,8 +391,8 @@ impl Param {
 		self.value_gated(signals, 1.0)
 	}
 
-	/// `value`, with every sidechain but one on `noise` (which is a fixed pattern, not motion)
-	/// scaled by `gate`: how a brightness is read, so it moves only as glow is unlocked.
+	/// `value`, with every sidechain scaled by `gate` except those on a fixed pattern (noise,
+	/// distance, bearing, around): how a row is read, so it moves only as its unlock comes in.
 	pub fn value_gated(&self, signals: &Signals, gate: f32) -> f32 {
 		self.base
 			+ self
@@ -395,7 +400,7 @@ impl Param {
 				.iter()
 				.filter(|chain| chain.on)
 				.map(|chain| {
-					let fixed = matches!(chain.source.as_str(), "noise" | "distance" | "bearing");
+					let fixed = matches!(chain.source.as_str(), "noise" | "distance" | "bearing" | "around");
 					let gate = if fixed { 1.0 } else { gate };
 					gate * chain.depth * chain.shape(signals.get_delayed(&chain.source, chain.delay * signals.distance))
 				})
@@ -421,6 +426,9 @@ pub struct Signals<'a> {
 	pub distance: f32,
 	/// The cell's direction from the centre dot: 0 straight up, round clockwise to 1.
 	pub bearing: f32,
+	/// The way round the layer's rectangle at the cell: 0 on its top edge, 0.75 the right,
+	/// 0.5 the bottom, 0.25 the left (and inside) — × 360° on angle sends lines clockwise.
+	pub around: f32,
 	/// The bar's phase and the beat's, 0..1, for delaying.
 	pub whole: f32,
 	pub quarter: f32,
@@ -437,6 +445,7 @@ impl Signals<'_> {
 			"transition" => self.transition,
 			"distance" => self.distance,
 			"bearing" => self.bearing,
+			"around" => self.around,
 			"bass" => self.bass,
 			"mid" => self.mid,
 			"treble" => self.treble,
@@ -471,36 +480,29 @@ impl Signals<'_> {
 /// What the editor needs to know about the kinds and their params. Types: `param` (a base
 /// and sidechains), `number`, `bool`, `angle`, `select` (with `options`), `sub`.
 pub const CATALOGUE: &str = r##"{
-  "sources": ["span", "beat", "bar", "pulse", "noise", "distance", "bearing", "transition", "bass", "mid", "treble"],
+  "sources": ["span", "beat", "bar", "pulse", "noise", "distance", "bearing", "around", "transition", "bass", "mid", "treble"],
   "sourceDocs": {
     "span": "0..1 across the layer's own bars (the scene's if it has none): where we are in it",
     "beat": "hits on every beat and falls away before the next",
     "bar": "hits on the downbeat and falls away over the bar",
     "pulse": "beat and bar together: beat hits, downbeat hardest",
-    "noise": "a fixed random value per cell, 0..1",
+    "noise": "a fixed random value per cell, 0..1 — a pattern, not motion",
     "transition": "0..1 along a via passage out of the scene",
     "bass": "the old coarse bands: 0-2.7 kHz",
     "mid": "2.7-11 kHz",
     "treble": "11-22 kHz",
-    "distance": "how far the cell is from the centre dot: 0 there, 1 at a corner (fixed per cell; shape it with threshold and width)",
-    "bearing": "which way the cell is from the centre dot: 0 straight up, round clockwise to 1 (fixed per cell)"
+    "distance": "how far the cell is from the centre dot: 0 there, 1 at a corner (a pattern; shape it with threshold and width)",
+    "bearing": "which way the cell is from the centre dot: 0 straight up, round clockwise to 1 (a pattern)",
+    "around": "the way round the layer's rectangle at the cell: 0 on its top edge, 0.75 the right, 0.5 the bottom, 0.25 the left and inside — × 360 on angle sends lines clockwise round it (a pattern)"
   },
+  "rows": [],
   "kinds": {
-    "marks": {
-      "doc": "The cell's mark: a point until lines are unlocked, then a line pointing where `angle` says; its length is 1 until length is unlocked, it turns once angle is, it bends once bend is.",
-      "params": {
-        "angle": {"type": "angle", "default": "along", "doc": "along / across / noise / checker (along or across by the cell's noise) / around (clockwise round the region's rectangle) / radial (away from the centre dot) / tangent (round the centre dot) / degrees"},
-        "offset": {"type": "number", "default": 0, "step": 15, "doc": "degrees added to the angle"},
-        "spin": {"type": "param", "default": 0, "doc": "radians per time unit (needs angle)"},
-        "alternate": {"type": "bool", "default": false, "doc": "every other cell spins the other way"},
-        "length": {"type": "param", "default": 1, "step": 0.1, "doc": "in cells (needs length to be other than 1)"},
-        "bend": {"type": "param", "default": 0, "step": 0.1, "doc": "0 straight .. 1 a half circle, turning left; negative turns right (needs bend)"},
-        "gray": {"type": "param", "default": 1, "step": 0.05, "doc": "brightness; glow layers over the cell change it, and its own sidechains act once glow is unlocked"},
-        "color": {"type": "param", "default": 0, "step": 0.1, "doc": "0 grey .. 1 the color (needs color)"}
-      }
+    "cells": {
+      "rows": true,
+      "doc": "Every cell in the region: a dot, with a line out of it and a ring round it. Twelve rows, one per unlock; this layer sets, adds to or multiplies the rows it has, over what the layers before it left (nothing: a dark dot). A new layer is just brightness 1. Sidechain a row from distance, bearing or around to mask it; from the music to move it, which comes in with its unlock."
     },
     "snake": {
-      "doc": "One line through every cell of the region's rectangle, row by row (or column by column), as a snake. retreat: it pulls back cell by cell from its start, leaving a dot at each. arrive: from the dots, each dot in turn extends (and turns) a line to the next until the line is whole. Where it is comes from `progress`: the layer's own bars by default, so put a retreat and an arrive on consecutive bars.",
+      "doc": "One line through every cell of the region's rectangle, row by row (or column by column), as a snake. retreat: it pulls back cell by cell from its start, leaving a dot at each. arrive: from the dots, each dot in turn extends (and turns) a line to the next until the line is whole. Where it is comes from `progress`: the layer's own bars by default, so put a retreat and an arrive on consecutive bars. Not a cells layer: rows don't reach it.",
       "params": {
         "mode": {"type": "select", "options": ["retreat", "arrive"], "default": "retreat"},
         "axis": {"type": "select", "options": ["rows", "cols"], "default": "rows", "doc": "the lines run along rows (left-right) or columns (up-down)"},
@@ -509,37 +511,13 @@ pub const CATALOGUE: &str = r##"{
         "heads": {"type": "number", "default": 1, "step": 1, "doc": "how many snakes at once (the order cut into equal runs)"},
         "spin": {"type": "number", "default": 0, "step": 15, "doc": "degrees the moving end turns about its dot as it grows or shrinks"},
         "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "0 untouched .. 1 done, for the mode"},
-        "gray": {"type": "param", "default": 0.9, "step": 0.05, "doc": "the line's brightness; sidechains act once glow is unlocked"},
+        "brightness": {"type": "param", "default": 0.9, "step": 0.05, "doc": "the line's; sidechains act once glow is unlocked"},
         "dots": {"type": "param", "default": 0.45, "step": 0.05, "doc": "the dots it leaves / starts from, likewise"},
         "color": {"type": "param", "default": 0, "step": 0.1}
       }
     },
-    "points": {
-      "doc": "Bare points, whatever is unlocked: scenery.",
-      "params": {
-        "gray": {"type": "param", "default": 0.5, "step": 0.05},
-        "color": {"type": "param", "default": 0, "step": 0.1}
-      }
-    },
-    "rings": {
-      "doc": "A ring on each cell, once rings are unlocked (it grows in). A circle 0.4 cells across its radius until size is unlocked; each of fill, morph, flatness and rotation does nothing until its own unlock. A line turning inside one is a clock.",
-      "params": {
-        "radius": {"type": "param", "default": 0.4, "step": 0.05, "doc": "in cells (needs size to be other than 0.4)"},
-        "weight": {"type": "number", "default": 3, "step": 0.5, "doc": "stroke, px"},
-        "count": {"type": "number", "default": 1, "step": 1, "doc": "how many rings, concentric; the centre dot's halos"},
-        "gap": {"type": "number", "default": 1, "step": 0.25, "doc": "cells between them"},
-        "fill": {"type": "param", "default": 0, "step": 0.1, "doc": "0 an outline .. 1 a disc (needs fill)"},
-        "morph": {"type": "param", "default": 0, "step": 0.1, "doc": "0 a circle .. 1 a square (needs morph)"},
-        "flatness": {"type": "param", "default": 0, "step": 0.1, "doc": "0 round .. 1 squashed flat (needs flatness)"},
-        "angle": {"type": "number", "default": 0, "step": 15, "doc": "degrees the shape is turned"},
-        "spin": {"type": "param", "default": 0, "doc": "radians per time unit (needs rotation)"},
-        "gray": {"type": "param", "default": 0.7, "step": 0.05},
-        "color": {"type": "param", "default": 0, "step": 0.1},
-        "gated": {"type": "bool", "default": true, "doc": "off: scenery, drawn as given whatever is unlocked"}
-      }
-    },
     "orbits": {
-      "doc": "A point orbits each cell and a line runs out to it; a second, invisible point orbits further out the other way, and `pull` drags the tip of the line toward it.",
+      "doc": "A point orbits each cell and a line runs out to it; a second, invisible point orbits further out the other way, and `pull` drags the tip of the line toward it. Not a cells layer.",
       "params": {
         "near": {"type": "number", "default": 0.45, "step": 0.05, "doc": "orbit radius, cells"},
         "far": {"type": "number", "default": 0.9, "step": 0.05, "doc": "target radius, cells"},
@@ -547,66 +525,287 @@ pub const CATALOGUE: &str = r##"{
         "far_rate": {"type": "number", "default": 1.3, "step": 0.1},
         "vary": {"type": "number", "default": 0.4, "step": 0.1, "doc": "how much the rates vary per cell"},
         "pull": {"type": "param", "default": 0, "step": 0.1, "doc": "0 at the orbit .. 1 at the target"},
-        "gray": {"type": "param", "default": 0.6, "step": 0.05},
+        "brightness": {"type": "param", "default": 0.6, "step": 0.05},
         "color": {"type": "param", "default": 0, "step": 0.1}
-      }
-    },
-    "glow": {
-      "modifier": true,
-      "doc": "A mask on brightness: changes the gray of every draw layer under it in this region, once glow is unlocked — nothing until then. Glow layers stack: each multiplies (or adds to) what the ones before it left. Sidechain `level` to breathe over many layers at once (base 0.35 + 0.65 of the pulse is a field, base 1 − 1 of it the inverse); sidechain it to distance, or give the pulse a delay, for ripples.",
-      "params": {
-        "op": {"type": "select", "options": ["multiply", "add"], "default": "multiply", "doc": "multiply: 1 leaves things alone, 0 is dark; add: 0 leaves things alone, negative darkens"},
-        "level": {"type": "param", "default": 1, "step": 0.05}
       }
     },
     "walk": {
       "modifier": true,
-      "doc": "A grid of regions lit one per tick of a subdivision, in reading order: this 16th happens here, the next one there. Adds to the gray and length of the marks under it.",
+      "doc": "A grid of regions lit one per tick of a subdivision, in reading order: this 16th happens here, the next one there. Adds to the brightness and length of the cells under it.",
       "params": {
         "cols": {"type": "number", "default": 4, "step": 1},
         "rows": {"type": "number", "default": 4, "step": 1},
         "sub": {"type": "select", "options": ["whole", "half", "quarter", "eighth", "sixteenth"], "default": "sixteenth"},
-        "gray": {"type": "number", "default": 0.25, "step": 0.05},
+        "brightness": {"type": "number", "default": 0.25, "step": 0.05},
         "length": {"type": "number", "default": 0.8, "step": 0.1, "doc": "cells, falling over the tick"}
       }
     }
   }
 }"##;
 
-#[derive(Deserialize, Clone)]
-#[serde(untagged)]
-pub enum Angle {
-	Named(String),
-	Degrees(f32),
+/// `CATALOGUE` with the rows filled in from `ROWS`, for the editor.
+pub fn catalogue() -> String {
+	let rows: Vec<Value> = ROWS
+		.iter()
+		.map(|row| {
+			serde_json::json!({
+				"name": row.name,
+				"unlock": row.unlock.name(),
+				"start": row.start,
+				"default": row.default,
+				"before": match row.before { Before::Static => Value::from("static"), Before::At(v) => Value::from(v) },
+				"step": row.step,
+				"doc": row.doc,
+			})
+		})
+		.collect();
+	CATALOGUE.replace("\"rows\": [],", &format!("\"rows\": {},", serde_json::to_string(&rows).unwrap()))
 }
 
+// ---- the rows of a cell ----
+
+/// How a cells layer changes a row of the cell under it.
+#[derive(Deserialize, Clone, Copy, PartialEq, Debug, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum Op {
+	#[default]
+	Set,
+	Add,
+	Multiply,
+}
+
+/// One row of a cells layer: `op` the cell's value with `param` (a base plus sidechains).
+/// The angle rows (angle, rotation) can also `spin`, in degrees per time unit — every other
+/// cell the other way if `alternate`.
+#[derive(Clone, Debug)]
+pub struct Row {
+	pub op: Op,
+	pub param: Param,
+	pub spin: f32,
+	pub alternate: bool,
+}
+
+/// A row in the file is a bare number (set to it) or `{op, base, chains, spin, alternate}`.
 #[derive(Deserialize)]
-#[serde(default)]
-struct Marks {
-	angle: Angle,
-	offset: f32,
-	spin: Param,
-	alternate: bool,
-	length: Param,
-	bend: Param,
-	gray: Param,
-	color: Param,
+#[serde(untagged)]
+enum RowJson {
+	Number(f32),
+	Full {
+		#[serde(default)]
+		op: Op,
+		#[serde(default)]
+		base: f32,
+		#[serde(default)]
+		chains: Vec<Sidechain>,
+		#[serde(default)]
+		spin: f32,
+		#[serde(default)]
+		alternate: bool,
+	},
 }
 
-impl Default for Marks {
-	fn default() -> Self {
-		Marks {
-			angle: Angle::Named("along".into()),
-			offset: 0.0,
-			spin: Param::new(0.0),
-			alternate: false,
-			length: Param::new(1.0),
-			bend: Param::new(0.0),
-			gray: Param::new(1.0),
-			color: Param::new(0.0),
-		}
+impl<'de> Deserialize<'de> for Row {
+	fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+		Ok(match RowJson::deserialize(d)? {
+			RowJson::Number(base) => Row {
+				op: Op::Set,
+				param: Param::new(base),
+				spin: 0.0,
+				alternate: false,
+			},
+			RowJson::Full {
+				op,
+				base,
+				chains,
+				spin,
+				alternate,
+			} => Row {
+				op,
+				param: Param { base, chains },
+				spin,
+				alternate,
+			},
+		})
 	}
 }
+
+/// What a row is until its unlock. `Static`: as the layers set it, but its motion — the
+/// sidechains on the music, the spin — comes in with the unlock; so dots can be anywhere
+/// at any brightness, and lines point anywhere, from the start. `At(v)`: fixed at `v`,
+/// easing to the layers' value as the unlock comes in.
+#[derive(Clone, Copy)]
+pub enum Before {
+	Static,
+	At(f32),
+}
+
+/// One row of a cell, the thing one unlock unlocks.
+pub struct RowSpec {
+	pub name: &'static str,
+	pub unlock: Unlock,
+	/// The cell's value under no layer at all.
+	pub start: f32,
+	/// The base of a row newly added in the editor.
+	pub default: f32,
+	pub before: Before,
+	/// The editor's step for its base.
+	pub step: f32,
+	pub doc: &'static str,
+}
+
+/// The rows of a cell, in order: one per unlock. The drawing order of the cell is the
+/// dot, the line out of it (× `lines`), the ring round it (× `rings`).
+pub const ROWS: [RowSpec; Unlock::COUNT] = [
+	RowSpec {
+		name: "brightness",
+		unlock: Unlock::Glow,
+		start: 0.0,
+		default: 1.0,
+		before: Before::Static,
+		step: 0.05,
+		doc: "0 dark .. 1 full, of the dot, its line and its ring. Set as you like from the start; it follows the music once glow is unlocked.",
+	},
+	RowSpec {
+		name: "lines",
+		unlock: Unlock::Lines,
+		start: 0.0,
+		default: 1.0,
+		before: Before::At(0.0),
+		step: 0.1,
+		doc: "0 no line .. 1 the line (× its length). Nothing until lines are unlocked; then it grows out of the dot. Mask it by distance or bearing for lines only here.",
+	},
+	RowSpec {
+		name: "length",
+		unlock: Unlock::Length,
+		start: 1.0,
+		default: 1.0,
+		before: Before::At(1.0),
+		step: 0.1,
+		doc: "in cells; 1 — to the next dot — until length is unlocked",
+	},
+	RowSpec {
+		name: "angle",
+		unlock: Unlock::Angle,
+		start: 0.0,
+		default: 0.0,
+		before: Before::Static,
+		step: 15.0,
+		doc: "degrees anticlockwise from pointing right: 0 along, 90 across. Point anywhere from the start; it turns (and spins) once angle is unlocked. Patterns: noise × 360 scatters; bearing × −360 + 90 is radial, + 180 tangent; around × 360 runs round the rectangle.",
+	},
+	RowSpec {
+		name: "bend",
+		unlock: Unlock::Bend,
+		start: 0.0,
+		default: 0.0,
+		before: Before::At(0.0),
+		step: 0.1,
+		doc: "0 straight .. 1 a half circle turning left; negative turns right. Straight until bend is unlocked.",
+	},
+	RowSpec {
+		name: "rings",
+		unlock: Unlock::Rings,
+		start: 0.0,
+		default: 1.0,
+		before: Before::At(0.0),
+		step: 0.1,
+		doc: "0 no ring .. 1 the ring (× its radius). Nothing until rings are unlocked; then it grows out of the dot.",
+	},
+	RowSpec {
+		name: "radius",
+		unlock: Unlock::Size,
+		start: RING,
+		default: RING,
+		before: Before::At(RING),
+		step: 0.05,
+		doc: "in cells; 0.4 until size is unlocked",
+	},
+	RowSpec {
+		name: "fill",
+		unlock: Unlock::Fill,
+		start: 0.0,
+		default: 0.0,
+		before: Before::At(0.0),
+		step: 0.1,
+		doc: "0 an outline .. 1 a disc; an outline until fill is unlocked",
+	},
+	RowSpec {
+		name: "morph",
+		unlock: Unlock::Morph,
+		start: 0.0,
+		default: 0.0,
+		before: Before::At(0.0),
+		step: 0.1,
+		doc: "0 a circle .. 1 a square; a circle until morph is unlocked",
+	},
+	RowSpec {
+		name: "flatness",
+		unlock: Unlock::Flatness,
+		start: 0.0,
+		default: 0.0,
+		before: Before::At(0.0),
+		step: 0.1,
+		doc: "0 round .. 1 squashed flat across its rotation; round until flatness is unlocked",
+	},
+	RowSpec {
+		name: "rotation",
+		unlock: Unlock::Rotation,
+		start: 0.0,
+		default: 0.0,
+		before: Before::At(0.0),
+		step: 15.0,
+		doc: "degrees the ring is turned (and spins); 0 until rotation is unlocked",
+	},
+	RowSpec {
+		name: "color",
+		unlock: Unlock::Color,
+		start: 0.0,
+		default: 0.0,
+		before: Before::At(0.0),
+		step: 0.1,
+		doc: "0 grey .. 1 the color; grey until color is unlocked",
+	},
+];
+
+/// A cells layer: the rows it changes.
+#[derive(Deserialize, Default)]
+#[serde(default)]
+struct Cells {
+	brightness: Option<Row>,
+	lines: Option<Row>,
+	length: Option<Row>,
+	angle: Option<Row>,
+	bend: Option<Row>,
+	rings: Option<Row>,
+	radius: Option<Row>,
+	fill: Option<Row>,
+	morph: Option<Row>,
+	flatness: Option<Row>,
+	rotation: Option<Row>,
+	color: Option<Row>,
+}
+
+impl Cells {
+	/// The row at `k` in `ROWS`.
+	fn row(&self, k: usize) -> Option<&Row> {
+		[
+			&self.brightness,
+			&self.lines,
+			&self.length,
+			&self.angle,
+			&self.bend,
+			&self.rings,
+			&self.radius,
+			&self.fill,
+			&self.morph,
+			&self.flatness,
+			&self.rotation,
+			&self.color,
+		][k]
+			.as_ref()
+	}
+}
+
+// ---- the other kinds ----
 
 #[derive(Deserialize)]
 #[serde(default)]
@@ -619,7 +818,7 @@ struct Snake {
 	/// Degrees.
 	spin: f32,
 	progress: Param,
-	gray: Param,
+	brightness: Param,
 	dots: Param,
 	color: Param,
 }
@@ -640,63 +839,9 @@ impl Default for Snake {
 					..Default::default()
 				}],
 			},
-			gray: Param::new(0.9),
+			brightness: Param::new(0.9),
 			dots: Param::new(0.45),
 			color: Param::new(0.0),
-		}
-	}
-}
-
-#[derive(Deserialize)]
-#[serde(default)]
-struct Points {
-	gray: Param,
-	color: Param,
-}
-
-impl Default for Points {
-	fn default() -> Self {
-		Points {
-			gray: Param::new(0.5),
-			color: Param::new(0.0),
-		}
-	}
-}
-
-#[derive(Deserialize)]
-#[serde(default)]
-struct Rings {
-	radius: Param,
-	weight: f32,
-	count: usize,
-	gap: f32,
-	fill: Param,
-	morph: Param,
-	flatness: Param,
-	/// Degrees.
-	angle: f32,
-	spin: Param,
-	gray: Param,
-	color: Param,
-	/// Through the ring unlocks; off is scenery.
-	gated: bool,
-}
-
-impl Default for Rings {
-	fn default() -> Self {
-		Rings {
-			radius: Param::new(RING),
-			weight: WEIGHT,
-			count: 1,
-			gap: 1.0,
-			fill: Param::new(0.0),
-			morph: Param::new(0.0),
-			flatness: Param::new(0.0),
-			angle: 0.0,
-			spin: Param::new(0.0),
-			gray: Param::new(0.7),
-			color: Param::new(0.0),
-			gated: true,
 		}
 	}
 }
@@ -710,7 +855,7 @@ struct Orbits {
 	far_rate: f32,
 	vary: f32,
 	pull: Param,
-	gray: Param,
+	brightness: Param,
 	color: Param,
 }
 
@@ -723,25 +868,8 @@ impl Default for Orbits {
 			far_rate: 1.3,
 			vary: 0.4,
 			pull: Param::new(0.0),
-			gray: Param::new(0.6),
+			brightness: Param::new(0.6),
 			color: Param::new(0.0),
-		}
-	}
-}
-
-#[derive(Deserialize)]
-#[serde(default)]
-struct Glow {
-	/// multiply (1 is nothing) or add (0 is nothing) to the brightness of what's under it.
-	op: String,
-	level: Param,
-}
-
-impl Default for Glow {
-	fn default() -> Self {
-		Glow {
-			op: "multiply".into(),
-			level: Param::new(1.0),
 		}
 	}
 }
@@ -752,7 +880,7 @@ struct Walk {
 	cols: usize,
 	rows: usize,
 	sub: String,
-	gray: f32,
+	brightness: f32,
 	length: f32,
 }
 
@@ -762,19 +890,16 @@ impl Default for Walk {
 			cols: 4,
 			rows: 4,
 			sub: "sixteenth".into(),
-			gray: 0.25,
+			brightness: 0.25,
 			length: 0.8,
 		}
 	}
 }
 
 enum Kind {
-	Marks(Marks),
+	Cells(Cells),
 	Snake(Snake),
-	Points(Points),
-	Rings(Rings),
 	Orbits(Orbits),
-	Glow(Glow),
 	Walk(Walk),
 }
 
@@ -785,12 +910,9 @@ fn parse_kind(kind: &str, params: &Value) -> Result<Kind, String> {
 	};
 	let bad = |e: serde_json::Error| format!("{kind}: {e}");
 	Ok(match kind {
-		"marks" => Kind::Marks(serde_json::from_value(params).map_err(bad)?),
+		"cells" => Kind::Cells(serde_json::from_value(params).map_err(bad)?),
 		"snake" => Kind::Snake(serde_json::from_value(params).map_err(bad)?),
-		"points" => Kind::Points(serde_json::from_value(params).map_err(bad)?),
-		"rings" => Kind::Rings(serde_json::from_value(params).map_err(bad)?),
 		"orbits" => Kind::Orbits(serde_json::from_value(params).map_err(bad)?),
-		"glow" => Kind::Glow(serde_json::from_value(params).map_err(bad)?),
 		"walk" => Kind::Walk(serde_json::from_value(params).map_err(bad)?),
 		other => return Err(format!("no such kind: {other}")),
 	})
@@ -810,29 +932,18 @@ pub fn unlock_named(name: &str) -> Option<Unlock> {
 	Unlock::ALL.iter().copied().find(|unlock| unlock.name() == name)
 }
 
-/// The direction a cell on the edge of `area` draws in to go round it clockwise.
-/// Straight away from the centre dot (right, for the centre itself).
-fn radial(i: usize, j: usize) -> f32 {
-	let (di, dj) = (
-		i as f32 - (CANVAS_WIDTH - 1) as f32 / 2.0,
-		j as f32 - (CANVAS_HEIGHT - 1) as f32 / 2.0,
-	);
-	if di == 0.0 && dj == 0.0 {
-		0.0
-	} else {
-		dj.atan2(di)
-	}
-}
-
-fn around(area: Area, i: usize, j: usize) -> f32 {
+/// The `around` signal: the way round `area` at the cell, 0..1 clockwise from the top edge
+/// (0 top, 0.75 right, 0.5 bottom, 0.25 left — and inside), so × 360° on angle it is the
+/// direction that goes round the rectangle clockwise.
+fn around_level(area: Area, i: usize, j: usize) -> f32 {
 	if j + 1 == area.j1 && i + 1 < area.i1 {
 		0.0
 	} else if i + 1 == area.i1 && j > area.j0 {
-		-PI / 2.0
+		0.75
 	} else if j == area.j0 && i > area.i0 {
-		PI
+		0.5
 	} else {
-		PI / 2.0
+		0.25
 	}
 }
 
@@ -1012,12 +1123,6 @@ fn gate(scene: &DataScene, model: &Model, layer: &Layer) -> Option<f32> {
 	(factor > 0.0).then_some(factor)
 }
 
-/// The glow of a cell at `level` (0..1): 1 until glow is unlocked, easing to the level as
-/// it comes in.
-fn lit(model: &Model, level: f32) -> f32 {
-	1.0 + (level.clamp(0.0, 1.0) - 1.0) * model.reveal(Unlock::Glow)
-}
-
 fn render(
 	scene: &'static DataScene,
 	draw: &Draw,
@@ -1051,18 +1156,24 @@ fn render(
 		treble,
 		distance: (di.hypot(dj) / corner).min(1.0),
 		bearing: if di == 0.0 && dj == 0.0 { 0.0 } else { di.atan2(dj).rem_euclid(TAU) / TAU },
+		around: 0.0,
 		whole,
 		quarter,
 	};
-	// The same signals, with `span` where the bar is in this layer's own bars.
-	let with_span = |rt: &LayerRt| {
+	// The same signals for one layer: `span` where the bar is in its own bars, `around`
+	// where the cell is on its rectangle.
+	let for_layer = |rt: &LayerRt| {
 		let [from, to] = rt.layer.bars.unwrap_or(scene.bars);
 		let span = if to > from {
 			((bar - from as f32) / (to - from) as f32).clamp(0.0, 1.0)
 		} else {
 			0.0
 		};
-		Signals { span, ..signals }
+		Signals {
+			span,
+			around: around_level(rt.layer.region.area(), i, j),
+			..signals
+		}
 	};
 	let stage = model.stage();
 	let active = || {
@@ -1072,81 +1183,57 @@ fn render(
 				&& rt.layer.region.contains(i, j)
 		})
 	};
+	let glow = model.reveal(Unlock::Glow);
 
-	// The modifiers first: how bright the cell glows (lit unless a glow layer says), and
-	// whether a walk is on it.
-	let mut level = 1.0;
-	let (mut hot_gray, mut hot_length) = (0.0, 0.0);
+	// The walks first: what they add to the brightness and length of the cell under them.
+	let (mut hot_brightness, mut hot_length) = (0.0, 0.0);
 	for rt in active() {
-		let signals = with_span(rt);
-		match &rt.kind {
-			Kind::Glow(glow) => {
-				if gate(scene, model, &rt.layer).is_some() {
-					let value = glow.level.value(&signals);
-					level = if glow.op == "add" { level + value } else { level * value };
-				}
+		if let Kind::Walk(walk) = &rt.kind {
+			let sub = subdivision(&walk.sub);
+			let grid = Regions::Grid {
+				cols: walk.cols.max(1),
+				rows: walk.rows.max(1),
+			};
+			if gate(scene, model, &rt.layer).is_some() && grid.is_current(model, sub, i, j) {
+				let fall = 1.0 - modifiers[sub as usize];
+				hot_brightness += walk.brightness * fall;
+				hot_length += walk.length * fall;
 			}
-			Kind::Walk(walk) => {
-				let sub = subdivision(&walk.sub);
-				let grid = Regions::Grid {
-					cols: walk.cols.max(1),
-					rows: walk.rows.max(1),
-				};
-				if gate(scene, model, &rt.layer).is_some() && grid.is_current(model, sub, i, j) {
-					let fall = 1.0 - modifiers[sub as usize];
-					hot_gray += walk.gray * fall;
-					hot_length += walk.length * fall;
-				}
-			}
-			_ => {}
 		}
 	}
 
+	// The cell's rows start as nothing — a dark dot — and each cells layer over it, in
+	// order, sets, adds to or multiplies the rows it has, by as much as its gate lets it.
+	// The other kinds draw as they go.
+	let mut cell: [f32; ROWS.len()] = std::array::from_fn(|k| ROWS[k].start);
+	let mut covered = false;
 	for rt in active() {
 		let Some(factor) = gate(scene, model, &rt.layer) else {
 			continue;
 		};
-		let signals = with_span(rt);
-		// Brightness: the layer's own gray, whose sidechains act as glow comes in, dimmed by
-		// the glow layers over the cell unless it ignores them.
-		let glow = model.reveal(Unlock::Glow);
-		let lit = if rt.layer.ignore_glow { 1.0 } else { lit(model, level) } * factor;
+		let signals = for_layer(rt);
 		match &rt.kind {
-			Kind::Marks(marks) => {
-				let angle = match &marks.angle {
-					Angle::Degrees(degrees) => degrees.to_radians(),
-					Angle::Named(name) => match name.as_str() {
-						"across" => PI / 2.0,
-						"noise" => raw * TAU,
-						"checker" => {
-							if (raw * 10.0).floor() as i32 % 2 == 0 {
-								0.0
-							} else {
-								PI / 2.0
-							}
-						}
-						"around" => around(rt.layer.region.area(), i, j),
-						"radial" => radial(i, j),
-						"tangent" => radial(i, j) + PI / 2.0,
-						_ => 0.0,
-					},
-				};
-				let dir = if marks.alternate && (i + j) % 2 == 1 { -1.0 } else { 1.0 };
-				let turn = marks.spin.value(&signals) * time * dir;
-				let length = (marks.length.value(&signals) + hot_length) * unit;
-				let gray = (marks.gray.value_gated(&signals, glow) + hot_gray) * lit;
-				mark_bent(
-					draw,
-					model,
-					x,
-					y,
-					angle + marks.offset.to_radians(),
-					turn,
-					length,
-					marks.bend.value(&signals),
-					gray,
-					marks.color.value(&signals),
-				);
+			Kind::Cells(cells) => {
+				covered = true;
+				for (k, spec) in ROWS.iter().enumerate() {
+					let Some(row) = cells.row(k) else {
+						continue;
+					};
+					// A static row's motion — its moving sidechains, its spin — comes in with
+					// its unlock; a frozen row is eased from `before` once the cell is folded.
+					let motion = match spec.before {
+						Before::Static => model.reveal(spec.unlock),
+						Before::At(_) => 1.0,
+					};
+					let dir = if row.alternate && (i + j) % 2 == 1 { -1.0 } else { 1.0 };
+					let value = row.param.value_gated(&signals, motion) + row.spin * time * dir * motion;
+					let applied = match row.op {
+						Op::Set => value,
+						Op::Add => cell[k] + value,
+						Op::Multiply => cell[k] * value,
+					};
+					cell[k] += (applied - cell[k]) * factor;
+				}
 			}
 			Kind::Snake(snake) => {
 				// One polyline through the cell centres of the region's rectangle in serpentine
@@ -1169,7 +1256,7 @@ fn render(
 					let k = line * len + pos;
 					if snake.reverse { n - 1 - k } else { k }
 				};
-				let cell = |k: usize| {
+				let cell_at = |k: usize| {
 					let k = if snake.reverse { n - 1 - k } else { k };
 					let (line, pos) = (k / len, k % len);
 					let pos = if snake.alternate && line % 2 == 1 { len - 1 - pos } else { pos };
@@ -1187,10 +1274,10 @@ fn render(
 				let run_len = last + 1 - head * run;
 				let front = snake.progress.value(&signals).clamp(0.0, 1.0) * run_len as f32;
 				let color = snake.color.value(&signals);
-				let dots = (snake.dots.value_gated(&signals, glow) + hot_gray) * lit;
+				let dots = (snake.dots.value_gated(&signals, glow) + hot_brightness) * factor;
 				dot(draw, model, x, y, paint(model, dots, color));
 				if k < last {
-					let (ni, nj) = cell(k + 1);
+					let (ni, nj) = cell_at(k + 1);
 					let (qx, qy) = scale_coordinates(model, ni, nj);
 					let arrive = snake.mode == "arrive";
 					let c = c as f32;
@@ -1200,50 +1287,9 @@ fn render(
 						// from this dot towards the next, anchored there
 						let (sx, sy, dx, dy) = if arrive { (x, y, qx - x, qy - y) } else { (qx, qy, x - qx, y - qy) };
 						let angle = dy.atan2(dx) + snake.spin.to_radians() * (1.0 - fill);
-						let gray = (snake.gray.value_gated(&signals, glow) + hot_gray) * lit;
-						stroke(draw, model, sx, sy, angle, fill * unit, paint(model, gray, color));
+						let brightness = (snake.brightness.value_gated(&signals, glow) + hot_brightness) * factor;
+						stroke(draw, model, sx, sy, angle, fill * unit, paint(model, brightness, color));
 					}
-				}
-			}
-			Kind::Points(points) => {
-				let gray = (points.gray.value_gated(&signals, glow) + hot_gray) * lit;
-				dot(draw, model, x, y, paint(model, gray, points.color.value(&signals)));
-			}
-			Kind::Rings(rings) => {
-				// Each parameter sits at its default until its unlock, then eases to the layer's
-				// value; the ring itself grows in with `rings`. Scenery (`gated` off) is as given.
-				let gate = |value: f32, default: f32, unlock: Unlock| {
-					if rings.gated {
-						default + (value - default) * model.reveal(unlock)
-					} else {
-						value
-					}
-				};
-				let grown = gate(1.0, 0.0, Unlock::Rings);
-				let radius = (gate(rings.radius.value(&signals), RING, Unlock::Size) + hot_length) * unit * grown;
-				let spin = gate(rings.spin.value(&signals), 0.0, Unlock::Rotation) * time;
-				let gray = (rings.gray.value_gated(&signals, glow) + hot_gray) * lit;
-				let (fill, square, flat) = (
-					gate(rings.fill.value(&signals), 0.0, Unlock::Fill),
-					gate(rings.morph.value(&signals), 0.0, Unlock::Morph),
-					gate(rings.flatness.value(&signals), 0.0, Unlock::Flatness),
-				);
-				for k in 0..rings.count.max(1) {
-					shape(
-						draw,
-						model,
-						x,
-						y,
-						Shape::Ring {
-							radius: radius + k as f32 * rings.gap * unit * grown,
-							weight: rings.weight,
-							fill,
-							square,
-							flat,
-							angle: rings.angle.to_radians() + spin,
-						},
-						paint(model, gray, rings.color.value(&signals)),
-					);
 				}
 			}
 			Kind::Orbits(orbits) => {
@@ -1259,10 +1305,10 @@ fn render(
 				);
 				let pull = orbits.pull.value(&signals).clamp(0.0, 1.0);
 				let (ex, ey) = (x1 + (x2 - x1) * pull, y1 + (y2 - y1) * pull);
-				let gray = (orbits.gray.value_gated(&signals, glow) + hot_gray) * lit;
+				let brightness = (orbits.brightness.value_gated(&signals, glow) + hot_brightness) * factor;
 				let color = orbits.color.value(&signals);
-				dot(draw, model, x, y, paint(model, 0.9 * lit, 0.0));
-				dot(draw, model, x1, y1, paint(model, 0.5 * lit, 0.0));
+				dot(draw, model, x, y, paint(model, 0.9 * factor, 0.0));
+				dot(draw, model, x1, y1, paint(model, 0.5 * factor, 0.0));
 				mark(
 					draw,
 					model,
@@ -1271,11 +1317,53 @@ fn render(
 					(ey - y).atan2(ex - x),
 					0.0,
 					((ex - x).powi(2) + (ey - y).powi(2)).sqrt(),
-					gray,
+					brightness,
 					color,
 				);
 			}
-			Kind::Glow(_) | Kind::Walk(_) => {}
+			Kind::Walk(_) => {}
 		}
+	}
+	if !covered {
+		return;
+	}
+
+	// Each frozen row sits at `before` until its unlock, then eases to the cell's value.
+	for (k, spec) in ROWS.iter().enumerate() {
+		if let Before::At(before) = spec.before {
+			cell[k] = before + (cell[k] - before) * model.reveal(spec.unlock);
+		}
+	}
+	let [brightness, lines, length, angle, bend, rings, radius, fill, morph, flatness, rotation, color] = cell;
+	let color = tint(brightness + hot_brightness, color);
+	// The dot — or the line out of it: a line of no length draws as the dot.
+	shape(
+		draw,
+		model,
+		x,
+		y,
+		Shape::Line {
+			angle: angle.to_radians(),
+			length: (length + hot_length) * lines * unit,
+			bend,
+		},
+		color,
+	);
+	if rings > 0.0 {
+		shape(
+			draw,
+			model,
+			x,
+			y,
+			Shape::Ring {
+				radius: radius * rings * unit,
+				weight: WEIGHT,
+				fill,
+				square: morph,
+				flat: flatness,
+				angle: rotation.to_radians(),
+			},
+			color,
+		);
 	}
 }

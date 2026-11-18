@@ -36,7 +36,7 @@ pub fn spectrum() -> Vec<u8> {
 /// The editor page: what kinds of layer there are and their params (JSON).
 #[wasm_bindgen]
 pub fn catalogue() -> String {
-	scenes::data::CATALOGUE.to_string()
+	scenes::data::catalogue()
 }
 
 /// `album` is the contents of `static/album.json` (the page fetches it).

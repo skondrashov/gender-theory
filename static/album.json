@@ -87,16 +87,16 @@
        }
       ]
      },
-     "gray": {
-      "base": 0.9,
-      "chains": []
-     },
      "dots": {
       "base": 0.45,
       "chains": []
      },
      "color": {
       "base": 0,
+      "chains": []
+     },
+     "brightness": {
+      "base": 0.9,
       "chains": []
      }
     }
@@ -137,16 +137,16 @@
        }
       ]
      },
-     "gray": {
-      "base": 0.9,
-      "chains": []
-     },
      "dots": {
       "base": 0.45,
       "chains": []
      },
      "color": {
       "base": 0,
+      "chains": []
+     },
+     "brightness": {
+      "base": 0.9,
       "chains": []
      }
     }
@@ -180,28 +180,25 @@
        "region": {
         "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
-        "offset": 0,
-        "spin": {
-         "base": 0,
-         "chains": []
-        },
-        "alternate": false,
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "bend": {
-         "base": 0,
-         "chains": []
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": []
         },
-        "color": {
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "angle": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -214,28 +211,25 @@
        "region": {
         "map": "...........\n...........\n...........\n...........\n....###....\n....#.#....\n....###....\n...........\n...........\n...........\n..........."
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.9,
          "chains": []
         },
-        "color": {
-         "base": 0,
+        "lines": {
+         "op": "set",
+         "base": 1,
          "chains": []
         },
-        "offset": 0,
-        "spin": {
-         "base": 0,
+        "length": {
+         "op": "set",
+         "base": 1,
          "chains": []
         },
-        "alternate": false,
-        "bend": {
+        "angle": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -249,28 +243,25 @@
        "region": {
         "map": "...........\n.#########.\n..#.....#..\n...#...#...\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.9,
          "chains": []
         },
-        "color": {
-         "base": 0,
+        "lines": {
+         "op": "set",
+         "base": 1,
          "chains": []
         },
-        "offset": 0,
-        "spin": {
-         "base": 0,
+        "length": {
+         "op": "set",
+         "base": 1,
          "chains": []
         },
-        "alternate": false,
-        "bend": {
+        "angle": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -286,28 +277,25 @@
        "region": {
         "map": "...........\n.#.........\n.##........\n.#.#.......\n.#.........\n.#.........\n.#.........\n.#.#.......\n.##........\n.#.........\n..........."
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.9,
          "chains": []
         },
-        "color": {
-         "base": 0,
+        "lines": {
+         "op": "set",
+         "base": 1,
          "chains": []
         },
-        "offset": 0,
-        "spin": {
-         "base": 0,
+        "length": {
+         "op": "set",
+         "base": 1,
          "chains": []
         },
-        "alternate": false,
-        "bend": {
+        "angle": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -321,28 +309,25 @@
        "region": {
         "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...#...#...\n..#.....#..\n.#########.\n..........."
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.9,
          "chains": []
         },
-        "color": {
-         "base": 0,
+        "lines": {
+         "op": "set",
+         "base": 1,
          "chains": []
         },
-        "offset": 0,
-        "spin": {
-         "base": 0,
+        "length": {
+         "op": "set",
+         "base": 1,
          "chains": []
         },
-        "alternate": false,
-        "bend": {
+        "angle": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -356,28 +341,25 @@
        "region": {
         "map": "...........\n.........#.\n........##.\n.......#.#.\n.........#.\n.........#.\n.........#.\n.......#.#.\n........##.\n.........#.\n..........."
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.9,
          "chains": []
         },
-        "color": {
-         "base": 0,
+        "lines": {
+         "op": "set",
+         "base": 1,
          "chains": []
         },
-        "offset": 0,
-        "spin": {
-         "base": 0,
+        "length": {
+         "op": "set",
+         "base": 1,
          "chains": []
         },
-        "alternate": false,
-        "bend": {
+        "angle": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -389,18 +371,25 @@
        "id": "l2",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.9,
          "chains": []
         },
-        "color": {
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "angle": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -422,18 +411,25 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0,
          "chains": []
         },
-        "color": {
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "angle": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -442,8 +438,7 @@
         "hotspot": "square",
         "visible": true
        },
-       "stage": "square",
-       "ignore_glow": true
+       "stage": "square"
       },
       {
        "id": "l4",
@@ -457,18 +452,25 @@
         ],
         "perimeter": true
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.9,
          "chains": []
         },
-        "color": {
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "angle": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -477,8 +479,7 @@
         "hotspot": "square",
         "visible": true
        },
-       "stage": "square",
-       "ignore_glow": true
+       "stage": "square"
       },
       {
        "id": "l5",
@@ -491,14 +492,10 @@
          5
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 1,
          "chains": [
           {
@@ -512,7 +509,18 @@
           }
          ]
         },
-        "color": {
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "angle": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -521,8 +529,7 @@
         "hotspot": "square-2",
         "visible": true
        },
-       "stage": "square",
-       "ignore_glow": true
+       "stage": "square"
       },
       {
        "id": "l6",
@@ -533,18 +540,25 @@
          0
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.85,
          "chains": []
         },
-        "color": {
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "angle": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -560,14 +574,11 @@
          1
         ]
        },
-       "kind": "points",
+       "kind": "cells",
        "params": {
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.7,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
          "chains": []
         }
        },
@@ -588,9 +599,10 @@
          7
         ]
        },
-       "kind": "points",
+       "kind": "cells",
        "params": {
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.9,
          "chains": [
           {
@@ -603,18 +615,13 @@
            "on": true
           }
          ]
-        },
-        "color": {
-         "base": 0,
-         "chains": []
         }
        },
        "when": {
         "hotspot": "patch",
         "visible": true
        },
-       "stage": "stripes",
-       "ignore_glow": true
+       "stage": "stripes"
       },
       {
        "id": "l9",
@@ -627,9 +634,10 @@
          7
         ]
        },
-       "kind": "points",
+       "kind": "cells",
        "params": {
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.55,
          "chains": [
           {
@@ -642,10 +650,6 @@
            "on": true
           }
          ]
-        },
-        "color": {
-         "base": 0,
-         "chains": []
         }
        },
        "when": {
@@ -653,6 +657,150 @@
         "visible": true
        },
        "stage": "stripes"
+      },
+      {
+       "id": "l12",
+       "name": "checker lines",
+       "region": {
+        "checker": 0
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 0.7,
+         "chains": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 1.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "beat",
+           "depth": 0.6,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 90,
+           "threshold": 0.5,
+           "width": 0.001,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        }
+       },
+       "stage": "boxes"
+      },
+      {
+       "id": "l13",
+       "name": "checker dots",
+       "region": {
+        "checker": 1
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 0.5,
+         "chains": []
+        }
+       },
+       "stage": "boxes"
+      },
+      {
+       "id": "l14",
+       "name": "the box",
+       "region": {
+        "rect": [
+         7,
+         2,
+         10,
+         5
+        ],
+        "perimeter": true
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 0.95,
+         "chains": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 1.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          },
+          {
+           "source": "beat",
+           "depth": 0.6,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "around",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        }
+       },
+       "stage": "boxes"
       },
       {
        "id": "l10",
@@ -665,9 +813,10 @@
          11
         ]
        },
-       "kind": "glow",
+       "kind": "cells",
        "params": {
-        "level": {
+        "brightness": {
+         "op": "multiply",
          "base": 1,
          "chains": [
           {
@@ -695,9 +844,10 @@
          9
         ]
        },
-       "kind": "glow",
+       "kind": "cells",
        "params": {
-        "level": {
+        "brightness": {
+         "op": "multiply",
          "base": 0.35,
          "chains": [
           {
@@ -713,177 +863,6 @@
         }
        },
        "stage": "boxes"
-      },
-      {
-       "id": "l12",
-       "name": "checker lines",
-       "region": {
-        "checker": 0
-       },
-       "kind": "marks",
-       "params": {
-        "angle": "checker",
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 1.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          },
-          {
-           "source": "beat",
-           "depth": 0.6,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
-         "base": 0.7,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       },
-       "stage": "boxes"
-      },
-      {
-       "id": "l13",
-       "name": "checker dots",
-       "region": {
-        "checker": 1
-       },
-       "kind": "points",
-       "params": {
-        "gray": {
-         "base": 0.5,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       },
-       "stage": "boxes"
-      },
-      {
-       "id": "l14",
-       "name": "the box",
-       "region": {
-        "rect": [
-         7,
-         2,
-         10,
-         5
-        ],
-        "perimeter": true
-       },
-       "kind": "marks",
-       "params": {
-        "angle": "around",
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 1.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          },
-          {
-           "source": "beat",
-           "depth": 0.6,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
-         "base": 0.95,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       },
-       "stage": "boxes"
-      },
-      {
-       "id": "l10-cross",
-       "name": "inverse region",
-       "region": {
-        "rect": [
-         0,
-         6,
-         6,
-         11
-        ]
-       },
-       "kind": "glow",
-       "params": {
-        "level": {
-         "base": 1,
-         "chains": [
-          {
-           "source": "pulse",
-           "depth": -1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        }
-       },
-       "stage": "cross"
-      },
-      {
-       "id": "l11-cross",
-       "name": "hidden box",
-       "region": {
-        "rect": [
-         2,
-         7,
-         4,
-         9
-        ]
-       },
-       "kind": "glow",
-       "params": {
-        "level": {
-         "base": 0.35,
-         "chains": [
-          {
-           "source": "pulse",
-           "depth": 0.3,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        }
-       },
-       "stage": "cross"
       },
       {
        "id": "l15",
@@ -896,10 +875,20 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
+        "brightness": {
+         "op": "set",
+         "base": 0.95,
+         "chains": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
         "length": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -922,11 +911,8 @@
           }
          ]
         },
-        "gray": {
-         "base": 0.95,
-         "chains": []
-        },
-        "color": {
+        "angle": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -944,10 +930,20 @@
          11
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "across",
+        "brightness": {
+         "op": "set",
+         "base": 0.95,
+         "chains": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
         "length": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -970,12 +966,9 @@
           }
          ]
         },
-        "gray": {
-         "base": 0.95,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
+        "angle": {
+         "op": "set",
+         "base": 90,
          "chains": []
         }
        },
@@ -987,10 +980,20 @@
        "region": {
         "checker": 0
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "checker",
+        "brightness": {
+         "op": "set",
+         "base": 0.7,
+         "chains": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
         "length": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -1013,13 +1016,21 @@
           }
          ]
         },
-        "gray": {
-         "base": 0.7,
-         "chains": []
-        },
-        "color": {
+        "angle": {
+         "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 90,
+           "threshold": 0.5,
+           "width": 0.001,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
        },
        "stage": "cross"
@@ -1030,14 +1041,11 @@
        "region": {
         "checker": 1
        },
-       "kind": "points",
+       "kind": "cells",
        "params": {
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.5,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
          "chains": []
         }
        },
@@ -1055,10 +1063,20 @@
         ],
         "perimeter": true
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "around",
+        "brightness": {
+         "op": "set",
+         "base": 0.95,
+         "chains": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
         "length": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -1081,13 +1099,21 @@
           }
          ]
         },
-        "gray": {
-         "base": 0.95,
-         "chains": []
-        },
-        "color": {
+        "angle": {
+         "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [
+          {
+           "source": "around",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
        },
        "stage": "cross"
@@ -1125,16 +1151,16 @@
           }
          ]
         },
-        "gray": {
-         "base": 0.9,
-         "chains": []
-        },
         "dots": {
          "base": 0.45,
          "chains": []
         },
         "color": {
          "base": 0,
+         "chains": []
+        },
+        "brightness": {
+         "base": 0.9,
          "chains": []
         }
        },
@@ -1174,16 +1200,16 @@
           }
          ]
         },
-        "gray": {
-         "base": 0.9,
-         "chains": []
-        },
         "dots": {
          "base": 0.45,
          "chains": []
         },
         "color": {
          "base": 0,
+         "chains": []
+        },
+        "brightness": {
+         "base": 0.9,
          "chains": []
         }
        },
@@ -1223,10 +1249,6 @@
           }
          ]
         },
-        "gray": {
-         "base": 0.9,
-         "chains": []
-        },
         "dots": {
          "base": 0.45,
          "chains": []
@@ -1234,10 +1256,76 @@
         "color": {
          "base": 0,
          "chains": []
+        },
+        "brightness": {
+         "base": 0.9,
+         "chains": []
         }
        },
        "stage": "cross",
        "needs": []
+      },
+      {
+       "id": "l10-cross",
+       "name": "inverse region",
+       "region": {
+        "rect": [
+         0,
+         6,
+         6,
+         11
+        ]
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "multiply",
+         "base": 1,
+         "chains": [
+          {
+           "source": "pulse",
+           "depth": -1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       },
+       "stage": "cross"
+      },
+      {
+       "id": "l11-cross",
+       "name": "hidden box",
+       "region": {
+        "rect": [
+         2,
+         7,
+         4,
+         9
+        ]
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "multiply",
+         "base": 0.35,
+         "chains": [
+          {
+           "source": "pulse",
+           "depth": 0.3,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        }
+       },
+       "stage": "cross"
       }
      ],
      "hotspots": [
@@ -1360,30 +1448,10 @@
        "id": "l17",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 105,
-        "spin": {
-         "base": 0.15,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -1406,7 +1474,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 105,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 8.59,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -1440,8 +1547,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -1455,24 +1562,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -1486,7 +1579,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -1534,29 +1664,16 @@
        "id": "l-base-2",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "along",
-        "offset": 0,
-        "spin": {
-         "base": 0,
-         "chains": []
-        },
-        "alternate": false,
-        "length": {
+        "brightness": {
+         "op": "set",
          "base": 1,
          "chains": []
         },
-        "bend": {
-         "base": 0,
-         "chains": []
-        },
-        "gray": {
+        "lines": {
+         "op": "set",
          "base": 1,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
          "chains": []
         }
        }
@@ -1582,30 +1699,10 @@
        "id": "l20",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 126,
-        "spin": {
-         "base": 0.2,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -1628,7 +1725,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 126,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 11.46,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -1662,8 +1798,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -1677,24 +1813,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -1708,7 +1830,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -1754,30 +1913,10 @@
        "id": "l23",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 147,
-        "spin": {
-         "base": 0.25,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -1800,7 +1939,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 147,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 14.32,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -1834,8 +2012,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -1849,24 +2027,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -1880,7 +2044,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -1947,12 +2148,12 @@
           }
          ]
         },
-        "gray": {
-         "base": 0.6,
+        "color": {
+         "base": 0,
          "chains": [
           {
            "source": "bass",
-           "depth": 0.3,
+           "depth": 1,
            "threshold": 0.25,
            "width": 0.5,
            "curve": 1,
@@ -1961,12 +2162,12 @@
           }
          ]
         },
-        "color": {
-         "base": 0,
+        "brightness": {
+         "base": 0.6,
          "chains": [
           {
            "source": "bass",
-           "depth": 1,
+           "depth": 0.3,
            "threshold": 0.25,
            "width": 0.5,
            "curve": 1,
@@ -1988,24 +2189,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -2019,9 +2206,41 @@
           }
          ]
         },
-        "color": {
-         "base": 0,
+        "lines": {
+         "op": "set",
+         "base": 1,
          "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
        },
        "when": {
@@ -2065,30 +2284,10 @@
        "id": "l28",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 189,
-        "spin": {
-         "base": 0.35,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -2111,7 +2310,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 189,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 20.05,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -2145,8 +2383,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -2160,24 +2398,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -2191,7 +2415,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -2237,30 +2498,10 @@
        "id": "l31",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 210,
-        "spin": {
-         "base": 0.15,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -2283,7 +2524,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 210,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 8.59,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -2317,8 +2597,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -2332,24 +2612,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -2363,7 +2629,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -2416,30 +2719,10 @@
        "id": "l34",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 231,
-        "spin": {
-         "base": 0.2,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -2462,7 +2745,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 231,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 11.46,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -2496,8 +2818,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -2511,24 +2833,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -2542,7 +2850,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -2588,30 +2933,10 @@
        "id": "l37",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 252,
-        "spin": {
-         "base": 0.25,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -2634,7 +2959,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 252,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 14.32,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -2668,8 +3032,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -2683,24 +3047,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -2714,7 +3064,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -2760,30 +3147,10 @@
        "id": "l40",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 273,
-        "spin": {
-         "base": 0.30000000000000004,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -2806,7 +3173,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 273,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 17.19,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -2840,8 +3246,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -2855,24 +3261,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -2886,7 +3278,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -2932,30 +3361,10 @@
        "id": "l43",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 294,
-        "spin": {
-         "base": 0.35,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -2978,7 +3387,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 294,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 20.05,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -3012,8 +3460,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -3027,24 +3475,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -3058,7 +3492,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -3104,30 +3575,10 @@
        "id": "l46",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 315,
-        "spin": {
-         "base": 0.15,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -3150,7 +3601,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 315,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 8.59,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -3184,8 +3674,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -3199,24 +3689,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -3230,7 +3706,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -3276,30 +3789,10 @@
        "id": "l49",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 336,
-        "spin": {
-         "base": 0.2,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -3322,7 +3815,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 336,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 11.46,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -3356,8 +3888,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -3371,24 +3903,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -3402,7 +3920,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -3448,30 +4003,10 @@
        "id": "l52",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 357,
-        "spin": {
-         "base": 0.25,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -3494,7 +4029,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 357,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 14.32,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -3528,8 +4102,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -3543,24 +4117,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -3574,7 +4134,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -3627,30 +4224,10 @@
        "id": "l55",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 378,
-        "spin": {
-         "base": 0.30000000000000004,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -3673,7 +4250,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 378,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 17.19,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -3707,8 +4323,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -3722,24 +4338,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -3753,7 +4355,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -3799,30 +4438,10 @@
        "id": "l58",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 399,
-        "spin": {
-         "base": 0.35,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -3845,7 +4464,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 399,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 20.05,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -3879,8 +4537,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -3894,24 +4552,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -3925,7 +4569,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -3971,30 +4652,10 @@
        "id": "l61",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 420,
-        "spin": {
-         "base": 0.15,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -4017,7 +4678,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 420,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 8.59,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -4051,8 +4751,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -4066,24 +4766,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -4097,7 +4783,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -4143,30 +4866,10 @@
        "id": "l64",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 441,
-        "spin": {
-         "base": 0.2,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -4189,7 +4892,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 441,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 11.46,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -4223,8 +4965,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -4238,24 +4980,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -4269,7 +4997,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -4315,30 +5080,10 @@
        "id": "l67",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 462,
-        "spin": {
-         "base": 0.25,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -4361,7 +5106,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 462,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 14.32,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -4395,8 +5179,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -4410,24 +5194,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -4441,7 +5211,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -4487,30 +5294,10 @@
        "id": "l70",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 483,
-        "spin": {
-         "base": 0.30000000000000004,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -4533,7 +5320,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 483,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 17.19,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -4567,8 +5393,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -4582,24 +5408,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -4613,7 +5425,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -4659,30 +5508,10 @@
        "id": "l73",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 504,
-        "spin": {
-         "base": 0.35,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -4705,7 +5534,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 504,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 20.05,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -4739,8 +5607,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -4754,24 +5622,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -4785,7 +5639,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }
@@ -4831,30 +5722,10 @@
        "id": "l76",
        "name": "field",
        "region": {},
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "offset": 525,
-        "spin": {
-         "base": 0.15,
-         "chains": []
-        },
-        "alternate": true,
-        "length": {
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.15,
          "chains": [
           {
@@ -4877,7 +5748,46 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.3,
+         "chains": [
+          {
+           "source": "mid",
+           "depth": 0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 525,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "spin": 8.59,
+         "alternate": true
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": [
           {
@@ -4911,8 +5821,8 @@
         "cols": 4,
         "rows": 4,
         "sub": "sixteenth",
-        "gray": 0.25,
-        "length": 0.8
+        "length": 0.8,
+        "brightness": 0.25
        }
       },
       {
@@ -4926,24 +5836,10 @@
          7
         ]
        },
-       "kind": "marks",
+       "kind": "cells",
        "params": {
-        "angle": "noise",
-        "length": {
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "gray": {
+        "brightness": {
+         "op": "set",
          "base": 0.3,
          "chains": [
           {
@@ -4957,7 +5853,44 @@
           }
          ]
         },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.6,
+         "chains": [
+          {
+           "source": "bass",
+           "depth": 0.4,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [
+          {
+           "source": "noise",
+           "depth": 360,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
         "color": {
+         "op": "set",
          "base": 0,
          "chains": []
         }

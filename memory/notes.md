@@ -181,6 +181,25 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   Grid scales to the screen: pitch = shorter side ÷ 11. The effects sampler at that size is
   https://claude.ai/artifact/F4yCxLNdbJHU6XLxQHAcnV (canvas mock of every engine effect plus
   centre-dot ideas). Engine still 20 × 20 at 40 px, 1 px lines — to move once confirmed.
+- **Rows** (owner, 2026-11-18: "why does it feel like we're still treating glow like a
+  separate value from stuff like line angle? … one unlock unlocks one row, that row can be
+  masked using a distance and orientation function for each parameter, we start with only one
+  and it's called … 'brightness' … make it so that dots always exist, but they can have a
+  brightness of 0"): the kinds marks / points / rings / glow are gone; one kind, `cells`, with
+  twelve rows (`ROWS` in data.rs, one per unlock, `catalogue()` feeds them to the editor).
+  A row = `{op: set|add|multiply, base, chains, spin?, alternate?}`; a layer carries only the
+  rows it changes; the cell is folded over the layers in order (a layer's gate factor scales
+  its change), then each row is gated by its unlock: brightness and angle `Before::Static`
+  (chains on the music and spin × reveal), the rest `Before::At(v)` (eased from v). Line =
+  length × lines; ring = radius × rings; lines 0 is the dot. Source `around` replaces the
+  `around` angle name; `radial`/`tangent`/`noise`/`checker` angles are chains on bearing /
+  noise (checker became noise > 0.5 — a different random half). Snake, orbits and walk stay
+  as they were (gray → brightness) and rows don't reach them. Migration: old glow layers →
+  brightness × / + rows, moved after the other layers of their stage (they used to act
+  regardless of order); rows at their start value were pruned unless another layer of the
+  scene sets that row. Editor: "showing when" first, rows with an op/base/spin/unlock tag,
+  "+ row" picker, grid "clear" button. Dropped: `ignore_glow`, rings `count`/`gap` (halos),
+  `gated` scenery rings.
 - **Gray vs glow** (owner, 2026-11-18: "the controls for setting glow are kinda weird cause
   i don't get the difference between glow and gray in that context"): a draw layer no longer
   has an "own glow" param. One brightness, `gray`; its sidechains (except `noise`) are scaled

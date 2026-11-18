@@ -348,7 +348,12 @@ pub const COLOR: (f32, f32, f32) = (1.0, 0.45, 0.2);
 /// once color is unlocked. Scenes pick `color` per cell, so the whole range from white to
 /// the color is theirs to use.
 pub fn paint(model: &Model, gray: f32, color: f32) -> Rgb {
-	let c = (color * model.reveal(Unlock::Color)).clamp(0.0, 1.0);
+	tint(gray, color * model.reveal(Unlock::Color))
+}
+
+/// `paint` as given, whatever is unlocked (the data renderer gates color itself).
+pub fn tint(gray: f32, color: f32) -> Rgb {
+	let c = color.clamp(0.0, 1.0);
 	let (r, g, b) = COLOR;
 	rgb(
 		gray * (1.0 + (r - 1.0) * c),
