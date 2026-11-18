@@ -1234,5 +1234,13 @@ boot().catch((e) => {
   status.textContent = `the editor could not start: ${e && e.message ? e.message : e} — see the console (F12)`;
   status.classList.add('dirty');
 });
-window.addEventListener('error', (e) => { const status = $('#status'); if (status && !status.textContent.startsWith('the editor')) { status.textContent = `error: ${e.message} — see the console (F12)`; status.classList.add('dirty'); } });
-window.addEventListener('unhandledrejection', (e) => { const status = $('#status'); if (status && !status.textContent.startsWith('the editor')) { status.textContent = `error: ${e.reason && e.reason.message ? e.reason.message : e.reason} — see the console (F12)`; status.classList.add('dirty'); } });
+// Anything else that breaks is said on the page too. (winit leaves its event loop by throwing
+// "Using exceptions for control flow, don't mind me" — that one isn't an error.)
+function report(message) {
+  const status = $('#status');
+  if (!status || /control flow/.test(message) || status.textContent.startsWith('the editor')) return;
+  status.textContent = `error: ${message} — see the console (F12)`;
+  status.classList.add('dirty');
+}
+window.addEventListener('error', (e) => report(e.message));
+window.addEventListener('unhandledrejection', (e) => report(e.reason && e.reason.message ? e.reason.message : String(e.reason)));
