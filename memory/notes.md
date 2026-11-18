@@ -163,6 +163,14 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   hotspots have a `region` like layers (`Hotspot.inside` narrows the bounding `cells`;
   outline/hints use the rectangle round it; old `rect` still reads). The drag-paint bug was
   an operator-precedence inversion in the grid's mousemove.
+- **Grid and dot size** (owner, 2026-11-18, from the Grid Sizes page,
+  https://claude.ai/artifact/MQwKA832rW6kBjGQXUGWDQ): "3px definitely seems correct. the
+  lines will have to be the appropriate thickness to completely cover the dots but not more"
+  → dots 3 px, lines 3 px with round caps; "for grid size i think 11x11 (i want an odd number
+  so i can have a central dot … rings around it that do cool things centered on the screen)".
+  Grid scales to the screen: pitch = shorter side ÷ 11. The effects sampler at that size is
+  https://claude.ai/artifact/F4yCxLNdbJHU6XLxQHAcnV (canvas mock of every engine effect plus
+  centre-dot ideas). Engine still 20 × 20 at 40 px, 1 px lines — to move once confirmed.
 - **Gray vs glow** (owner, 2026-11-18: "the controls for setting glow are kinda weird cause
   i don't get the difference between glow and gray in that context"): a draw layer no longer
   has an "own glow" param. One brightness, `gray`; its sidechains (except `noise`) are scaled

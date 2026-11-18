@@ -103,6 +103,14 @@ for new *kinds* of mechanic (`scenes/data.rs`).
 - `scenes::dangling()` reports doors to nowhere at startup. **open:** a check that every
   `needs` is reachable before the phase that needs it (the spine is honoured).
 
+## The grid (owner, 2026-11-18, to confirm after looking on the phone)
+
+- **11 × 11** cells: odd, so there is a centre dot to build on (rings round it, centred on
+  the screen). The grid scales to the screen: pitch = shorter side ÷ 11 (≈ 36 px on a phone,
+  98 px at 1080p). **open:** what happens in the leftover strip of a non-square screen.
+- Dots **3 px**; lines **3 px, round caps**, so a line covers its dot exactly and no more.
+- Not yet in the engine (20 × 20, 40 px, 1 px lines, fixed 800 px canvas).
+
 ## Open questions, collected
 
 - The hidden box in sine's 4th phase: what does tapping it do?
