@@ -543,7 +543,7 @@ pub fn catalogue() -> String {
 				"unlock": row.unlock.name(),
 				"start": row.start,
 				"default": row.default,
-				"before": match row.before { Before::Static => Value::from("static"), Before::At(v) => Value::from(v) },
+				"gate": match row.gate { Gate::Sidechains => Value::from("sidechains"), Gate::Row(v) => Value::from(v) },
 				"step": row.step,
 				"doc": row.doc,
 			})
@@ -646,14 +646,16 @@ impl Row {
 	}
 }
 
-/// What a row is until its unlock. `Static`: as the layers set it, but its motion — the
-/// sidechains on the music, the spin — comes in with the unlock; so dots can be anywhere
-/// at any brightness, and lines point anywhere, from the start. `At(v)`: fixed at `v`,
-/// easing to the layers' value as the unlock comes in.
+/// What a row's unlock is (owner: "an unlock basically just means either a row or a
+/// sidechain option, so glow is really just the brightness sidechain option").
+/// `Sidechains`: the row is free from the start — dots at any brightness, lines pointing
+/// anywhere — and the unlock is its motion: the sidechains and masks on the music, the
+/// spin. `Row(v)`: the unlock is the row itself; it sits at `v` until then and eases to
+/// the layers' value as the unlock comes in.
 #[derive(Clone, Copy)]
-pub enum Before {
-	Static,
-	At(f32),
+pub enum Gate {
+	Sidechains,
+	Row(f32),
 }
 
 /// One row of a cell, the thing one unlock unlocks.
@@ -664,7 +666,7 @@ pub struct RowSpec {
 	pub start: f32,
 	/// The base of a row newly added in the editor.
 	pub default: f32,
-	pub before: Before,
+	pub gate: Gate,
 	/// The editor's step for its base.
 	pub step: f32,
 	pub doc: &'static str,
@@ -678,16 +680,16 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 		unlock: Unlock::Glow,
 		start: 0.0,
 		default: 1.0,
-		before: Before::Static,
+		gate: Gate::Sidechains,
 		step: 0.05,
-		doc: "0 dark .. 1 full, of the dot, its line and its ring. Set as you like from the start; it follows the music once glow is unlocked.",
+		doc: "0 dark .. 1 full, of the dot, its line and its ring. Free from the start; glow is its sidechain option — it follows the music once glow is unlocked.",
 	},
 	RowSpec {
 		name: "lines",
 		unlock: Unlock::Lines,
 		start: 0.0,
 		default: 1.0,
-		before: Before::At(0.0),
+		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 no line .. 1 the line (× its length). Nothing until lines are unlocked; then it grows out of the dot. Mask it by distance or bearing for lines only here.",
 	},
@@ -696,7 +698,7 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 		unlock: Unlock::Length,
 		start: 1.0,
 		default: 1.0,
-		before: Before::At(1.0),
+		gate: Gate::Row(1.0),
 		step: 0.1,
 		doc: "in cells; 1 — to the next dot — until length is unlocked",
 	},
@@ -705,16 +707,16 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 		unlock: Unlock::Angle,
 		start: 0.0,
 		default: 0.0,
-		before: Before::Static,
+		gate: Gate::Sidechains,
 		step: 15.0,
-		doc: "degrees anticlockwise from pointing right: 0 along, 90 across. Point anywhere from the start; it turns (and spins) once angle is unlocked. Patterns: noise × 360 scatters; bearing × −360 + 90 is radial, + 180 tangent; around × 360 runs round the rectangle.",
+		doc: "degrees anticlockwise from pointing right: 0 along, 90 across. Free from the start; angle is its sidechain option — it turns (and spins) once angle is unlocked. Patterns: noise × 360 scatters; bearing × −360 + 90 is radial, + 180 tangent; around × 360 runs round the rectangle.",
 	},
 	RowSpec {
 		name: "bend",
 		unlock: Unlock::Bend,
 		start: 0.0,
 		default: 0.0,
-		before: Before::At(0.0),
+		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 straight .. 1 a half circle turning left; negative turns right. Straight until bend is unlocked.",
 	},
@@ -723,7 +725,7 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 		unlock: Unlock::Rings,
 		start: 0.0,
 		default: 1.0,
-		before: Before::At(0.0),
+		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 no ring .. 1 the ring (× its radius). Nothing until rings are unlocked; then it grows out of the dot.",
 	},
@@ -732,7 +734,7 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 		unlock: Unlock::Size,
 		start: RING,
 		default: RING,
-		before: Before::At(RING),
+		gate: Gate::Row(RING),
 		step: 0.05,
 		doc: "in cells; 0.4 until size is unlocked",
 	},
@@ -741,7 +743,7 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 		unlock: Unlock::Fill,
 		start: 0.0,
 		default: 0.0,
-		before: Before::At(0.0),
+		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 an outline .. 1 a disc; an outline until fill is unlocked",
 	},
@@ -750,7 +752,7 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 		unlock: Unlock::Morph,
 		start: 0.0,
 		default: 0.0,
-		before: Before::At(0.0),
+		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 a circle .. 1 a square; a circle until morph is unlocked",
 	},
@@ -759,7 +761,7 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 		unlock: Unlock::Flatness,
 		start: 0.0,
 		default: 0.0,
-		before: Before::At(0.0),
+		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 round .. 1 squashed flat across its rotation; round until flatness is unlocked",
 	},
@@ -768,7 +770,7 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 		unlock: Unlock::Rotation,
 		start: 0.0,
 		default: 0.0,
-		before: Before::At(0.0),
+		gate: Gate::Row(0.0),
 		step: 15.0,
 		doc: "degrees the ring is turned (and spins); 0 until rotation is unlocked",
 	},
@@ -777,7 +779,7 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 		unlock: Unlock::Color,
 		start: 0.0,
 		default: 0.0,
-		before: Before::At(0.0),
+		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 grey .. 1 the color; grey until color is unlocked",
 	},
@@ -1207,11 +1209,12 @@ fn render(
 					let Some(row) = cells.row(k) else {
 						continue;
 					};
-					// A static row's motion — its moving sidechains, its spin — comes in with
-					// its unlock; a frozen row is eased from `before` once the cell is folded.
-					let motion = match spec.before {
-						Before::Static => model.reveal(spec.unlock),
-						Before::At(_) => 1.0,
+					// Where the unlock is the row's sidechain option, its motion — the sidechains
+					// and masks on the music, the spin — comes in with the unlock; where it is
+					// the row, the row is eased from its resting value once the cell is folded.
+					let motion = match spec.gate {
+						Gate::Sidechains => model.reveal(spec.unlock),
+						Gate::Row(_) => 1.0,
 					};
 					let dir = if row.alternate && (i + j) % 2 == 1 { -1.0 } else { 1.0 };
 					let value = row.param.value_gated(&signals, motion) + row.spin * time * dir * motion;
@@ -1316,9 +1319,9 @@ fn render(
 		return;
 	}
 
-	// Each frozen row sits at `before` until its unlock, then eases to the cell's value.
+	// A row that is itself an unlock rests at its value until then, then eases to the cell's.
 	for (k, spec) in ROWS.iter().enumerate() {
-		if let Before::At(before) = spec.before {
+		if let Gate::Row(before) = spec.gate {
 			cell[k] = before + (cell[k] - before) * model.reveal(spec.unlock);
 		}
 	}

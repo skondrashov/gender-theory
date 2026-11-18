@@ -235,8 +235,13 @@ function setStatus(text) {
 }
 
 function togglePlay() {
-  if (st.playing) send(JSON.stringify({ pause: true }));
-  else send(JSON.stringify({ play: true }));
+  if (st.playing) { send(JSON.stringify({ pause: true })); return; }
+  // Playing is for watching: let go of the layer or hotspot (its region squares sit on the preview) for the scene.
+  if (sel && sel.type !== 'scene') {
+    sel = { type: 'scene', index: si };
+    renderLists(); renderInspector(); renderGrid(); renderTimeline();
+  }
+  send(JSON.stringify({ play: true }));
 }
 
 function seek(bar) {
@@ -717,10 +722,10 @@ function rowsEditor(l) {
     snapshotForUndo();
     l.params[r.name] = newRow(r);
     commit({ silent: true, inspector: true });
-  } }, el('option', { value: '' }, '+ row'), ...missing.map((r) => el('option', { value: r.name }, `${r.name} · ${r.unlock}`)));
+  } }, el('option', { value: '' }, '+ row'), ...missing.map((r) => el('option', { value: r.name }, r.gate === 'sidechains' ? r.name : `${r.name} · ${r.unlock}`)));
   return el('fieldset', { class: 'rows' }, el('legend', {}, 'rows'),
     ...have.map((r) => rowEditor(l, r)),
-    missing.length ? row('', add, el('span', { class: 'doc' }, have.length ? 'one row per unlock' : 'nothing: the cells are as the layers before leave them')) : null);
+    missing.length ? row('', add, el('span', { class: 'doc' }, have.length ? 'an unlock is a row, or a row\'s sidechain option (glow: brightness\'s)' : 'nothing: the cells are as the layers before leave them')) : null);
 }
 
 const ROW_OPS = [{ value: 'set', label: 'set' }, { value: 'add', label: 'add' }, { value: 'multiply', label: 'multiply' }];
@@ -732,17 +737,19 @@ function rowEditor(l, spec) {
   const turns = spec.name === 'angle' || spec.name === 'rotation';
   const [toggle, chainsBox] = chainsUi(p, spec.step);
   const [maskToggle, masksBox] = chainsUi(p, 1, 'masks');
-  const gate = spec.before === 'static'
-    ? `the ${spec.unlock} unlock lets it move; until then only its pattern sidechains (noise, distance, bearing, around) act`
-    : `${spec.before} until ${spec.unlock} is unlocked`;
+  // An unlock is either the row (it rests at a value until then) or the row's sidechain option.
+  const option = spec.gate === 'sidechains';
+  const tag = el('span', { class: 'tag', title: option
+    ? `the ${spec.unlock} unlock is this row's sidechain option: until it's had, only sidechains and masks on patterns (noise, distance, bearing, around) and states (hotspots, unlocks) act — the music${turns ? ', and spin,' : ''} waits for it`
+    : `this row is the ${spec.unlock} unlock: ${spec.gate} until it's had` }, spec.unlock);
   return el('div', { class: 'rowed' }, row(spec.name,
+    option ? null : tag,
     selectInput(p, 'op', ROW_OPS),
     numberInput(p, 'base', { step: spec.step }),
     turns ? el('span', { class: 'lbl' }, 'spin') : null,
     turns ? numberInput(p, 'spin', { step: 5 }) : null,
     turns ? checkInput(p, 'alternate', 'alternate') : null,
-    toggle, maskToggle,
-    el('span', { class: 'tag', title: gate }, spec.unlock),
+    toggle, option ? tag : null, maskToggle,
     el('button', { class: 'link danger', title: 'take the row out of this layer', onclick: () => { snapshotForUndo(); delete l.params[spec.name]; commit({ silent: true, inspector: true }); } }, '×'),
     el('span', { class: 'doc' }, spec.doc)), chainsBox, masksBox);
 }

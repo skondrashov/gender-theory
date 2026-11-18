@@ -209,6 +209,12 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   every row of the layer; hint layers lost rows equal to the field's. The owner's worry
   ("we can't easily contingent the display of the row on what unlocks it uses") is answered
   by the unlock mask. Layer scope is now only `stage`, `bars`, `muted`.
+- **An unlock is a row or a sidechain option** (owner, 2026-11-18): `Before` → `Gate
+  { Sidechains, Row(v) }`; glow and angle are the sidechain options of brightness and angle
+  (free from the start; the music, masks on the music, and spin wait for the unlock), the
+  other ten unlocks are rows (rest at `v` until then). Editor shows the unlock tag on the
+  row or on its sidechain button accordingly. Play now drops a layer/hotspot selection for
+  the scene, so the region squares leave the preview.
 - **Gray vs glow** (owner, 2026-11-18: "the controls for setting glow are kinda weird cause
   i don't get the difference between glow and gray in that context"): a draw layer no longer
   has an "own glow" param. One brightness, `gray`; its sidechains (except `noise`) are scaled
