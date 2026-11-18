@@ -184,24 +184,6 @@
        "params": {
         "brightness": {
          "op": "set",
-         "base": 0.3,
-         "chains": [],
-         "masks": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
-        },
-        "angle": {
-         "op": "set",
          "base": 0,
          "chains": [],
          "masks": []
@@ -1368,6 +1350,32 @@
        "stage": "met ends"
       }
      ]
+    },
+    {
+     "id": "sine/1",
+     "bars": [
+      16,
+      32
+     ],
+     "loop": 16,
+     "stages": [],
+     "layers": [
+      {
+       "id": "lmwmeplob95t",
+       "name": "field",
+       "region": {},
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       }
+      }
+     ],
+     "hotspots": []
     }
    ]
   },
