@@ -217,7 +217,7 @@
        "params": {
         "brightness": {
          "op": "add",
-         "base": 1.65000002458692,
+         "base": 0,
          "chains": [],
          "masks": [
           {
@@ -232,10 +232,10 @@
           },
           {
            "source": "b-kick",
-           "depth": 3.4,
+           "depth": 0.7,
            "threshold": 0,
-           "width": 1.1,
-           "curve": 1,
+           "width": 0.7,
+           "curve": 8.9,
            "invert": false,
            "on": true,
            "delay": 0
@@ -1368,8 +1368,29 @@
        "params": {
         "brightness": {
          "op": "set",
-         "base": 1,
-         "chains": [],
+         "base": 0.150000002235174,
+         "chains": [
+          {
+           "source": "distance",
+           "depth": 2.3,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
+           "on": true,
+           "delay": 0
+          },
+          {
+           "source": "pulse",
+           "depth": 16.3,
+           "threshold": 0,
+           "width": 0.45,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
          "masks": []
         }
        }
