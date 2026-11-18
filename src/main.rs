@@ -1,5 +1,8 @@
 use actix_files::Files;
-use actix_web::{middleware::Logger, web, App, HttpRequest, HttpResponse, HttpServer};
+use actix_web::{
+	middleware::{DefaultHeaders, Logger},
+	web, App, HttpRequest, HttpResponse, HttpServer,
+};
 
 /// A fingerprint of the album file (32-bit FNV-1a, hex), the same as the editor computes
 /// over the text it read or wrote.
@@ -43,6 +46,9 @@ async fn main() -> std::io::Result<()> {
 			.route("/album.json", web::put().to(save_album))
 			.service(Files::new("/app", "./app/pkg").show_files_listing())
 			.service(Files::new("/", "./static").index_file("index.html"))
+			// Everything revalidates every load (ETags make that cheap): a rebuilt wasm or a
+			// saved album must never be served stale from the browser's cache.
+			.wrap(DefaultHeaders::new().add(("Cache-Control", "no-cache")))
 			.wrap(Logger::default())
 	})
 	.bind(("127.0.0.1", 8080))?

@@ -54,7 +54,7 @@
  "presets": [
   {
    "id": "p-snake-retreat",
-   "name": "snake \u00b7 retreat",
+   "name": "snake · retreat",
    "layer": {
     "name": "snake retreat",
     "region": {
@@ -104,7 +104,7 @@
   },
   {
    "id": "p-snake-arrive",
-   "name": "snake \u00b7 arrive",
+   "name": "snake · arrive",
    "layer": {
     "name": "snake arrive",
     "region": {
@@ -178,7 +178,7 @@
        "id": "l1",
        "name": "e in met",
        "region": {
-        "map": "...........\n...........\n.....#.....\n.....#.....\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
+        "map": "....................\n....................\n....................\n....................\n....................\n##########.######...\n...##.#########.#.##\n..#######....##.##.#\n.########.##..##.#.#\n.....####.....##....\n......#..#######....\n......#....#.##.....\n.......####.........\n....................\n....................\n....................\n....................\n....................\n....................\n...................."
        },
        "kind": "marks",
        "params": {
@@ -1058,6 +1058,153 @@
         }
        },
        "stage": "cross"
+      },
+      {
+       "id": "lmwlx1f8vowq",
+       "name": "snake retreat",
+       "region": {
+        "rect": [
+         0,
+         0,
+         11,
+         11
+        ]
+       },
+       "kind": "snake",
+       "params": {
+        "mode": "retreat",
+        "axis": "rows",
+        "alternate": true,
+        "reverse": false,
+        "heads": 1,
+        "spin": 0,
+        "progress": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "span",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.9,
+         "chains": []
+        },
+        "dots": {
+         "base": 0.45,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        }
+       },
+       "needs": [],
+       "stage": "cross"
+      },
+      {
+       "id": "lmwlx1h34gan",
+       "name": "snake retreat",
+       "region": {
+        "rect": [
+         0,
+         0,
+         11,
+         11
+        ]
+       },
+       "kind": "snake",
+       "params": {
+        "mode": "retreat",
+        "axis": "rows",
+        "alternate": true,
+        "reverse": false,
+        "heads": 1,
+        "spin": 0,
+        "progress": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "span",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.9,
+         "chains": []
+        },
+        "dots": {
+         "base": 0.45,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        }
+       },
+       "needs": [],
+       "stage": "cross"
+      },
+      {
+       "id": "lmwlx205alg3",
+       "name": "snake retreat",
+       "region": {
+        "rect": [
+         0,
+         0,
+         11,
+         11
+        ]
+       },
+       "kind": "snake",
+       "params": {
+        "mode": "retreat",
+        "axis": "rows",
+        "alternate": true,
+        "reverse": false,
+        "heads": 1,
+        "spin": 0,
+        "progress": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "span",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "gray": {
+         "base": 0.9,
+         "chains": []
+        },
+        "dots": {
+         "base": 0.45,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        }
+       },
+       "stage": "cross",
+       "needs": []
       }
      ],
      "hotspots": [
