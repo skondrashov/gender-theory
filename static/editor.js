@@ -781,17 +781,18 @@ function chainsUi(p, step, key = 'chains') {
   const list = p[key] ??= [];
   const masks = key === 'masks';
   const box = el('div', { class: 'chains' + (masks ? ' masks' : '') });
-  const render = () => {
-    box.replaceChildren(...list.map((c, k) => chainRow(list, c, k, render)),
-      el('button', { class: 'link', onclick: () => { snapshotForUndo(); list.push({ source: masks ? 'distance' : (album.bands[0]?.id ?? 'beat'), depth: !masks && step >= 1 ? 360 : 1, threshold: 0, width: 1, curve: 1, invert: false, on: true, delay: 0 }); commit({ silent: true }); render(); } }, masks ? '+ mask' : '+ sidechain'));
-  };
-  render();
-  box.hidden = list.length === 0;
+  const label = () => (list.length ? `${list.length} ${masks ? 'mask' : 'sidechain'}${list.length > 1 ? 's' : ''}` : (masks ? 'mask' : 'sidechain'));
   const toggle = el('button', { class: 'link', title: masks
       ? 'where and when this row\'s change lands: 1 all of it, 0 none — distance, bearing or around for a shape; a hotspot for a hint; an unlock to wait for it; the music to move it'
       : 'add a source to this: the music for motion, noise / distance / bearing / around for a pattern',
-    onclick: () => { box.hidden = !box.hidden; } },
-    list.length ? `${list.length} ${masks ? 'mask' : 'sidechain'}${list.length > 1 ? 's' : ''}` : (masks ? 'mask' : 'sidechain'));
+    onclick: () => { box.hidden = !box.hidden; } }, label());
+  const render = () => {
+    box.replaceChildren(...list.map((c, k) => chainRow(list, c, k, render)),
+      el('button', { class: 'link', onclick: () => { snapshotForUndo(); list.push({ source: masks ? 'distance' : (album.bands[0]?.id ?? 'beat'), depth: !masks && step >= 1 ? 360 : 1, threshold: 0, width: 1, curve: 1, invert: false, on: true, delay: 0 }); commit({ silent: true }); render(); } }, masks ? '+ mask' : '+ sidechain'));
+    toggle.textContent = label(); // the count on the button follows adds and removes
+  };
+  render();
+  box.hidden = list.length === 0;
   return [toggle, box];
 }
 
