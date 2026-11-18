@@ -78,6 +78,10 @@ pub struct Model {
 	seek: Option<(String, usize)>,
 	/// Cells the editor wants outlined.
 	highlight: Vec<(usize, usize)>,
+	/// The editor's probe: a cell whose rows the data renderer reports each frame (`probed`),
+	/// so the editor can show what each row is worth there right now.
+	pub probe: (usize, usize),
+	pub probed: RefCell<Vec<Probed>>,
 	/// The album's frequency bands, followed: id → level 0..1, and `id.pitch`, `id.chroma`
 	/// (see `data::Band`).
 	bands: HashMap<String, f32>,
@@ -160,6 +164,8 @@ impl Model {
 			editor,
 			seek: None,
 			highlight: vec![],
+			probe: ((CANVAS_WIDTH - 1) / 2, (CANVAS_HEIGHT - 1) / 2),
+			probed: RefCell::new(vec![]),
 			bands: HashMap::new(),
 			scene,
 			stage: 0,
@@ -231,6 +237,11 @@ impl Model {
 		}
 		let t = ((self.time - self.revealed[unlock as usize]) / REVEAL).clamp(0.0, 1.0);
 		t * t * (3.0 - 2.0 * t)
+	}
+
+	/// Is this frame's render the landing frame of the scene being morphed into?
+	pub fn previewing(&self) -> bool {
+		self.preview.get().is_some()
 	}
 
 	/// Is the viewed scene's hotspot with this `tag` showing (unlocked, not spent)?
@@ -360,6 +371,10 @@ impl Model {
 			self.started = true;
 			self.audio.resume();
 		}
+		if let Some(cell) = command.get("probe").and_then(Value::as_array) {
+			let at = |k: usize| cell.get(k).and_then(Value::as_u64).unwrap_or(0) as usize;
+			self.probe = (at(0).min(CANVAS_WIDTH - 1), at(1).min(CANVAS_HEIGHT - 1));
+		}
 		if let Some(cells) = command.get("highlight") {
 			self.highlight = cells
 				.as_array()
@@ -394,6 +409,11 @@ impl Model {
 			"bands": self.bands,
 			"hotspots": hotspots,
 			"pending": self.pending.as_ref().map(|pending| pending.scene.id),
+			"probe": {
+				"i": self.probe.0,
+				"j": self.probe.1,
+				"rows": self.probed.borrow().iter().map(|p| json!({"layer": p.layer, "row": p.row, "op": p.op, "value": p.value, "amount": p.amount})).collect::<Vec<_>>(),
+			},
 			"binHz": self.audio.bin_hz(),
 		})
 	}
@@ -779,10 +799,22 @@ pub fn update(app: &App, model: &mut Model, update: Update) {
 	}
 }
 
+/// What one row of one layer was worth at the probe cell this frame.
+pub struct Probed {
+	pub layer: String,
+	pub row: &'static str,
+	pub op: &'static str,
+	/// The row's value (what it sets, adds or multiplies by).
+	pub value: f32,
+	/// How much of that landed: the product of its masks.
+	pub amount: f32,
+}
+
 pub fn view(app: &App, model: &Model, frame: Frame) {
 	let draw = app.draw();
 	draw.background().color(BLACK);
 	let modifiers = get_modifiers(model);
+	model.probed.borrow_mut().clear();
 
 	if model.audio.is_loaded(model.scene.track) {
 		let time = app.time * TIME_RATE;

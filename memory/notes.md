@@ -215,6 +215,25 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   other ten unlocks are rows (rest at `v` until then). Editor shows the unlock tag on the
   row or on its sidechain button accordingly. Play now drops a layer/hotspot selection for
   the scene, so the region squares leave the preview.
+- **Fields** (owner, 2026-11-18: "i wanna be able to like sidechain the depth of the
+  distance and shit … rather than distance and angle, it should just be position with
+  distance and angle as parameters and then a ton of polar coordinate functions with
+  parameters … get creative … err on the side of variety over perfection, with some clear
+  motivation for each effect … full sidechain options on each one"): `scenes/fields.rs` —
+  `FIELDS` (41 specs in families radial / angular / spiral / linear / pairs / bodies /
+  scatter), `Field { fn, params: HashMap<String, Param> }`, `Field::eval(signals, gate,
+  depth)`; a `Sidechain` with `source: "position"` carries `field`. Common params x, y,
+  turn, phase, shape, edge, sharp; `Signals` now carries i, j, di, dj, time; new ramp
+  sources `bar.phase`, `beat.phase`, `clock`. Fields nest up to 3 deep (a field param's
+  chain can be a field). Contact sheet of all 41 at 11 × 11 was checked headless
+  (scratchpad `cdp_fields.py`). Editor: source select has optgroups per family; a field's
+  params unfold under the chain with their own sidechain buttons.
+- **Probe readouts** (owner, 2026-11-18: "i'd like the rows to show me a numerical value of
+  how much they're adding to the effect with their current settings"): `Model::probe` (a
+  cell, default the centre; editor command `{probe: [i, j]}`, moved by hovering the region
+  grid) and `Model::probed` (what each cells row of each layer was worth there this frame:
+  value, op, mask amount), reported as `probe` in `state()`; the editor shows `= 0.73 · 85%`
+  per row (`.readout`), `—` when the layer isn't on that cell.
 - **One stage setting** (owner, 2026-11-18: "i rarely if ever care about the 'all stages'
   stage view … i'd just like it to show whatever stage is currently being previewed"): the
   lists' stage filter is gone; `stageFilter` = `viewedStage()` (the top bar's picker when

@@ -300,6 +300,9 @@ pub struct Sidechain {
 	/// distance (0 centre .. 1 corner), in cycles of the source. For beat, bar, pulse, span,
 	/// transition — the sources that are a phase. A ripple.
 	pub delay: f32,
+	/// With `source` "position": the field this is, a function of where the cell is
+	/// (`fields::FIELDS`), with parameters that are params of their own.
+	pub field: Option<fields::Field>,
 }
 
 impl Default for Sidechain {
@@ -313,6 +316,7 @@ impl Default for Sidechain {
 			invert: false,
 			on: true,
 			delay: 0.0,
+			field: None,
 		}
 	}
 }
@@ -362,16 +366,23 @@ impl Param {
 	}
 
 	/// `value`, with every sidechain scaled by `gate` except those on a fixed pattern (noise,
-	/// distance, bearing, around): how a row is read, so it moves only as its unlock comes in.
+	/// distance, bearing, around, position) or a state (hotspot, unlock): how a row is read,
+	/// so it moves only as its unlock comes in. (A field's own parameters pass the gate on to
+	/// their sidechains, so a pattern's motion waits too.)
 	pub fn value_gated(&self, signals: &Signals, gate: f32) -> f32 {
+		self.value_at(signals, gate, 0)
+	}
+
+	/// `value_gated` at `depth` fields deep (a field's parameters are params; three deep is enough).
+	pub fn value_at(&self, signals: &Signals, gate: f32, depth: u8) -> f32 {
 		self.base
 			+ self
 				.chains
 				.iter()
 				.filter(|chain| chain.on)
 				.map(|chain| {
-					let gate = if Signals::fixed(&chain.source) { 1.0 } else { gate };
-					gate * chain.depth * chain.shape(signals.get_delayed(&chain.source, chain.delay * signals.distance))
+					let scale = if Signals::fixed(&chain.source) { 1.0 } else { gate };
+					scale * chain.depth * chain.shape(signals.level(chain, gate, depth))
 				})
 				.sum::<f32>()
 	}
@@ -399,9 +410,16 @@ pub struct Signals<'a> {
 	/// 0.5 the bottom, 0.25 the left (and inside) — × 360° on angle sends lines clockwise.
 	pub around: f32,
 	/// For `hotspot:<id>` (1 while that hotspot of the scene is showing: unlocked, not
-	/// spent) and `unlock:<name>` (its reveal, 0..1).
+	/// spent) and `unlock:<name>` (its reveal, 0..1); and the noise map, for fields.
 	pub model: &'a Model,
 	pub tags: &'a [(String, u8)],
+	/// The cell: its index, and where it is in cells right of and up from the centre dot.
+	pub i: usize,
+	pub j: usize,
+	pub di: f32,
+	pub dj: f32,
+	/// The scene's time (seconds × 0.6), for `clock`.
+	pub time: f32,
 	/// The bar's phase and the beat's, 0..1, for delaying.
 	pub whole: f32,
 	pub quarter: f32,
@@ -419,6 +437,9 @@ impl Signals<'_> {
 			"distance" => self.distance,
 			"bearing" => self.bearing,
 			"around" => self.around,
+			"bar.phase" => self.whole,
+			"beat.phase" => self.quarter,
+			"clock" => self.time.rem_euclid(1.0),
 			"bass" => self.bass,
 			"mid" => self.mid,
 			"treble" => self.treble,
@@ -437,9 +458,24 @@ impl Signals<'_> {
 	}
 
 	/// Is this source a fixed pattern or a state of the game rather than motion — so it
-	/// acts whatever is unlocked?
+	/// acts whatever is unlocked? (A position field's parameters gate their own motion.)
 	pub fn fixed(source: &str) -> bool {
-		matches!(source, "noise" | "distance" | "bearing" | "around") || source.starts_with("hotspot:") || source.starts_with("unlock:")
+		matches!(source, "noise" | "distance" | "bearing" | "around" | "position") || source.starts_with("hotspot:") || source.starts_with("unlock:")
+	}
+
+	/// A sidechain's or mask's level: its field at the cell if it is one, else its source,
+	/// delayed by its `delay` × the cell's distance.
+	pub fn level(&self, chain: &Sidechain, gate: f32, depth: u8) -> f32 {
+		match &chain.field {
+			Some(field) if chain.source == "position" => {
+				if depth >= 3 {
+					0.0
+				} else {
+					field.eval(self, gate, depth + 1)
+				}
+			}
+			_ => self.get_delayed(&chain.source, chain.delay * self.distance),
+		}
 	}
 
 	/// The source as it was `shift` cycles ago, for the sources that are a phase (the beat
@@ -458,6 +494,9 @@ impl Signals<'_> {
 			}
 			"span" => (self.span - shift).clamp(0.0, 1.0),
 			"transition" => (self.transition - shift).clamp(0.0, 1.0),
+			"bar.phase" => whole,
+			"beat.phase" => (self.quarter - shift).rem_euclid(1.0),
+			"clock" => (self.time - shift).rem_euclid(1.0),
 			_ => self.get(source),
 		}
 	}
@@ -468,12 +507,17 @@ impl Signals<'_> {
 /// What the editor needs to know about the kinds and their params. Types: `param` (a base
 /// and sidechains), `number`, `bool`, `angle`, `select` (with `options`), `sub`.
 pub const CATALOGUE: &str = r##"{
-  "sources": ["span", "beat", "bar", "pulse", "noise", "distance", "bearing", "around", "transition", "bass", "mid", "treble"],
+  "sources": ["span", "beat", "bar", "pulse", "bar.phase", "beat.phase", "clock", "noise", "distance", "bearing", "around", "transition", "bass", "mid", "treble"],
+  "fields": [],
   "sourceDocs": {
     "span": "0..1 across the layer's own bars (the scene's if it has none): where we are in it",
     "beat": "hits on every beat and falls away before the next",
     "bar": "hits on the downbeat and falls away over the bar",
     "pulse": "beat and bar together: beat hits, downbeat hardest",
+    "bar.phase": "0 at the downbeat running to 1 at the next: the bar as a ramp — drive a field's phase with it",
+    "beat.phase": "0 at each beat running to 1 at the next",
+    "clock": "0 to 1 every time unit (≈ 1.7 s), over and over, music or no music — for things that just turn",
+    "position": "a field: a function of where the cell is, from the library (ripple, spiral, orbit, …), with parameters you can sidechain — a pattern that can breathe, spin or travel",
     "noise": "a fixed random value per cell, 0..1 — a pattern, not motion",
     "transition": "0..1 along a via passage out of the scene",
     "bass": "the old coarse bands: 0-2.7 kHz",
@@ -549,7 +593,9 @@ pub fn catalogue() -> String {
 			})
 		})
 		.collect();
-	CATALOGUE.replace("\"rows\": [],", &format!("\"rows\": {},", serde_json::to_string(&rows).unwrap()))
+	CATALOGUE
+		.replace("\"rows\": [],", &format!("\"rows\": {},", serde_json::to_string(&rows).unwrap()))
+		.replace("\"fields\": [],", &format!("\"fields\": {},", fields::fields_json()))
 }
 
 // ---- the rows of a cell ----
@@ -637,9 +683,9 @@ impl Row {
 			.iter()
 			.filter(|mask| mask.on)
 			.map(|mask| {
-				let gate = if Signals::fixed(&mask.source) { 1.0 } else { gate };
-				let shaped = mask.shape(signals.get_delayed(&mask.source, mask.delay * signals.distance));
-				1.0 - gate * mask.depth * (1.0 - shaped)
+				let scale = if Signals::fixed(&mask.source) { 1.0 } else { gate };
+				let shaped = mask.shape(signals.level(mask, gate, 0));
+				1.0 - scale * mask.depth * (1.0 - shaped)
 			})
 			.product::<f32>()
 			.clamp(0.0, 1.0)
@@ -1147,6 +1193,11 @@ fn render(
 		around: 0.0,
 		model,
 		tags: &scene.tags,
+		i,
+		j,
+		di,
+		dj,
+		time,
 		whole,
 		quarter,
 	};
@@ -1223,7 +1274,21 @@ fn render(
 						Op::Add => cell[k] + value,
 						Op::Multiply => cell[k] * value,
 					};
-					cell[k] += (applied - cell[k]) * row.amount(&signals, motion);
+					let amount = row.amount(&signals, motion);
+					cell[k] += (applied - cell[k]) * amount;
+					if (i, j) == model.probe && !model.previewing() {
+						model.probed.borrow_mut().push(crate::model::Probed {
+							layer: rt.layer.id.clone(),
+							row: spec.name,
+							op: match row.op {
+								Op::Set => "set",
+								Op::Add => "add",
+								Op::Multiply => "multiply",
+							},
+							value,
+							amount,
+						});
+					}
 				}
 			}
 			Kind::Snake(snake) => {

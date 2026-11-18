@@ -314,6 +314,7 @@ function builtins() {
   const per = spec.length / 16;
   return {
     beat, bar, pulse: beat * (0.7 + 0.3 * bar),
+    'bar.phase': whole, 'beat.phase': quarter, clock: NaN, position: NaN,
     span: NaN, noise: NaN, distance: NaN, bearing: NaN, around: NaN, transition: 0,
     bass: coarse(0, 2 * per), mid: coarse(2 * per, 8 * per), treble: coarse(8 * per, 16 * per),
   };
@@ -321,6 +322,7 @@ function builtins() {
 
 function sourceLevel(name) {
   if (st.bands && name in st.bands) return st.bands[name];
+  if (name === 'position') return 0;
   if (name.startsWith('hotspot:')) { const k = (scene()?.hotspots || []).findIndex((h) => h.id === name.slice(8)); return (st.hotspots || []).includes(k) ? 1 : 0; }
   if (name.startsWith('unlock:')) return (st.unlocks || []).includes(name.slice(7)) ? 1 : 0;
   const b = builtins();
@@ -334,7 +336,22 @@ function shape(chain, level) {
   return chain.invert ? 1 - t : t;
 }
 
+function updateReadouts() {
+  const probe = st.probe;
+  if (!probe) return;
+  const at = $('#probe-at');
+  if (at) at.textContent = `at ${probe.i},${probe.j}`;
+  for (const r of document.querySelectorAll('.readout[data-probe]')) {
+    const [layer, row] = r.dataset.probe.split('|');
+    const p = (probe.rows || []).find((p) => p.layer === layer && p.row === row);
+    if (!p) { r.textContent = '—'; r.title = 'not on the probe cell right now (its region, stage or bars)'; continue; }
+    const sym = p.op === 'add' ? '+' : p.op === 'multiply' ? '×' : '=';
+    r.textContent = `${sym} ${p.value.toFixed(2)}${p.amount < 0.995 ? ` · ${Math.round(p.amount * 100)}%` : ''}`;
+  }
+}
+
 function updateMeters() {
+  updateReadouts();
   for (const m of document.querySelectorAll('.meter[data-source]')) {
     const v = sourceLevel(m.dataset.source);
     m.firstChild.style.width = (isNaN(v) ? 0 : clamp(v, 0, 1) * 100) + '%';
@@ -726,7 +743,7 @@ function rowsEditor(l) {
     l.params[r.name] = newRow(r);
     commit({ silent: true, inspector: true });
   } }, el('option', { value: '' }, '+ row'), ...missing.map((r) => el('option', { value: r.name }, r.gate === 'sidechains' ? r.name : `${r.name} · ${r.unlock}`)));
-  return el('fieldset', { class: 'rows' }, el('legend', {}, 'rows'),
+  return el('fieldset', { class: 'rows' }, el('legend', {}, 'rows ', el('span', { class: 'dim', id: 'probe-at', title: 'the readouts are for this cell: hover the region grid to move it' }, `at ${probeCell[0]},${probeCell[1]}`)),
     ...have.map((r) => rowEditor(l, r)),
     missing.length ? row('', add, el('span', { class: 'doc' }, have.length ? 'an unlock is a row, or a row\'s sidechain option (glow: brightness\'s)' : 'nothing: the cells are as the layers before leave them')) : null);
 }
@@ -753,6 +770,7 @@ function rowEditor(l, spec) {
     turns ? numberInput(p, 'spin', { step: 5 }) : null,
     turns ? checkInput(p, 'alternate', 'alternate') : null,
     toggle, option ? tag : null, maskToggle,
+    el('span', { class: 'readout mono', 'data-probe': l.id + '|' + spec.name, title: 'what this row is worth at the probe cell right now: its value, and how much of it its masks let land' }, '—'),
     el('button', { class: 'link danger', title: 'take the row out of this layer', onclick: () => { snapshotForUndo(); delete l.params[spec.name]; commit({ silent: true, inspector: true }); } }, '×'),
     el('span', { class: 'doc' }, spec.doc)), chainsBox, masksBox);
 }
@@ -808,9 +826,22 @@ function chainRow(list, c, k, rerender) {
     ...UNLOCKS.map((u) => ({ value: 'unlock:' + u, label: 'unlock · ' + u })),
   ];
   const num = (key, step) => el('input', { type: 'number', value: c[key], step, onchange: (e) => { snapshotForUndo(); c[key] = +e.target.value; commit({ silent: true }); } });
-  return el('div', { class: 'chain' + (c.on ? '' : ' off') },
+  // the source: a plain one, or a position field (then its parameters follow, each a param of its own)
+  const field = c.source === 'position' && c.field ? c.field : null;
+  const families = [...new Set(cat.fields.map((f) => f.family))];
+  const source = el('select', { title: field ? cat.fields.find((f) => f.name === field.fn)?.doc : (cat.sourceDocs[c.source.split(':')[0]] || ''), onchange: (e) => {
+    snapshotForUndo();
+    const v = e.target.value;
+    if (v.startsWith('field:')) { c.source = 'position'; c.field = { fn: v.slice(6), params: {} }; } else { c.source = v; delete c.field; }
+    commit({ silent: true }); rerender();
+  } },
+    ...sources.map((o) => el('option', { value: o.value }, o.label)),
+    ...families.map((fam) => el('optgroup', { label: 'position · ' + fam }, ...cat.fields.filter((f) => f.family === fam).map((f) => el('option', { value: 'field:' + f.name, title: f.doc }, f.name)))));
+  source.value = field ? 'field:' + field.fn : c.source;
+  const fieldBox = field ? fieldParams(field) : null;
+  return el('div', { class: 'chain-and-field' }, el('div', { class: 'chain' + (c.on ? '' : ' off') },
     el('label', {}, el('input', { type: 'checkbox', ...(c.on ? { checked: '' } : {}), title: 'on', onchange: (e) => { snapshotForUndo(); c.on = e.target.checked; commit({ silent: true }); rerender(); } })),
-    selectInput(c, 'source', sources),
+    source,
     el('div', { class: 'meter', 'data-chain': id, title: 'what it adds right now' }, el('i')),
     el('span', { class: 'lbl' }, 'depth'), num('depth', 0.1),
     el('span', { class: 'lbl' }, 'threshold'), num('threshold', 0.05),
@@ -818,7 +849,23 @@ function chainRow(list, c, k, rerender) {
     el('span', { class: 'lbl', title: 'the source arrives later the farther the cell is from the centre: this × its distance (0..1), in cycles — beat, bar, pulse, span, transition' }, 'delay'), num('delay', 0.1),
     el('span', { class: 'lbl' }, 'curve'), num('curve', 0.1),
     el('label', {}, el('input', { type: 'checkbox', ...(c.invert ? { checked: '' } : {}), onchange: (e) => { snapshotForUndo(); c.invert = e.target.checked; commit({ silent: true }); } }), 'invert'),
-    el('button', { class: 'link danger', onclick: () => { snapshotForUndo(); list.splice(k, 1); commit({ silent: true }); rerender(); } }, '×'));
+    el('button', { class: 'link danger', onclick: () => { snapshotForUndo(); list.splice(k, 1); commit({ silent: true }); rerender(); } }, '×')), fieldBox);
+}
+
+// A position field's parameters: each a param (a base and its own sidechains), at the library's default until set.
+function fieldParams(field) {
+  const spec = cat.fields.find((f) => f.name === field.fn);
+  if (!spec) return el('div', { class: 'field doc' }, `no such field: ${field.fn}`);
+  field.params ??= {};
+  return el('div', { class: 'field' },
+    el('div', { class: 'doc' }, spec.doc),
+    ...spec.params.map((q) => {
+      let p = field.params[q.name];
+      if (typeof p !== 'object' || p === null) p = field.params[q.name] = { base: typeof p === 'number' ? p : q.default, chains: [] };
+      p.chains ??= [];
+      const [toggle, chainsBox] = chainsUi(p, q.step);
+      return el('div', {}, el('div', { class: 'fparam' }, el('span', { class: 'lbl' }, q.name), numberInput(p, 'base', { step: q.step }), toggle, el('span', { class: 'doc' }, q.doc)), chainsBox);
+    }));
 }
 
 function hotspotInspector(h) {
@@ -884,6 +931,7 @@ function bandInspector(b) {
 // ---- the grid: regions ----
 
 const grid = { drag: null };
+let probeCell = [(W - 1) / 2, (H - 1) / 2]; // the cell whose rows the readouts show: hover the grid to move it
 
 function regionOf() {
   if (!sel) return null;
@@ -971,9 +1019,10 @@ function setupGrid() {
     commit({ silent: true, timeline: false, lists: false });
   };
   c.onmousemove = (e) => {
+    const [i, j] = cellAt(e);
+    if (i !== probeCell[0] || j !== probeCell[1]) { probeCell = [i, j]; send(JSON.stringify({ probe: probeCell })); }
     if (!grid.drag) return;
     const r = regionOf();
-    const [i, j] = cellAt(e);
     if (grid.drag.paint != null) {
       if ((mapAt(r.map, i, j) === '#') === grid.drag.paint) return;
       r.map = mapSet(r.map, i, j, grid.drag.paint);

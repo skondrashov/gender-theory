@@ -27,7 +27,12 @@ layer is a region plus the rows it changes, each
 is a dark dot (dots always exist; brightness can be 0). Any row can be masked by distance,
 bearing or the way round the layer's rectangle (fixed patterns, always on), by a hotspot
 showing (a hint) or an unlock being had, and moved by the music (comes in with its
-unlock). A new layer is one row: brightness 1. Nothing else decides whether a layer shows
+unlock). **Position** is a source in its own right (owner, 2026-11-18: "rather than
+distance and angle, it should just be position with distance and angle as parameters and
+then a ton of polar coordinate functions with parameters … full sidechain options on each
+one"): a library of fields — ripple, spiral, beam, orbit, rain, … — each a function of the
+cell's place with a centre, a facing, a phase and its own parameters, every one of them
+sidechainable, so patterns breathe, spin and travel with the music. A new layer is one row: brightness 1. Nothing else decides whether a layer shows
 (owner: "that will always be controlled by brightness") — only its stage and bars scope it.
 
 - global: **glow** (the owner's "opacity": brightness gets to follow the music; nothing
