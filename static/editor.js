@@ -743,7 +743,7 @@ function rowsEditor(l) {
     l.params[r.name] = newRow(r);
     commit({ silent: true, inspector: true });
   } }, el('option', { value: '' }, '+ row'), ...missing.map((r) => el('option', { value: r.name }, r.gate === 'sidechains' ? r.name : `${r.name} · ${r.unlock}`)));
-  return el('fieldset', { class: 'rows' }, el('legend', {}, 'rows ', el('span', { class: 'dim', id: 'probe-at', title: 'the readouts are for this cell: hover the region grid to move it' }, `at ${probeCell[0]},${probeCell[1]}`)),
+  return el('fieldset', { class: 'rows' }, el('legend', {}, 'rows ', el('span', { class: 'dim', id: 'probe-at', title: 'the readouts are for this cell (orange on the region grid): one of its own, or hover the grid to pick another' }, `at ${probeCell[0]},${probeCell[1]}`)),
     ...have.map((r) => rowEditor(l, r)),
     missing.length ? row('', add, el('span', { class: 'doc' }, have.length ? 'an unlock is a row, or a row\'s sidechain option (glow: brightness\'s)' : 'nothing: the cells are as the layers before leave them')) : null);
 }
@@ -932,6 +932,26 @@ function bandInspector(b) {
 
 const grid = { drag: null };
 let probeCell = [(W - 1) / 2, (H - 1) / 2]; // the cell whose rows the readouts show: hover the grid to move it
+let hovering = false;                       // the pointer is on the grid: the probe follows it
+
+function setProbe(cell) {
+  if (cell[0] === probeCell[0] && cell[1] === probeCell[1]) return;
+  probeCell = cell;
+  send(JSON.stringify({ probe: probeCell }));
+  const at = $('#probe-at');
+  if (at) at.textContent = `at ${probeCell[0]},${probeCell[1]}`;
+}
+
+// Where the probe sits when nothing is hovered: on the selected layer's or hotspot's own cells
+// (the one nearest the centre), so its readouts always have something to say; else the centre.
+function defaultProbe() {
+  const r = regionOf();
+  const centre = [(W - 1) / 2, (H - 1) / 2];
+  if (!r) return centre;
+  const cells = regionCells(r);
+  if (!cells.length) return centre;
+  return cells.reduce((best, c) => (Math.hypot(c[0] - centre[0], c[1] - centre[1]) < Math.hypot(best[0] - centre[0], best[1] - centre[1]) ? c : best));
+}
 
 function regionOf() {
   if (!sel) return null;
@@ -1018,9 +1038,11 @@ function setupGrid() {
     }
     commit({ silent: true, timeline: false, lists: false });
   };
+  c.onmouseleave = () => { hovering = false; setProbe(defaultProbe()); renderGrid(); };
   c.onmousemove = (e) => {
+    hovering = true;
     const [i, j] = cellAt(e);
-    if (i !== probeCell[0] || j !== probeCell[1]) { probeCell = [i, j]; send(JSON.stringify({ probe: probeCell })); }
+    if (i !== probeCell[0] || j !== probeCell[1]) { setProbe([i, j]); renderGrid(); }
     if (!grid.drag) return;
     const r = regionOf();
     if (grid.drag.paint != null) {
@@ -1051,6 +1073,10 @@ function renderGrid() {
     g.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
     if (!inside) { g.fillStyle = '#3a3a44'; g.fillRect(x + CELL / 2, y + CELL / 2, 1, 1); }
   }
+  // the probe cell: where the rows' readouts are measured
+  if (!hovering) setProbe(defaultProbe());
+  g.strokeStyle = '#ff7333'; g.lineWidth = 1.5;
+  g.strokeRect(probeCell[0] * CELL + 1.5, (H - 1 - probeCell[1]) * CELL + 1.5, CELL - 3, CELL - 3);
   sendHighlight();
   // tools
   const tools = $('#region-tools');
@@ -1066,7 +1092,7 @@ function renderGrid() {
     el('span', {}, 'rows every ', stepInput(r, 'rows'), ' cols every ', stepInput(r, 'cols')),
     el('span', {}, 'checker ', el('select', { onchange: (e) => { snapshotForUndo(); if (e.target.value === '') delete r.checker; else r.checker = +e.target.value; go(); } },
       ...[['', 'both'], ['0', 'even'], ['1', 'odd']].map(([v, t]) => el('option', { value: v, ...(String(r.checker ?? '') === v ? { selected: '' } : {}) }, t)))),
-    el('span', { class: 'doc' }, r.map != null ? 'click/drag paints cells' : 'drag draws the rectangle'),
+    el('span', { class: 'doc' }, (r.map != null ? 'click/drag paints cells' : 'drag draws the rectangle') + ' · the orange cell is the probe the readouts measure: hover to move it'),
   );
 }
 
