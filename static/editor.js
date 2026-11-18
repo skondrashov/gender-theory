@@ -81,7 +81,9 @@ async function boot() {
   const text = await (await fetch('album.json', { cache: 'no-store' })).text();
   base = fingerprint(text);
   album = JSON.parse(text);
-  await init();
+  // The wasm, fresh: the glue fetches it by a fixed URL, which browsers were happy to serve
+  // from cache next to a newer glue.
+  await init(new URL(`./app/gender_bg.wasm?v=${Date.now()}`, location.href));
   cat = JSON.parse(readCatalogue());
   main_web(JSON.stringify(album)); // runs forever
   const adopt = setInterval(() => {
@@ -1226,4 +1228,11 @@ function drawWave(t) {
   for (let k = 0; k <= wave.bars; k += 4) g.fillRect(k * PPB, 0, 1, c.height);
 }
 
-boot();
+boot().catch((e) => {
+  console.error(e);
+  const status = $('#status');
+  status.textContent = `the editor could not start: ${e && e.message ? e.message : e} — see the console (F12)`;
+  status.classList.add('dirty');
+});
+window.addEventListener('error', (e) => { const status = $('#status'); if (status && !status.textContent.startsWith('the editor')) { status.textContent = `error: ${e.message} — see the console (F12)`; status.classList.add('dirty'); } });
+window.addEventListener('unhandledrejection', (e) => { const status = $('#status'); if (status && !status.textContent.startsWith('the editor')) { status.textContent = `error: ${e.reason && e.reason.message ? e.reason.message : e.reason} — see the console (F12)`; status.classList.add('dirty'); } });
