@@ -236,7 +236,9 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   per row (`.readout`), `—` when the layer isn't on that cell. The probe rests on the selected
   layer's/hotspot's nearest-to-centre cell (`defaultProbe`), drawn orange on the grid; hovering
   the grid moves it, leaving puts it back (owner: "i don't see the readout on the rows for the
-  layer 'top'" — the centre wasn't in its region).
+  layer 'top'" — the centre wasn't in its region). Each sidechain and mask row has a readout
+  too (`Param::parts`, `Row::mask_parts` → `chains`/`masks` in the probe), since the JS
+  meters can't know noise, distance or a position field.
 - **One stage setting** (owner, 2026-11-18: "i rarely if ever care about the 'all stages'
   stage view … i'd just like it to show whatever stage is currently being previewed"): the
   lists' stage filter is gone; `stageFilter` = `viewedStage()` (the top bar's picker when

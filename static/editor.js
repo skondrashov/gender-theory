@@ -348,6 +348,13 @@ function updateReadouts() {
     const sym = p.op === 'add' ? '+' : p.op === 'multiply' ? '×' : '=';
     r.textContent = `${sym} ${p.value.toFixed(2)}${p.amount < 0.995 ? ` · ${Math.round(p.amount * 100)}%` : ''}`;
   }
+  for (const r of document.querySelectorAll('.readout[data-probe-part]')) {
+    const [layer, row, kind, k] = r.dataset.probePart.split('|');
+    const p = (probe.rows || []).find((p) => p.layer === layer && p.row === row);
+    const v = p?.[kind]?.[+k];
+    if (v === undefined) { r.textContent = '—'; continue; }
+    r.textContent = kind === 'masks' ? `× ${v.toFixed(2)}` : `${v < 0 ? '−' : '+'} ${Math.abs(v).toFixed(2)}`;
+  }
 }
 
 function updateMeters() {
@@ -451,6 +458,19 @@ function duplicateSelected() {
 }
 
 // Move a layer or hotspot to another scene of the track (by id).
+// Move the selected layer or hotspot one place earlier (−1) or later (+1) in its list — for
+// layers, that is draw order: a layer acts on what the layers before it left.
+function nudgeSelected(d) {
+  if (!sel || (sel.type !== 'layer' && sel.type !== 'hotspot')) return;
+  const list = listOf(sel.type);
+  const k = sel.index + d;
+  if (k < 0 || k >= list.length) return;
+  snapshotForUndo();
+  [list[sel.index], list[k]] = [list[k], list[sel.index]];
+  sel = { type: sel.type, index: k };
+  commit({ silent: true, inspector: true });
+}
+
 function moveSelectedTo(sceneId) {
   const t = track();
   const k = t.scenes.findIndex((s) => s.id === sceneId);
@@ -631,6 +651,8 @@ function renderInspector() {
   if (!item) { box.replaceChildren(el('div', { class: 'hint' }, 'select a scene, a layer, a hotspot or a band')); return; }
   const t = track();
   const head = (title, kind) => el('h2', {}, title, el('span', { class: 'kind' }, kind), el('span', { class: 'spacer' }),
+    sel.type === 'layer' || sel.type === 'hotspot' ? el('button', { class: 'small', title: sel.type === 'layer' ? 'draw it earlier: under the layer before it (the lists are in draw order; a layer acts on the ones above it in the list)' : 'earlier in the list', onclick: () => nudgeSelected(-1) }, '↑') : null,
+    sel.type === 'layer' || sel.type === 'hotspot' ? el('button', { class: 'small', title: sel.type === 'layer' ? 'draw it later: over the layer after it' : 'later in the list', onclick: () => nudgeSelected(1) }, '↓') : null,
     sel.type !== 'band' ? el('button', { class: 'small', onclick: duplicateSelected }, 'duplicate') : null,
     el('button', { class: 'small danger', onclick: deleteSelected }, 'delete'));
 
@@ -755,8 +777,8 @@ function rowEditor(l, spec) {
   if (typeof p !== 'object' || p === null) p = l.params[spec.name] = { op: 'set', base: typeof p === 'number' ? p : spec.default, chains: [] };
   p.op ??= 'set'; p.chains ??= []; p.masks ??= [];
   const turns = spec.name === 'angle' || spec.name === 'rotation';
-  const [toggle, chainsBox] = chainsUi(p, spec.step);
-  const [maskToggle, masksBox] = chainsUi(p, 1, 'masks');
+  const [toggle, chainsBox] = chainsUi(p, spec.step, 'chains', `${l.id}|${spec.name}`);
+  const [maskToggle, masksBox] = chainsUi(p, 1, 'masks', `${l.id}|${spec.name}`);
   // An unlock is either the row (it rests at a value until then) or the row's sidechain option.
   const option = spec.gate === 'sidechains';
   const tag = el('span', { class: 'tag', title: option
@@ -777,7 +799,7 @@ function rowEditor(l, spec) {
 
 // A param's sidechains (`key` 'chains': add to it) or a row's masks ('masks': how much of
 // its change lands): the button that shows them, and the box they're in.
-function chainsUi(p, step, key = 'chains') {
+function chainsUi(p, step, key = 'chains', probeKey = null) {
   const list = p[key] ??= [];
   const masks = key === 'masks';
   const box = el('div', { class: 'chains' + (masks ? ' masks' : '') });
@@ -787,7 +809,7 @@ function chainsUi(p, step, key = 'chains') {
       : 'add a source to this: the music for motion, noise / distance / bearing / around for a pattern',
     onclick: () => { box.hidden = !box.hidden; } }, label());
   const render = () => {
-    box.replaceChildren(...list.map((c, k) => chainRow(list, c, k, render)),
+    box.replaceChildren(...list.map((c, k) => chainRow(list, c, k, render, probeKey ? `${probeKey}|${key}|${k}` : null)),
       el('button', { class: 'link', onclick: () => { snapshotForUndo(); list.push({ source: masks ? 'distance' : (album.bands[0]?.id ?? 'beat'), depth: !masks && step >= 1 ? 360 : 1, threshold: 0, width: 1, curve: 1, invert: false, on: true, delay: 0 }); commit({ silent: true }); render(); } }, masks ? '+ mask' : '+ sidechain'));
     toggle.textContent = label(); // the count on the button follows adds and removes
   };
@@ -813,7 +835,7 @@ function paramRow(params, name, spec) {
   return row(name, el('span', { class: 'doc' }, 'unknown param type ' + spec.type));
 }
 
-function chainRow(list, c, k, rerender) {
+function chainRow(list, c, k, rerender, probePart = null) {
   const id = uid('m');
   chainRefs[id] = c;
   const sources = [
@@ -844,6 +866,7 @@ function chainRow(list, c, k, rerender) {
     el('label', {}, el('input', { type: 'checkbox', ...(c.on ? { checked: '' } : {}), title: 'on', onchange: (e) => { snapshotForUndo(); c.on = e.target.checked; commit({ silent: true }); rerender(); } })),
     source,
     el('div', { class: 'meter', 'data-chain': id, title: 'what it adds right now' }, el('i')),
+    probePart ? el('span', { class: 'readout mono', 'data-probe-part': probePart, title: 'at the probe cell right now: what this adds (a sidechain) or lets through (a mask)' }, '—') : null,
     el('span', { class: 'lbl' }, 'depth'), num('depth', 0.1),
     el('span', { class: 'lbl' }, 'threshold'), num('threshold', 0.05),
     el('span', { class: 'lbl' }, 'width'), num('width', 0.05),

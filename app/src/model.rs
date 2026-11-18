@@ -412,7 +412,7 @@ impl Model {
 			"probe": {
 				"i": self.probe.0,
 				"j": self.probe.1,
-				"rows": self.probed.borrow().iter().map(|p| json!({"layer": p.layer, "row": p.row, "op": p.op, "value": p.value, "amount": p.amount})).collect::<Vec<_>>(),
+				"rows": self.probed.borrow().iter().map(|p| json!({"layer": p.layer, "row": p.row, "op": p.op, "value": p.value, "amount": p.amount, "chains": p.chains, "masks": p.masks})).collect::<Vec<_>>(),
 			},
 			"binHz": self.audio.bin_hz(),
 		})
@@ -808,6 +808,9 @@ pub struct Probed {
 	pub value: f32,
 	/// How much of that landed: the product of its masks.
 	pub amount: f32,
+	/// What each of its sidechains added, and what each of its masks let through.
+	pub chains: Vec<f32>,
+	pub masks: Vec<f32>,
 }
 
 pub fn view(app: &App, model: &Model, frame: Frame) {

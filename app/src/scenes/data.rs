@@ -375,16 +375,21 @@ impl Param {
 
 	/// `value_gated` at `depth` fields deep (a field's parameters are params; three deep is enough).
 	pub fn value_at(&self, signals: &Signals, gate: f32, depth: u8) -> f32 {
-		self.base
-			+ self
-				.chains
-				.iter()
-				.filter(|chain| chain.on)
-				.map(|chain| {
-					let scale = if Signals::fixed(&chain.source) { 1.0 } else { gate };
-					scale * chain.depth * chain.shape(signals.level(chain, gate, depth))
-				})
-				.sum::<f32>()
+		self.base + self.parts(signals, gate, depth).iter().sum::<f32>()
+	}
+
+	/// What each sidechain adds right now (0 for one that is off): the probe's breakdown.
+	pub fn parts(&self, signals: &Signals, gate: f32, depth: u8) -> Vec<f32> {
+		self.chains
+			.iter()
+			.map(|chain| {
+				if !chain.on {
+					return 0.0;
+				}
+				let scale = if Signals::fixed(&chain.source) { 1.0 } else { gate };
+				scale * chain.depth * chain.shape(signals.level(chain, gate, depth))
+			})
+			.collect()
 	}
 }
 
@@ -679,16 +684,22 @@ impl Row {
 	/// How much of this row's change lands: the product of its masks, each `1 − depth × (1 −
 	/// shape)`, a moving one scaled by `gate` like a sidechain.
 	pub fn amount(&self, signals: &Signals, gate: f32) -> f32 {
+		self.mask_parts(signals, gate).iter().product::<f32>().clamp(0.0, 1.0)
+	}
+
+	/// What each mask lets through right now (1 for one that is off): the probe's breakdown.
+	pub fn mask_parts(&self, signals: &Signals, gate: f32) -> Vec<f32> {
 		self.masks
 			.iter()
-			.filter(|mask| mask.on)
 			.map(|mask| {
+				if !mask.on {
+					return 1.0;
+				}
 				let scale = if Signals::fixed(&mask.source) { 1.0 } else { gate };
 				let shaped = mask.shape(signals.level(mask, gate, 0));
 				1.0 - scale * mask.depth * (1.0 - shaped)
 			})
-			.product::<f32>()
-			.clamp(0.0, 1.0)
+			.collect()
 	}
 }
 
@@ -1287,6 +1298,8 @@ fn render(
 							},
 							value,
 							amount,
+							chains: row.param.parts(&signals, motion, 0),
+							masks: row.mask_parts(&signals, motion),
 						});
 					}
 				}
