@@ -306,6 +306,12 @@ pub const FIELDS: &[FieldSpec] = &[
 	},
 	// ---- scatter: per cell ----
 	FieldSpec {
+		name: "noise",
+		family: "scatter",
+		doc: "a random value per cell from a `seed` — a different pattern for every whole number it crosses. Sidechain the seed to the kick (depth 3, threshold 0.5, width 0.01) and the pattern flashes to another on each hit; or set `every` for a fresh pattern every so many beats, locked to the music. `grain` 2 makes 2 × 2 blocks.",
+		params: &[p("seed", 0.0, 1.0, "which pattern; a new one each whole number (sidechain it)"), p("every", 0.0, 0.25, "beats between fresh patterns, with the music; 0 never"), p("grain", 1.0, 1.0, "cells per block of the pattern"), X, Y],
+	},
+	FieldSpec {
 		name: "twinkle",
 		family: "scatter",
 		doc: "each cell lights for `fraction` of every phase cycle at its own random moment: fireflies, a crowd of shutters.",
@@ -369,6 +375,15 @@ fn inside(d: f32, edge: f32) -> f32 {
 fn wave(t: f32, sharp: f32) -> f32 {
 	let v = 0.5 + 0.5 * (TAU * t).cos();
 	((v - 0.5) * (1.0 + 24.0 * sharp * sharp) + 0.5).clamp(0.0, 1.0)
+}
+
+/// A random 0..1 for three integers, the same every time.
+fn hash3(a: i64, b: i64, c: i64) -> f32 {
+	let mut h = (a as u32).wrapping_mul(73856093) ^ (b as u32).wrapping_mul(19349663) ^ (c as u32).wrapping_mul(83492791);
+	h ^= h >> 13;
+	h = h.wrapping_mul(0x5bd1e995);
+	h ^= h >> 15;
+	(h & 0xffff) as f32 / 65535.0
 }
 
 fn parity(n: f32) -> f32 {
@@ -547,6 +562,15 @@ impl Field {
 				let v = frac(phase * p("speed") + column * 3.0);
 				let drop = HALF + 0.5 - (2.0 * HALF + 2.0) * v;
 				inside((s.dj - drop).abs() - p("size") / 2.0, edge)
+			}
+			"noise" => {
+				// a fresh pattern every `every` beats is motion: it waits for the row's unlock
+				let every = p("every");
+				let steps = if every > 0.0 && gate >= 0.5 { (s.bars * 4.0 / every).floor() } else { 0.0 };
+				let seed = (p("seed") + steps).floor() as i64;
+				let grain = p("grain").max(1.0);
+				let (gi, gj) = (((px + HALF) / grain).floor() as i64, ((py + HALF) / grain).floor() as i64);
+				hash3(gi, gj, seed)
 			}
 			"twinkle" => {
 				let v = frac(s.noise * 7.0 - phase);

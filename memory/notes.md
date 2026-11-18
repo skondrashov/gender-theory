@@ -228,6 +228,12 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   chain can be a field). Contact sheet of all 41 at 11 × 11 was checked headless
   (scratchpad `cdp_fields.py`). Editor: source select has optgroups per family; a field's
   params unfold under the chain with their own sidechain buttons.
+- **Seeded noise** (owner, 2026-11-18: "it'd be cool to set a seed for the noise, also in
+  some kind of sidechained way … flashing new random patterns each pulse looks cool"): field
+  `noise` — `hash3(cell, seed)`, `seed` a param (a new pattern per whole number crossed: chain
+  it to the kick with a hard threshold and it flashes), `every` beats for a fresh pattern
+  locked to `Signals::bars` (gated like motion), `grain` for blocks. The plain `noise` source
+  (the noisemap) stays.
 - **Probe readouts** (owner, 2026-11-18: "i'd like the rows to show me a numerical value of
   how much they're adding to the effect with their current settings"): `Model::probe` (a
   cell, default the centre; editor command `{probe: [i, j]}`, moved by hovering the region

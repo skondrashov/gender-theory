@@ -425,6 +425,8 @@ pub struct Signals<'a> {
 	pub dj: f32,
 	/// The scene's time (seconds × 0.6), for `clock`.
 	pub time: f32,
+	/// Where the music is in the track, in bars (fractional), for things that step with it.
+	pub bars: f32,
 	/// The bar's phase and the beat's, 0..1, for delaying.
 	pub whole: f32,
 	pub quarter: f32,
@@ -1209,6 +1211,7 @@ fn render(
 		di,
 		dj,
 		time,
+		bars: bar,
 		whole,
 		quarter,
 	};
