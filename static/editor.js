@@ -346,16 +346,27 @@ function updateReadouts() {
     const p = (probe.rows || []).find((p) => p.layer === layer && p.row === row);
     if (!p) { r.textContent = '—'; r.title = 'not on the probe cell right now (its region, stage or bars)'; continue; }
     const sym = p.op === 'add' ? '+' : p.op === 'multiply' ? '×' : '=';
-    r.textContent = `${sym} ${p.value.toFixed(2)}${p.amount < 0.995 ? ` · ${Math.round(p.amount * 100)}%` : ''}`;
+    // a row that is itself an unlock sits at its resting value until the unlock is on in the preview
+    const frozen = r.dataset.gate !== 'sidechains' && !unlocked(r.dataset.unlock) ? ` · needs ${r.dataset.unlock} (at ${r.dataset.gate})` : '';
+    r.textContent = `${sym} ${p.value.toFixed(2)}${p.amount < 0.995 ? ` · ${Math.round(p.amount * 100)}%` : ''}${frozen}`;
   }
   for (const r of document.querySelectorAll('.readout[data-probe-part]')) {
     const [layer, row, kind, k] = r.dataset.probePart.split('|');
     const p = (probe.rows || []).find((p) => p.layer === layer && p.row === row);
     const v = p?.[kind]?.[+k];
     if (v === undefined) { r.textContent = '—'; continue; }
-    r.textContent = kind === 'masks' ? `× ${v.toFixed(2)}` : `${v < 0 ? '−' : '+'} ${Math.abs(v).toFixed(2)}`;
+    // a sidechain or mask on the music waits for the row's unlock
+    const chain = chainRefs[r.dataset.chainRef];
+    const unlock = rowSpec(row)?.unlock;
+    const waiting = chain && !fixedSource(chain.source) && unlock && !unlocked(unlock) ? ` · needs ${unlock}` : '';
+    r.textContent = (kind === 'masks' ? `× ${v.toFixed(2)}` : `${v < 0 ? '−' : '+'} ${Math.abs(v).toFixed(2)}`) + waiting;
   }
 }
+
+// Is this unlock on in the preview (the top bar's toggles)?
+const unlocked = (name) => (st.unlocks || []).includes(name);
+// A pattern or a state, which acts whatever is unlocked — as data.rs's Signals::fixed.
+const fixedSource = (source) => ['noise', 'distance', 'bearing', 'around', 'position'].includes(source) || source.startsWith('hotspot:') || source.startsWith('unlock:');
 
 function updateMeters() {
   updateReadouts();
@@ -792,7 +803,7 @@ function rowEditor(l, spec) {
     turns ? numberInput(p, 'spin', { step: 5 }) : null,
     turns ? checkInput(p, 'alternate', 'alternate') : null,
     toggle, option ? tag : null, maskToggle,
-    el('span', { class: 'readout mono', 'data-probe': l.id + '|' + spec.name, title: 'what this row is worth at the probe cell right now: its value, and how much of it its masks let land' }, '—'),
+    el('span', { class: 'readout mono', 'data-probe': l.id + '|' + spec.name, 'data-unlock': spec.unlock, 'data-gate': spec.gate, title: 'what this row is worth at the probe cell right now: its value, and how much of it its masks let land' }, '—'),
     el('button', { class: 'link danger', title: 'take the row out of this layer', onclick: () => { snapshotForUndo(); delete l.params[spec.name]; commit({ silent: true, inspector: true }); } }, '×'),
     el('span', { class: 'doc' }, spec.doc)), chainsBox, masksBox);
 }
@@ -866,7 +877,7 @@ function chainRow(list, c, k, rerender, probePart = null) {
     el('label', {}, el('input', { type: 'checkbox', ...(c.on ? { checked: '' } : {}), title: 'on', onchange: (e) => { snapshotForUndo(); c.on = e.target.checked; commit({ silent: true }); rerender(); } })),
     source,
     el('div', { class: 'meter', 'data-chain': id, title: 'what it adds right now' }, el('i')),
-    probePart ? el('span', { class: 'readout mono', 'data-probe-part': probePart, title: 'at the probe cell right now: what this adds (a sidechain) or lets through (a mask)' }, '—') : null,
+    probePart ? el('span', { class: 'readout mono', 'data-probe-part': probePart, 'data-chain-ref': id, title: 'at the probe cell right now: what this adds (a sidechain) or lets through (a mask)' }, '—') : null,
     el('span', { class: 'lbl' }, 'depth'), num('depth', 0.1),
     el('span', { class: 'lbl' }, 'threshold'), num('threshold', 0.05),
     el('span', { class: 'lbl' }, 'width'), num('width', 0.05),

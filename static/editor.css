@@ -121,6 +121,7 @@ legend { color: var(--dim); font-size: 10px; text-transform: uppercase; letter-s
 .rowed .row .readout { color: var(--accent); font-size: 11px; min-width: 64px; }
 .chain .readout { color: var(--accent); min-width: 48px; }
 #probe-at { font-weight: normal; font-size: 10px; margin-left: 4px; }
+.readout { white-space: nowrap; }
 .chains.masks { border-left: 2px solid #b08040; padding-left: 6px; }
 .field { margin: 2px 0 6px 22px; padding: 4px 8px; border-left: 2px solid var(--line); font-size: 11px; }
 .field > .doc { color: var(--dim); margin-bottom: 4px; }
