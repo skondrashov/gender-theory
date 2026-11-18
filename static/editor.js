@@ -33,7 +33,7 @@ let album, cat;
 let ti = 0;                // index of the track being edited
 let si = 0;                // index of the scene being edited (its layers and hotspots are shown)
 let follow = true;         // si follows the scene playing, until a scene is picked by hand
-let stageFilter = '';      // '' = every stage; else only that stage's layers and hotspots
+let stageFilter = '';      // the stage on preview: the lists show only its layers and hotspots (and the stageless)
 let lastStages = '';
 let sel = null;            // {type: 'scene'|'layer'|'hotspot'|'band', index}
 let st = {};               // last state from the app
@@ -94,7 +94,6 @@ async function boot() {
   $('#track').onchange = () => { ti = +$('#track').value; si = 0; sel = null; renderAll(); };
   $('#play').onclick = togglePlay;
   $('#stage-pick').onchange = () => send(JSON.stringify({ stage: +$('#stage-pick').value }));
-  $('#stage-filter').onchange = () => { stageFilter = $('#stage-filter').value; renderLists(); renderTimeline(); };
   $('#undo').onclick = undo;
   $('#redo').onclick = redo;
   $('#save').onclick = save;
@@ -277,6 +276,8 @@ function loop() {
     $('#stage-pick').hidden = list.length === 0;
   }
   if (document.activeElement !== $('#stage-pick')) $('#stage-pick').value = st.stage ?? 0;
+  // the lists show the stage on preview (the top bar's picker is the one control)
+  if (viewedStage() !== stageFilter) { renderLists(); renderTimeline(); }
   if (st.track && st.track === t.id) {
     $('#playhead').style.left = (GUTTER + st.bar * PPB) + 'px';
     $('#playhead').style.display = 'block';
@@ -370,10 +371,7 @@ function renderLists() {
     onclick: () => select(type, index),
   }, el('span', {}, label, stage ? el('span', { class: 'stage' }, stage) : null), el('span', { class: 'bars' }, bars ? `${bars[0]}–${bars[1]}` : ''));
   $('#scene-list').replaceChildren(...t.scenes.map((s, k) => item('scene', k, s.id, s.bars, k === si ? 'here' : '')));
-  const names = s?.stages ?? [];
-  if (!names.includes(stageFilter)) stageFilter = '';
-  $('#stage-filter').replaceChildren(el('option', { value: '' }, names.length ? 'all stages' : 'no stages'), ...names.map((n) => el('option', { value: n, ...(n === stageFilter ? { selected: '' } : {}) }, n)));
-  $('#stage-filter').disabled = names.length === 0;
+  stageFilter = viewedStage();
   $('#hotspot-title').textContent = s ? `hotspots of ${s.id}` : 'hotspots';
   $('#layer-title').textContent = s ? `layers of ${s.id}` : 'layers';
   $('#hotspot-list').replaceChildren(...(s?.hotspots ?? []).map((h, k) => inStage(h) ? item('hotspot', k, h.name || h.id, h.bars, '', h.stage) : null).filter(Boolean));
@@ -384,6 +382,9 @@ function renderLists() {
 }
 
 const inStage = (item) => !stageFilter || !item.stage || item.stage === stageFilter;
+
+// The stage the lists show: the one on preview when the edited scene is the one playing, else the scene's first.
+const viewedStage = () => { const s = scene(), names = s?.stages ?? []; return (st.scene === s?.id && names[st.stage]) || names[0] || ''; };
 
 function select(type, index) {
   if (type === 'scene') { si = index; follow = false; }

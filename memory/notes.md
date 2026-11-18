@@ -215,6 +215,11 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   other ten unlocks are rows (rest at `v` until then). Editor shows the unlock tag on the
   row or on its sidechain button accordingly. Play now drops a layer/hotspot selection for
   the scene, so the region squares leave the preview.
+- **One stage setting** (owner, 2026-11-18: "i rarely if ever care about the 'all stages'
+  stage view … i'd just like it to show whatever stage is currently being previewed"): the
+  lists' stage filter is gone; `stageFilter` = `viewedStage()` (the top bar's picker when
+  the edited scene is the one playing, else the scene's first stage). New layers/hotspots
+  go into it.
 - **Gray vs glow** (owner, 2026-11-18: "the controls for setting glow are kinda weird cause
   i don't get the difference between glow and gray in that context"): a draw layer no longer
   has an "own glow" param. One brightness, `gray`; its sidechains (except `noise`) are scaled
