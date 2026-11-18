@@ -315,6 +315,8 @@ function builtins() {
 
 function sourceLevel(name) {
   if (st.bands && name in st.bands) return st.bands[name];
+  if (name.startsWith('hotspot:')) { const k = (scene()?.hotspots || []).findIndex((h) => h.id === name.slice(8)); return (st.hotspots || []).includes(k) ? 1 : 0; }
+  if (name.startsWith('unlock:')) return (st.unlocks || []).includes(name.slice(7)) ? 1 : 0;
   const b = builtins();
   return name in b ? b[name] : 0;
 }
@@ -454,7 +456,7 @@ function defaultParams(kind) {
 }
 
 const rowSpec = (name) => cat.rows.find((r) => r.name === name);
-const newRow = (spec) => ({ op: 'set', base: spec.default, chains: [] });
+const newRow = (spec) => ({ op: 'set', base: spec.default, chains: [], masks: [] });
 
 // ---- presets: layers kept to drop into any scene ----
 
@@ -686,45 +688,17 @@ function moveRow() {
 }
 
 function layerInspector(l) {
-  const s = scene();
   const kinds = Object.keys(cat.kinds);
   const spec = cat.kinds[l.kind] || cat.kinds.cells;
   l.params ??= {};
-  delete l.ignore_glow; delete l.glow; // older files
-
-  // When it shows, first: the stage, its bars, a hotspot it's tied to, an unlock it fades with, unlocks it needs.
-  const gates = el('fieldset', { class: 'gates' }, el('legend', {}, 'showing when'));
-  gates.append(stageRow(l), barsRow(l));
-  const when = l.when;
-  gates.append(row('hotspot', el('select', { onchange: (e) => {
-      snapshotForUndo();
-      if (!e.target.value) delete l.when; else l.when = { hotspot: e.target.value, visible: l.when?.visible ?? true };
-      commit({ silent: true, inspector: true });
-    } }, el('option', { value: '' }, '—'), ...(s.hotspots || []).map((h) => el('option', { value: h.id, ...(when?.hotspot === h.id ? { selected: '' } : {}) }, h.name || h.id))),
-    when ? el('select', { onchange: (e) => { snapshotForUndo(); l.when.visible = e.target.value === 'visible'; commit({ silent: true }); } },
-      el('option', { value: 'visible', ...(when.visible ? { selected: '' } : {}) }, 'is showing'),
-      el('option', { value: 'hidden', ...(!when.visible ? { selected: '' } : {}) }, 'is not showing')) : null,
-    el('span', { class: 'doc' }, 'hints: a layer tied to a hotspot the player can see')));
-  gates.append(row('fade', el('select', { onchange: (e) => {
-      snapshotForUndo();
-      if (!e.target.value) delete l.fade; else l.fade = { unlock: e.target.value, to: l.fade?.to ?? 1 };
-      commit({ silent: true, inspector: true });
-    } }, el('option', { value: '' }, '—'), ...UNLOCKS.map((u) => el('option', { value: u, ...(l.fade?.unlock === u ? { selected: '' } : {}) }, u))),
-    l.fade ? el('select', { onchange: (e) => { snapshotForUndo(); l.fade.to = +e.target.value; commit({ silent: true }); } },
-      el('option', { value: 1, ...(l.fade.to >= 0.5 ? { selected: '' } : {}) }, 'fades in as it is unlocked'),
-      el('option', { value: 0, ...(l.fade.to < 0.5 ? { selected: '' } : {}) }, 'fades out as it is unlocked')) : null));
-  l.needs ??= [];
-  gates.append(row('needs', ...UNLOCKS.map((u) => el('label', {}, el('input', { type: 'checkbox', ...(l.needs.includes(u) ? { checked: '' } : {}), onchange: (e) => {
-    snapshotForUndo();
-    l.needs = UNLOCKS.filter((v) => (v === u ? e.target.checked : l.needs.includes(v)));
-    commit({ silent: true });
-  } }), u)), el('span', { class: 'doc' }, 'nothing without these')));
+  delete l.ignore_glow; delete l.glow; delete l.when; delete l.fade; delete l.needs; // older files: a row's masks now
 
   return [
     row('name', textInput(l, 'name')),
     row('kind', selectInput(l, 'kind', kinds, { commit: { inspector: true }, then: () => { l.params = defaultParams(l.kind); commit({ silent: true, inspector: true }); } }),
       el('span', { class: 'doc' }, spec.doc)),
-    gates,
+    stageRow(l),
+    barsRow(l),
     moveRow(),
     row('', checkInput(l, 'muted', 'muted'), el('button', { class: 'small', onclick: () => savePreset(l), title: 'keep a copy in the presets list, to drop into any scene' }, 'save as preset')),
     spec.rows
@@ -754,9 +728,10 @@ const ROW_OPS = [{ value: 'set', label: 'set' }, { value: 'add', label: 'add' },
 function rowEditor(l, spec) {
   let p = l.params[spec.name];
   if (typeof p !== 'object' || p === null) p = l.params[spec.name] = { op: 'set', base: typeof p === 'number' ? p : spec.default, chains: [] };
-  p.op ??= 'set'; p.chains ??= [];
+  p.op ??= 'set'; p.chains ??= []; p.masks ??= [];
   const turns = spec.name === 'angle' || spec.name === 'rotation';
   const [toggle, chainsBox] = chainsUi(p, spec.step);
+  const [maskToggle, masksBox] = chainsUi(p, 1, 'masks');
   const gate = spec.before === 'static'
     ? `the ${spec.unlock} unlock lets it move; until then only its pattern sidechains (noise, distance, bearing, around) act`
     : `${spec.before} until ${spec.unlock} is unlocked`;
@@ -766,24 +741,30 @@ function rowEditor(l, spec) {
     turns ? el('span', { class: 'lbl' }, 'spin') : null,
     turns ? numberInput(p, 'spin', { step: 5 }) : null,
     turns ? checkInput(p, 'alternate', 'alternate') : null,
-    toggle,
+    toggle, maskToggle,
     el('span', { class: 'tag', title: gate }, spec.unlock),
     el('button', { class: 'link danger', title: 'take the row out of this layer', onclick: () => { snapshotForUndo(); delete l.params[spec.name]; commit({ silent: true, inspector: true }); } }, '×'),
-    el('span', { class: 'doc' }, spec.doc)), chainsBox);
+    el('span', { class: 'doc' }, spec.doc)), chainsBox, masksBox);
 }
 
-// A param's sidechains: the button that shows them, and the box they're in.
-function chainsUi(p, step) {
-  const chainsBox = el('div', { class: 'chains' });
-  const renderChains = () => {
-    chainsBox.replaceChildren(...p.chains.map((c, k) => chainRow(p, c, k, renderChains)),
-      el('button', { class: 'link', onclick: () => { snapshotForUndo(); p.chains.push({ source: album.bands[0]?.id ?? 'beat', depth: step >= 1 ? 360 : 1, threshold: 0, width: 1, curve: 1, invert: false, on: true, delay: 0 }); commit({ silent: true }); renderChains(); } }, '+ sidechain'));
+// A param's sidechains (`key` 'chains': add to it) or a row's masks ('masks': how much of
+// its change lands): the button that shows them, and the box they're in.
+function chainsUi(p, step, key = 'chains') {
+  const list = p[key] ??= [];
+  const masks = key === 'masks';
+  const box = el('div', { class: 'chains' + (masks ? ' masks' : '') });
+  const render = () => {
+    box.replaceChildren(...list.map((c, k) => chainRow(list, c, k, render)),
+      el('button', { class: 'link', onclick: () => { snapshotForUndo(); list.push({ source: masks ? 'distance' : (album.bands[0]?.id ?? 'beat'), depth: !masks && step >= 1 ? 360 : 1, threshold: 0, width: 1, curve: 1, invert: false, on: true, delay: 0 }); commit({ silent: true }); render(); } }, masks ? '+ mask' : '+ sidechain'));
   };
-  renderChains();
-  chainsBox.hidden = p.chains.length === 0;
-  const toggle = el('button', { class: 'link', title: 'sidechain this from a source: distance, bearing or around for a mask, the music for motion', onclick: () => { chainsBox.hidden = !chainsBox.hidden; } },
-    p.chains.length ? `${p.chains.length} sidechain${p.chains.length > 1 ? 's' : ''}` : 'sidechain');
-  return [toggle, chainsBox];
+  render();
+  box.hidden = list.length === 0;
+  const toggle = el('button', { class: 'link', title: masks
+      ? 'where and when this row\'s change lands: 1 all of it, 0 none — distance, bearing or around for a shape; a hotspot for a hint; an unlock to wait for it; the music to move it'
+      : 'add a source to this: the music for motion, noise / distance / bearing / around for a pattern',
+    onclick: () => { box.hidden = !box.hidden; } },
+    list.length ? `${list.length} ${masks ? 'mask' : 'sidechain'}${list.length > 1 ? 's' : ''}` : (masks ? 'mask' : 'sidechain'));
+  return [toggle, box];
 }
 
 function paramRow(params, name, spec) {
@@ -803,7 +784,7 @@ function paramRow(params, name, spec) {
   return row(name, el('span', { class: 'doc' }, 'unknown param type ' + spec.type));
 }
 
-function chainRow(p, c, k, rerender) {
+function chainRow(list, c, k, rerender) {
   const id = uid('m');
   chainRefs[id] = c;
   const sources = [
@@ -812,7 +793,10 @@ function chainRow(p, c, k, rerender) {
       { value: b.id + '.pitch', label: (b.name || b.id) + ' · pitch' },
       { value: b.id + '.chroma', label: (b.name || b.id) + ' · chroma' },
     ]),
-    ...cat.sources.map((s) => ({ value: s, label: s }))];
+    ...cat.sources.map((s) => ({ value: s, label: s })),
+    ...(scene()?.hotspots || []).map((h) => ({ value: 'hotspot:' + h.id, label: 'hotspot · ' + (h.name || h.id) })),
+    ...UNLOCKS.map((u) => ({ value: 'unlock:' + u, label: 'unlock · ' + u })),
+  ];
   const num = (key, step) => el('input', { type: 'number', value: c[key], step, onchange: (e) => { snapshotForUndo(); c[key] = +e.target.value; commit({ silent: true }); } });
   return el('div', { class: 'chain' + (c.on ? '' : ' off') },
     el('label', {}, el('input', { type: 'checkbox', ...(c.on ? { checked: '' } : {}), title: 'on', onchange: (e) => { snapshotForUndo(); c.on = e.target.checked; commit({ silent: true }); rerender(); } })),
@@ -824,7 +808,7 @@ function chainRow(p, c, k, rerender) {
     el('span', { class: 'lbl', title: 'the source arrives later the farther the cell is from the centre: this × its distance (0..1), in cycles — beat, bar, pulse, span, transition' }, 'delay'), num('delay', 0.1),
     el('span', { class: 'lbl' }, 'curve'), num('curve', 0.1),
     el('label', {}, el('input', { type: 'checkbox', ...(c.invert ? { checked: '' } : {}), onchange: (e) => { snapshotForUndo(); c.invert = e.target.checked; commit({ silent: true }); } }), 'invert'),
-    el('button', { class: 'link danger', onclick: () => { snapshotForUndo(); p.chains.splice(k, 1); commit({ silent: true }); rerender(); } }, '×'));
+    el('button', { class: 'link danger', onclick: () => { snapshotForUndo(); list.splice(k, 1); commit({ silent: true }); rerender(); } }, '×'));
 }
 
 function hotspotInspector(h) {

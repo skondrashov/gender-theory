@@ -202,8 +202,7 @@
          "base": 0,
          "chains": []
         }
-       },
-       "needs": []
+       }
       },
       {
        "id": "lmwlv4cz6pu1",
@@ -234,8 +233,7 @@
          "chains": []
         }
        },
-       "stage": "met ends",
-       "needs": []
+       "stage": "met ends"
       },
       {
        "id": "lmwlybct9oor",
@@ -248,28 +246,22 @@
         "brightness": {
          "op": "set",
          "base": 0.9,
-         "chains": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "angle": {
-         "op": "set",
-         "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "unlock:glow",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
        },
-       "stage": "met ends",
-       "needs": [
-        "glow"
-       ]
+       "stage": "met ends"
       },
       {
        "id": "lmwmc9gmm6ej",
@@ -300,8 +292,7 @@
          "chains": []
         }
        },
-       "stage": "met ends",
-       "needs": []
+       "stage": "met ends"
       },
       {
        "id": "lmwmces6t9qs",
@@ -332,8 +323,7 @@
          "chains": []
         }
        },
-       "stage": "met ends",
-       "needs": []
+       "stage": "met ends"
       },
       {
        "id": "lmwmcets0juy",
@@ -364,8 +354,7 @@
          "chains": []
         }
        },
-       "stage": "met ends",
-       "needs": []
+       "stage": "met ends"
       },
       {
        "id": "l2",
@@ -376,27 +365,20 @@
         "brightness": {
          "op": "set",
          "base": 0.9,
-         "chains": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "angle": {
-         "op": "set",
-         "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "unlock:glow",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "fade": {
-        "unlock": "glow",
-        "to": 1
        },
        "stage": "square"
       },
@@ -416,27 +398,20 @@
         "brightness": {
          "op": "set",
          "base": 0,
-         "chains": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "angle": {
-         "op": "set",
-         "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:square",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "square",
-        "visible": true
        },
        "stage": "square"
       },
@@ -457,27 +432,20 @@
         "brightness": {
          "op": "set",
          "base": 0.9,
-         "chains": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "angle": {
-         "op": "set",
-         "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:square",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "square",
-        "visible": true
        },
        "stage": "square"
       },
@@ -507,27 +475,20 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:square-2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "angle": {
-         "op": "set",
-         "base": 0,
-         "chains": []
         }
-       },
-       "when": {
-        "hotspot": "square-2",
-        "visible": true
        },
        "stage": "square"
       },
@@ -579,12 +540,20 @@
         "brightness": {
          "op": "set",
          "base": 0.7,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "unlock:lines",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "fade": {
-        "unlock": "lines",
-        "to": 0
        },
        "stage": "stripes"
       },
@@ -614,12 +583,20 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:patch",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         }
-       },
-       "when": {
-        "hotspot": "patch",
-        "visible": true
        },
        "stage": "stripes"
       },
@@ -649,12 +626,20 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:gap",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         }
-       },
-       "when": {
-        "hotspot": "gap",
-        "visible": true
        },
        "stage": "stripes"
       },
@@ -1164,7 +1149,6 @@
          "chains": []
         }
        },
-       "needs": [],
        "stage": "cross"
       },
       {
@@ -1213,7 +1197,6 @@
          "chains": []
         }
        },
-       "needs": [],
        "stage": "cross"
       },
       {
@@ -1262,8 +1245,7 @@
          "chains": []
         }
        },
-       "stage": "cross",
-       "needs": []
+       "stage": "cross"
       },
       {
        "id": "l10-cross",
@@ -1577,12 +1559,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sine/5",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -1596,6 +1585,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sine/5",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -1613,17 +1614,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sine/5",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-sine/5",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-sine/5",
-        "visible": true
        }
       }
      ],
@@ -1828,12 +1849,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/0",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -1847,6 +1875,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/0",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -1864,17 +1904,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/0",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/0",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-sasha-grips/0",
-        "visible": true
        }
       }
      ],
@@ -2042,12 +2102,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/1",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -2061,6 +2128,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/1",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -2078,17 +2157,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/1",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/1",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-sasha-grips/1",
-        "visible": true
        }
       }
      ],
@@ -2204,12 +2303,36 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "lines": {
          "op": "set",
          "base": 1,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         },
         "length": {
          "op": "set",
@@ -2223,6 +2346,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -2240,12 +2375,20 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         }
-       },
-       "when": {
-        "hotspot": "door-sasha-grips/2",
-        "visible": true
        }
       }
      ],
@@ -2413,12 +2556,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/3",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -2432,6 +2582,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/3",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -2449,17 +2611,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/3",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/3",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-sasha-grips/3",
-        "visible": true
        }
       }
      ],
@@ -2627,12 +2809,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/4",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -2646,6 +2835,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/4",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -2663,17 +2864,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/4",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-sasha-grips/4",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-sasha-grips/4",
-        "visible": true
        }
       }
      ],
@@ -2848,12 +3069,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/0",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -2867,6 +3095,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/0",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -2884,17 +3124,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/0",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/0",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-pisser/0",
-        "visible": true
        }
       }
      ],
@@ -3062,12 +3322,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/1",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -3081,6 +3348,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/1",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -3098,17 +3377,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/1",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/1",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-pisser/1",
-        "visible": true
        }
       }
      ],
@@ -3276,12 +3575,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -3295,6 +3601,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -3312,17 +3630,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-pisser/2",
-        "visible": true
        }
       }
      ],
@@ -3490,12 +3828,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/3",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -3509,6 +3854,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/3",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -3526,17 +3883,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/3",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/3",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-pisser/3",
-        "visible": true
        }
       }
      ],
@@ -3704,12 +4081,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/4",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -3723,6 +4107,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/4",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -3740,17 +4136,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/4",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/4",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-pisser/4",
-        "visible": true
        }
       }
      ],
@@ -3918,12 +4334,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/5",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -3937,6 +4360,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/5",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -3954,17 +4389,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/5",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/5",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-pisser/5",
-        "visible": true
        }
       }
      ],
@@ -4132,12 +4587,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/6",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -4151,6 +4613,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/6",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -4168,17 +4642,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/6",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-pisser/6",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-pisser/6",
-        "visible": true
        }
       }
      ],
@@ -4353,12 +4847,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/0",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -4372,6 +4873,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/0",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -4389,17 +4902,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/0",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/0",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-for-against/0",
-        "visible": true
        }
       }
      ],
@@ -4567,12 +5100,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/1",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -4586,6 +5126,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/1",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -4603,17 +5155,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/1",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/1",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-for-against/1",
-        "visible": true
        }
       }
      ],
@@ -4781,12 +5353,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -4800,6 +5379,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -4817,17 +5408,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-for-against/2",
-        "visible": true
        }
       }
      ],
@@ -4995,12 +5606,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/3",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -5014,6 +5632,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/3",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -5031,17 +5661,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/3",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/3",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-for-against/3",
-        "visible": true
        }
       }
      ],
@@ -5209,12 +5859,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/4",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -5228,6 +5885,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/4",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -5245,17 +5914,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/4",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/4",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-for-against/4",
-        "visible": true
        }
       }
      ],
@@ -5423,12 +6112,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/5",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -5442,6 +6138,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/5",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -5459,17 +6167,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/5",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/5",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-for-against/5",
-        "visible": true
        }
       }
      ],
@@ -5637,12 +6365,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/6",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -5656,6 +6391,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/6",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -5673,17 +6420,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/6",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/6",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-for-against/6",
-        "visible": true
        }
       }
      ],
@@ -5851,12 +6618,19 @@
            "invert": false,
            "on": true
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/7",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
         },
         "length": {
          "op": "set",
@@ -5870,6 +6644,18 @@
            "curve": 1,
            "invert": false,
            "on": true
+          }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/7",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
           }
          ]
         },
@@ -5887,17 +6673,37 @@
            "on": true,
            "delay": 0
           }
+         ],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/7",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
          ]
         },
         "color": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": [
+          {
+           "source": "hotspot:door-for-against/7",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
-       },
-       "when": {
-        "hotspot": "door-for-against/7",
-        "visible": true
        }
       }
      ],

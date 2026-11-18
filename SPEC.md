@@ -22,8 +22,10 @@ is twelve **rows**, one per unlock — brightness; lines, length, angle, bend; r
 fill, morph, flatness, rotation; color. A layer is a region plus the rows it changes, each
 *set*, *added to* or *multiplied* over what the layers before it left; a cell under no layer
 is a dark dot (dots always exist; brightness can be 0). Any row can be masked by distance,
-bearing or the way round the layer's rectangle (fixed patterns, always on) and moved by the
-music (comes in with its unlock). A new layer is one row: brightness 1.
+bearing or the way round the layer's rectangle (fixed patterns, always on), by a hotspot
+showing (a hint) or an unlock being had, and moved by the music (comes in with its
+unlock). A new layer is one row: brightness 1. Nothing else decides whether a layer shows
+(owner: "that will always be controlled by brightness") — only its stage and bars scope it.
 
 - global: **glow** (the owner's "opacity": brightness gets to follow the music; nothing
   breathes unless a layer says so),

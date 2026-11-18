@@ -19,8 +19,10 @@
 //! lines, length, angle, bend; rings, radius, fill, morph, flatness, rotation; color. A
 //! cells layer carries the rows it wants to change and, for each, how: set it, add to it
 //! or multiply it, over what the layers before it left. Nothing: a dark dot. A row's
-//! sidechains on distance, bearing and around are masks; on the music, motion — which
-//! comes in with the row's unlock.
+//! sidechains add to it; its masks say how much of its change lands — on distance, bearing
+//! and around a pattern, on `hotspot:<id>` / `unlock:<name>` a state of the game (a hint
+//! shows while its hotspot does), on the music, motion — which comes in with the row's
+//! unlock.
 //!
 //! `catalogue()` tells the editor what rows, kinds and params exist; the structs here are
 //! what they mean. Keep the two together.
@@ -202,12 +204,6 @@ pub struct Layer {
 	pub region: Region,
 	pub kind: String,
 	pub params: Value,
-	/// Only while a hotspot of the track is (in)visible: hints.
-	pub when: Option<When>,
-	/// Brightness follows an unlock coming in: `to` 0 fades out as it does, 1 fades in.
-	pub fade: Option<Fade>,
-	/// Brightness is the product of these unlocks' reveals (0 without them).
-	pub needs: Vec<String>,
 	/// Only in this stage of the scene (by name).
 	pub stage: Option<String>,
 	pub muted: bool,
@@ -222,36 +218,10 @@ impl Default for Layer {
 			region: Region::default(),
 			kind: "marks".into(),
 			params: Value::Null,
-			when: None,
-			fade: None,
-			needs: vec![],
 			stage: None,
 			muted: false,
 		}
 	}
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(default)]
-pub struct When {
-	pub hotspot: String,
-	pub visible: bool,
-}
-
-impl Default for When {
-	fn default() -> Self {
-		When {
-			hotspot: String::new(),
-			visible: true,
-		}
-	}
-}
-
-#[derive(Deserialize, Clone, Default)]
-#[serde(default)]
-pub struct Fade {
-	pub unlock: String,
-	pub to: f32,
 }
 
 #[derive(Deserialize)]
@@ -400,8 +370,7 @@ impl Param {
 				.iter()
 				.filter(|chain| chain.on)
 				.map(|chain| {
-					let fixed = matches!(chain.source.as_str(), "noise" | "distance" | "bearing" | "around");
-					let gate = if fixed { 1.0 } else { gate };
+					let gate = if Signals::fixed(&chain.source) { 1.0 } else { gate };
 					gate * chain.depth * chain.shape(signals.get_delayed(&chain.source, chain.delay * signals.distance))
 				})
 				.sum::<f32>()
@@ -429,6 +398,10 @@ pub struct Signals<'a> {
 	/// The way round the layer's rectangle at the cell: 0 on its top edge, 0.75 the right,
 	/// 0.5 the bottom, 0.25 the left (and inside) — × 360° on angle sends lines clockwise.
 	pub around: f32,
+	/// For `hotspot:<id>` (1 while that hotspot of the scene is showing: unlocked, not
+	/// spent) and `unlock:<name>` (its reveal, 0..1).
+	pub model: &'a Model,
+	pub tags: &'a [(String, u8)],
 	/// The bar's phase and the beat's, 0..1, for delaying.
 	pub whole: f32,
 	pub quarter: f32,
@@ -449,9 +422,24 @@ impl Signals<'_> {
 			"bass" => self.bass,
 			"mid" => self.mid,
 			"treble" => self.treble,
-			// a band's level, or `id.pitch` / `id.chroma`
-			band => self.bands.get(band).copied().unwrap_or(0.0),
+			source => {
+				if let Some(id) = source.strip_prefix("hotspot:") {
+					let tag = self.tags.iter().find(|(hotspot, _)| hotspot == id).map(|(_, tag)| *tag);
+					if tag.map_or(false, |tag| self.model.hint_visible(tag)) { 1.0 } else { 0.0 }
+				} else if let Some(name) = source.strip_prefix("unlock:") {
+					unlock_named(name).map_or(0.0, |unlock| self.model.reveal(unlock))
+				} else {
+					// a band's level, or `id.pitch` / `id.chroma`
+					self.bands.get(source).copied().unwrap_or(0.0)
+				}
+			}
 		}
+	}
+
+	/// Is this source a fixed pattern or a state of the game rather than motion — so it
+	/// acts whatever is unlocked?
+	pub fn fixed(source: &str) -> bool {
+		matches!(source, "noise" | "distance" | "bearing" | "around") || source.starts_with("hotspot:") || source.starts_with("unlock:")
 	}
 
 	/// The source as it was `shift` cycles ago, for the sources that are a phase (the beat
@@ -493,13 +481,15 @@ pub const CATALOGUE: &str = r##"{
     "treble": "11-22 kHz",
     "distance": "how far the cell is from the centre dot: 0 there, 1 at a corner (a pattern; shape it with threshold and width)",
     "bearing": "which way the cell is from the centre dot: 0 straight up, round clockwise to 1 (a pattern)",
-    "around": "the way round the layer's rectangle at the cell: 0 on its top edge, 0.75 the right, 0.5 the bottom, 0.25 the left and inside — × 360 on angle sends lines clockwise round it (a pattern)"
+    "around": "the way round the layer's rectangle at the cell: 0 on its top edge, 0.75 the right, 0.5 the bottom, 0.25 the left and inside — × 360 on angle sends lines clockwise round it (a pattern)",
+    "hotspot": "1 while that hotspot of the scene is showing (the player has what it needs and hasn't spent it), else 0 — as a mask, the layer is a hint; invert it for the opposite",
+    "unlock": "how far that unlock has come in, 0..1 — as a mask, the row shows only once it's had; invert it to fade out instead"
   },
   "rows": [],
   "kinds": {
     "cells": {
       "rows": true,
-      "doc": "Every cell in the region: a dot, with a line out of it and a ring round it. Twelve rows, one per unlock; this layer sets, adds to or multiplies the rows it has, over what the layers before it left (nothing: a dark dot). A new layer is just brightness 1. Sidechain a row from distance, bearing or around to mask it; from the music to move it, which comes in with its unlock."
+      "doc": "Every cell in the region: a dot, with a line out of it and a ring round it. Twelve rows, one per unlock; this layer sets, adds to or multiplies the rows it has, over what the layers before it left (nothing: a dark dot). A new layer is just brightness 1. Mask a row by distance, bearing or around (where it lands), by a hotspot (a hint) or an unlock (once it's had); sidechain it from the music to move it, which comes in with its unlock."
     },
     "snake": {
       "doc": "One line through every cell of the region's rectangle, row by row (or column by column), as a snake. retreat: it pulls back cell by cell from its start, leaving a dot at each. arrive: from the dots, each dot in turn extends (and turns) a line to the next until the line is whole. Where it is comes from `progress`: the layer's own bars by default, so put a retreat and an arrive on consecutive bars. Not a cells layer: rows don't reach it.",
@@ -574,18 +564,23 @@ pub enum Op {
 	Multiply,
 }
 
-/// One row of a cells layer: `op` the cell's value with `param` (a base plus sidechains).
-/// The angle rows (angle, rotation) can also `spin`, in degrees per time unit — every other
-/// cell the other way if `alternate`.
+/// One row of a cells layer: `op` the cell's value with `param` (a base plus sidechains),
+/// by as much as its `masks` let land — each a source shaped like a sidechain, 1 letting
+/// the whole change through, 0 none (× `depth`: how much of the mask applies). Masks on
+/// distance, bearing and around are the owner's masks; on `hotspot:<id>` and
+/// `unlock:<name>` they are how a layer shows only while a hotspot does (a hint) or once
+/// something is unlocked. The angle rows (angle, rotation) can also `spin`, in degrees per
+/// time unit — every other cell the other way if `alternate`.
 #[derive(Clone, Debug)]
 pub struct Row {
 	pub op: Op,
 	pub param: Param,
+	pub masks: Vec<Sidechain>,
 	pub spin: f32,
 	pub alternate: bool,
 }
 
-/// A row in the file is a bare number (set to it) or `{op, base, chains, spin, alternate}`.
+/// A row in the file is a bare number (set to it) or `{op, base, chains, masks, spin, alternate}`.
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum RowJson {
@@ -597,6 +592,8 @@ enum RowJson {
 		base: f32,
 		#[serde(default)]
 		chains: Vec<Sidechain>,
+		#[serde(default)]
+		masks: Vec<Sidechain>,
 		#[serde(default)]
 		spin: f32,
 		#[serde(default)]
@@ -610,6 +607,7 @@ impl<'de> Deserialize<'de> for Row {
 			RowJson::Number(base) => Row {
 				op: Op::Set,
 				param: Param::new(base),
+				masks: vec![],
 				spin: 0.0,
 				alternate: false,
 			},
@@ -617,15 +615,34 @@ impl<'de> Deserialize<'de> for Row {
 				op,
 				base,
 				chains,
+				masks,
 				spin,
 				alternate,
 			} => Row {
 				op,
 				param: Param { base, chains },
+				masks,
 				spin,
 				alternate,
 			},
 		})
+	}
+}
+
+impl Row {
+	/// How much of this row's change lands: the product of its masks, each `1 − depth × (1 −
+	/// shape)`, a moving one scaled by `gate` like a sidechain.
+	pub fn amount(&self, signals: &Signals, gate: f32) -> f32 {
+		self.masks
+			.iter()
+			.filter(|mask| mask.on)
+			.map(|mask| {
+				let gate = if Signals::fixed(&mask.source) { 1.0 } else { gate };
+				let shaped = mask.shape(signals.get_delayed(&mask.source, mask.delay * signals.distance));
+				1.0 - gate * mask.depth * (1.0 - shaped)
+			})
+			.product::<f32>()
+			.clamp(0.0, 1.0)
 	}
 }
 
@@ -1092,37 +1109,6 @@ pub fn install(json: &str) -> Result<usize, String> {
 	Ok(count)
 }
 
-/// Is this layer showing, and how bright: its `when`, `fade` and `needs`.
-fn gate(scene: &DataScene, model: &Model, layer: &Layer) -> Option<f32> {
-	if layer.muted {
-		return None;
-	}
-	if let Some(when) = &layer.when {
-		let tag = scene
-			.tags
-			.iter()
-			.find(|(id, _)| *id == when.hotspot)
-			.map(|(_, tag)| *tag);
-		let visible = tag.map_or(false, |tag| model.hint_visible(tag));
-		if visible != when.visible {
-			return None;
-		}
-	}
-	let mut factor = 1.0;
-	if let Some(fade) = &layer.fade {
-		if let Some(unlock) = unlock_named(&fade.unlock) {
-			let reveal = model.reveal(unlock);
-			factor *= if fade.to >= 0.5 { reveal } else { 1.0 - reveal };
-		}
-	}
-	for name in &layer.needs {
-		if let Some(unlock) = unlock_named(name) {
-			factor *= model.reveal(unlock);
-		}
-	}
-	(factor > 0.0).then_some(factor)
-}
-
 fn render(
 	scene: &'static DataScene,
 	draw: &Draw,
@@ -1157,6 +1143,8 @@ fn render(
 		distance: (di.hypot(dj) / corner).min(1.0),
 		bearing: if di == 0.0 && dj == 0.0 { 0.0 } else { di.atan2(dj).rem_euclid(TAU) / TAU },
 		around: 0.0,
+		model,
+		tags: &scene.tags,
 		whole,
 		quarter,
 	};
@@ -1194,7 +1182,7 @@ fn render(
 				cols: walk.cols.max(1),
 				rows: walk.rows.max(1),
 			};
-			if gate(scene, model, &rt.layer).is_some() && grid.is_current(model, sub, i, j) {
+			if !rt.layer.muted && grid.is_current(model, sub, i, j) {
 				let fall = 1.0 - modifiers[sub as usize];
 				hot_brightness += walk.brightness * fall;
 				hot_length += walk.length * fall;
@@ -1203,14 +1191,14 @@ fn render(
 	}
 
 	// The cell's rows start as nothing — a dark dot — and each cells layer over it, in
-	// order, sets, adds to or multiplies the rows it has, by as much as its gate lets it.
-	// The other kinds draw as they go.
+	// order, sets, adds to or multiplies the rows it has, by as much as each row's masks
+	// let land. The other kinds draw as they go.
 	let mut cell: [f32; ROWS.len()] = std::array::from_fn(|k| ROWS[k].start);
 	let mut covered = false;
 	for rt in active() {
-		let Some(factor) = gate(scene, model, &rt.layer) else {
+		if rt.layer.muted {
 			continue;
-		};
+		}
 		let signals = for_layer(rt);
 		match &rt.kind {
 			Kind::Cells(cells) => {
@@ -1232,7 +1220,7 @@ fn render(
 						Op::Add => cell[k] + value,
 						Op::Multiply => cell[k] * value,
 					};
-					cell[k] += (applied - cell[k]) * factor;
+					cell[k] += (applied - cell[k]) * row.amount(&signals, motion);
 				}
 			}
 			Kind::Snake(snake) => {
@@ -1274,7 +1262,7 @@ fn render(
 				let run_len = last + 1 - head * run;
 				let front = snake.progress.value(&signals).clamp(0.0, 1.0) * run_len as f32;
 				let color = snake.color.value(&signals);
-				let dots = (snake.dots.value_gated(&signals, glow) + hot_brightness) * factor;
+				let dots = snake.dots.value_gated(&signals, glow) + hot_brightness;
 				dot(draw, model, x, y, paint(model, dots, color));
 				if k < last {
 					let (ni, nj) = cell_at(k + 1);
@@ -1287,7 +1275,7 @@ fn render(
 						// from this dot towards the next, anchored there
 						let (sx, sy, dx, dy) = if arrive { (x, y, qx - x, qy - y) } else { (qx, qy, x - qx, y - qy) };
 						let angle = dy.atan2(dx) + snake.spin.to_radians() * (1.0 - fill);
-						let brightness = (snake.brightness.value_gated(&signals, glow) + hot_brightness) * factor;
+						let brightness = snake.brightness.value_gated(&signals, glow) + hot_brightness;
 						stroke(draw, model, sx, sy, angle, fill * unit, paint(model, brightness, color));
 					}
 				}
@@ -1305,10 +1293,10 @@ fn render(
 				);
 				let pull = orbits.pull.value(&signals).clamp(0.0, 1.0);
 				let (ex, ey) = (x1 + (x2 - x1) * pull, y1 + (y2 - y1) * pull);
-				let brightness = (orbits.brightness.value_gated(&signals, glow) + hot_brightness) * factor;
+				let brightness = orbits.brightness.value_gated(&signals, glow) + hot_brightness;
 				let color = orbits.color.value(&signals);
-				dot(draw, model, x, y, paint(model, 0.9 * factor, 0.0));
-				dot(draw, model, x1, y1, paint(model, 0.5 * factor, 0.0));
+				dot(draw, model, x, y, paint(model, 0.9, 0.0));
+				dot(draw, model, x1, y1, paint(model, 0.5, 0.0));
 				mark(
 					draw,
 					model,

@@ -200,6 +200,15 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   scene sets that row. Editor: "showing when" first, rows with an op/base/spin/unlock tag,
   "+ row" picker, grid "clear" button. Dropped: `ignore_glow`, rings `count`/`gap` (halos),
   `gated` scenery rings.
+- **No "showing when"** (owner, 2026-11-18: "that will always be controlled by brightness"):
+  a layer's `when` / `fade` / `needs` are gone. A row has `masks` (sidechain-shaped; the
+  product of `1 − depth × (1 − shape)` scales how much of the row's change lands —
+  `Row::amount`) and two state sources: `hotspot:<id>` (1 while that hotspot of the scene
+  shows) and `unlock:<name>` (its reveal). Both are "fixed" like noise/distance (act before
+  glow). A hint = a brightness row masked by its hotspot. Migrated: each gate → a mask on
+  every row of the layer; hint layers lost rows equal to the field's. The owner's worry
+  ("we can't easily contingent the display of the row on what unlocks it uses") is answered
+  by the unlock mask. Layer scope is now only `stage`, `bars`, `muted`.
 - **Gray vs glow** (owner, 2026-11-18: "the controls for setting glow are kinda weird cause
   i don't get the difference between glow and gray in that context"): a draw layer no longer
   has an "own glow" param. One brightness, `gray`; its sidechains (except `noise`) are scaled
