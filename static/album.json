@@ -4,7 +4,7 @@
    "id": "b-kick",
    "name": "kick",
    "lo": 30,
-   "hi": 120,
+   "hi": 46,
    "attack": 0.005,
    "release": 0.12,
    "gain": 1,
@@ -217,15 +217,15 @@
        "params": {
         "brightness": {
          "op": "set",
-         "base": 1,
+         "base": 0.550000008195639,
          "chains": [],
          "masks": [
           {
            "source": "pulse",
            "depth": 1,
            "threshold": 0,
-           "width": 1,
-           "curve": 1,
+           "width": 0.75,
+           "curve": -0.1,
            "invert": false,
            "on": true,
            "delay": 0
