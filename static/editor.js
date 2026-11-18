@@ -687,17 +687,9 @@ function layerInspector(l) {
     el('fieldset', {}, el('legend', {}, 'params'), ...Object.entries(spec.params).map(([name, p]) => paramRow(l.params, name, p))),
   ];
   if (!spec.modifier) {
-    // Its marks can glow on their own level instead of the glow layers' over the cell.
-    if (typeof l.glow === 'string') delete l.glow; // the old modes
-    const own = el('label', {}, el('input', { type: 'checkbox', ...(l.glow ? { checked: '' } : {}), onchange: (e) => {
-      snapshotForUndo();
-      if (e.target.checked) l.glow = { base: 1, chains: [] }; else delete l.glow;
-      commit({ silent: true, inspector: true });
-    } }), 'own glow');
-    out.push(l.glow
-      ? paramRow(l, 'glow', { type: 'param', default: 1, step: 0.05, doc: 'its marks\' brightness once glow is unlocked, 0..1, whatever glow layers cover the cell' })
-      : row('glow', el('span', {}, 'as the glow layers over the cell'), own));
-    if (l.glow) out[out.length - 1].firstChild.append(own);
+    delete l.glow; // the old per-layer glow; brightness is gray now
+    out.push(row('glow', checkInput(l, 'ignore_glow', 'ignore the glow layers over it'),
+      el('span', { class: 'doc' }, 'brightness is gray; its sidechains act once glow is unlocked; glow layers dim what\'s under them')));
   }
   // gates
   const gates = el('fieldset', {}, el('legend', {}, 'showing when'));

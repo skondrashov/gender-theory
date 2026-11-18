@@ -163,6 +163,13 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   hotspots have a `region` like layers (`Hotspot.inside` narrows the bounding `cells`;
   outline/hints use the rectangle round it; old `rect` still reads). The drag-paint bug was
   an operator-precedence inversion in the grid's mousemove.
+- **Gray vs glow** (owner, 2026-11-18: "the controls for setting glow are kinda weird cause
+  i don't get the difference between glow and gray in that context"): a draw layer no longer
+  has an "own glow" param. One brightness, `gray`; its sidechains (except `noise`) are scaled
+  by the glow unlock's reveal, so a layer breathes by sidechaining gray and only once glow is
+  had. Glow layers stay (a region-wide dimmer, gated); a draw layer can `ignore_glow`.
+  Migrated act-1's own glows: the 'off' ones → `ignore_glow`; the inverse ones → gray chain
+  pulse × −gray; `met`'s `1 + span` glow was clamped to nothing and was dropped.
 - **Autosave** (owner, 2026-11-15: "can we implement like an autosave in the interface"):
   1.5 s after the last edit, toggle `#autosave` (localStorage `gt-autosave`). The stale-tab
   hazard (a tab that predates a migration saving over it) is now caught: PUT carries

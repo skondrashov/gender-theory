@@ -54,7 +54,7 @@
  "presets": [
   {
    "id": "p-snake-retreat",
-   "name": "snake · retreat",
+   "name": "snake \u00b7 retreat",
    "layer": {
     "name": "snake retreat",
     "region": {
@@ -104,7 +104,7 @@
   },
   {
    "id": "p-snake-arrive",
-   "name": "snake · arrive",
+   "name": "snake \u00b7 arrive",
    "layer": {
     "name": "snake arrive",
     "region": {
@@ -315,20 +315,7 @@
        "needs": [
         "glow"
        ],
-       "glow": {
-        "base": 1,
-        "chains": [
-         {
-          "source": "span",
-          "depth": 1,
-          "threshold": 0,
-          "width": 1,
-          "curve": 1,
-          "invert": false,
-          "on": true
-         }
-        ]
-       }
+       "ignore_glow": true
       },
       {
        "id": "lmwlv4cz6pu1",
@@ -422,11 +409,8 @@
         "hotspot": "square",
         "visible": true
        },
-       "glow": {
-        "base": 1,
-        "chains": []
-       },
-       "stage": "square"
+       "stage": "square",
+       "ignore_glow": true
       },
       {
        "id": "l4",
@@ -460,11 +444,8 @@
         "hotspot": "square",
         "visible": true
        },
-       "glow": {
-        "base": 1,
-        "chains": []
-       },
-       "stage": "square"
+       "stage": "square",
+       "ignore_glow": true
       },
       {
        "id": "l5",
@@ -486,7 +467,17 @@
         },
         "gray": {
          "base": 1,
-         "chains": []
+         "chains": [
+          {
+           "source": "pulse",
+           "depth": -1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
         },
         "color": {
          "base": 0,
@@ -497,21 +488,8 @@
         "hotspot": "square-2",
         "visible": true
        },
-       "glow": {
-        "base": 1,
-        "chains": [
-         {
-          "source": "pulse",
-          "depth": -1,
-          "threshold": 0,
-          "width": 1,
-          "curve": 1,
-          "invert": false,
-          "on": true
-         }
-        ]
-       },
-       "stage": "square"
+       "stage": "square",
+       "ignore_glow": true
       },
       {
        "id": "l6",
@@ -581,7 +559,17 @@
        "params": {
         "gray": {
          "base": 0.9,
-         "chains": []
+         "chains": [
+          {
+           "source": "pulse",
+           "depth": -0.9,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
         },
         "color": {
          "base": 0,
@@ -592,21 +580,8 @@
         "hotspot": "patch",
         "visible": true
        },
-       "glow": {
-        "base": 1,
-        "chains": [
-         {
-          "source": "pulse",
-          "depth": -1,
-          "threshold": 0,
-          "width": 1,
-          "curve": 1,
-          "invert": false,
-          "on": true
-         }
-        ]
-       },
-       "stage": "stripes"
+       "stage": "stripes",
+       "ignore_glow": true
       },
       {
        "id": "l9",

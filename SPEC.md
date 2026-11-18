@@ -16,8 +16,9 @@ point: a player needn't notice they got one — it reads as the game progressing
 look is free from the start (a line points wherever its layer says, dots appear or not
 without glow); an unlock lets a parameter leave its default or move.
 
-- global: **glow** (the owner's "opacity": brightness follows the music where a glow layer
-  says, sidechained to the pulse or a band; nothing breathes unless a layer says so),
+- global: **glow** (the owner's "opacity": brightness gets to follow the music — a draw
+  layer's gray sidechains act, and glow layers dim what's under them; nothing breathes
+  unless a layer says so),
   **color** (one color, a range from white to it; more colors = more unlocks), and later
   **root position motion** (the mark's origin leaves the lattice — "probably actually way
   later"; not built)

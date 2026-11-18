@@ -200,9 +200,8 @@ pub struct Layer {
 	pub fade: Option<Fade>,
 	/// Brightness is the product of these unlocks' reveals (0 without them).
 	pub needs: Vec<String>,
-	/// This layer's marks glow on their own level (0..1, once glow is unlocked), whatever
-	/// the glow layers covering the cell say.
-	pub glow: Option<Param>,
+	/// Draw it at its own gray, whatever glow layers cover the cell.
+	pub ignore_glow: bool,
 	/// Only in this stage of the scene (by name).
 	pub stage: Option<String>,
 	pub muted: bool,
@@ -220,7 +219,7 @@ impl Default for Layer {
 			when: None,
 			fade: None,
 			needs: vec![],
-			glow: None,
+			ignore_glow: false,
 			stage: None,
 			muted: false,
 		}
@@ -379,12 +378,21 @@ impl Param {
 	}
 
 	pub fn value(&self, signals: &Signals) -> f32 {
+		self.value_gated(signals, 1.0)
+	}
+
+	/// `value`, with every sidechain but one on `noise` (which is a fixed pattern, not motion)
+	/// scaled by `gate`: how a brightness is read, so it moves only as glow is unlocked.
+	pub fn value_gated(&self, signals: &Signals, gate: f32) -> f32 {
 		self.base
 			+ self
 				.chains
 				.iter()
 				.filter(|chain| chain.on)
-				.map(|chain| chain.depth * chain.shape(signals.get(&chain.source)))
+				.map(|chain| {
+					let gate = if chain.source == "noise" { 1.0 } else { gate };
+					gate * chain.depth * chain.shape(signals.get(&chain.source))
+				})
 				.sum::<f32>()
 	}
 }
@@ -450,7 +458,7 @@ pub const CATALOGUE: &str = r##"{
         "alternate": {"type": "bool", "default": false, "doc": "every other cell spins the other way"},
         "length": {"type": "param", "default": 1, "step": 0.1, "doc": "in cells (needs length to be other than 1)"},
         "bend": {"type": "param", "default": 0, "step": 0.1, "doc": "0 straight .. 1 a half circle, turning left; negative turns right (needs bend)"},
-        "gray": {"type": "param", "default": 0.7, "step": 0.05, "doc": "brightness, times the glow over the cell"},
+        "gray": {"type": "param", "default": 0.7, "step": 0.05, "doc": "brightness; its sidechains act once glow is unlocked"},
         "color": {"type": "param", "default": 0, "step": 0.1, "doc": "0 grey .. 1 the color (needs color)"}
       }
     },
@@ -464,8 +472,8 @@ pub const CATALOGUE: &str = r##"{
         "heads": {"type": "number", "default": 1, "step": 1, "doc": "how many snakes at once (the order cut into equal runs)"},
         "spin": {"type": "number", "default": 0, "step": 15, "doc": "degrees the moving end turns about its dot as it grows or shrinks"},
         "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "0 untouched .. 1 done, for the mode"},
-        "gray": {"type": "param", "default": 0.9, "step": 0.05, "doc": "the line"},
-        "dots": {"type": "param", "default": 0.45, "step": 0.05, "doc": "the dots it leaves / starts from"},
+        "gray": {"type": "param", "default": 0.9, "step": 0.05, "doc": "the line's brightness; sidechains act once glow is unlocked"},
+        "dots": {"type": "param", "default": 0.45, "step": 0.05, "doc": "the dots it leaves / starts from, likewise"},
         "color": {"type": "param", "default": 0, "step": 0.1}
       }
     },
@@ -506,9 +514,9 @@ pub const CATALOGUE: &str = r##"{
     },
     "glow": {
       "modifier": true,
-      "doc": "The brightness of the marks in this region, once glow is unlocked. Does nothing until then; cells under no glow layer stay lit. Sidechain it to breathe: base 0.35 + 0.65 of the pulse is the old field, base 1 − 1 of it the old inverse.",
+      "doc": "Dims every draw layer under it in this region by `level`, once glow is unlocked — nothing until then; cells under no glow layer are drawn at their own gray. Sidechain it to breathe over many layers at once: base 0.35 + 0.65 of the pulse is a field, base 1 − 1 of it the inverse. (A single layer breathes by sidechaining its own gray.)",
       "params": {
-        "level": {"type": "param", "default": 1, "step": 0.05, "doc": "0 dark .. 1 lit; later glow layers over the same cell win"}
+        "level": {"type": "param", "default": 1, "step": 0.05, "doc": "× the gray of what's under it, 0 dark .. 1 as drawn; later glow layers over the same cell win"}
       }
     },
     "walk": {
@@ -1030,8 +1038,10 @@ fn render(
 			continue;
 		};
 		let signals = with_span(rt);
-		let own = rt.layer.glow.as_ref().map_or(level, |glow| glow.value(&signals));
-		let lit = lit(model, own) * factor;
+		// Brightness: the layer's own gray, whose sidechains act as glow comes in, dimmed by
+		// the glow layers over the cell unless it ignores them.
+		let glow = model.reveal(Unlock::Glow);
+		let lit = if rt.layer.ignore_glow { 1.0 } else { lit(model, level) } * factor;
 		match &rt.kind {
 			Kind::Marks(marks) => {
 				let angle = match &marks.angle {
@@ -1053,7 +1063,7 @@ fn render(
 				let dir = if marks.alternate && (i + j) % 2 == 1 { -1.0 } else { 1.0 };
 				let turn = marks.spin.value(&signals) * time * dir;
 				let length = (marks.length.value(&signals) + hot_length) * unit;
-				let gray = (marks.gray.value(&signals) + hot_gray) * lit;
+				let gray = (marks.gray.value_gated(&signals, glow) + hot_gray) * lit;
 				mark_bent(
 					draw,
 					model,
@@ -1106,7 +1116,7 @@ fn render(
 				let run_len = last + 1 - head * run;
 				let front = snake.progress.value(&signals).clamp(0.0, 1.0) * run_len as f32;
 				let color = snake.color.value(&signals);
-				let dots = (snake.dots.value(&signals) + hot_gray) * lit;
+				let dots = (snake.dots.value_gated(&signals, glow) + hot_gray) * lit;
 				dot(draw, model, x, y, paint(model, dots, color));
 				if k < last {
 					let (ni, nj) = cell(k + 1);
@@ -1119,13 +1129,13 @@ fn render(
 						// from this dot towards the next, anchored there
 						let (sx, sy, dx, dy) = if arrive { (x, y, qx - x, qy - y) } else { (qx, qy, x - qx, y - qy) };
 						let angle = dy.atan2(dx) + snake.spin.to_radians() * (1.0 - fill);
-						let gray = (snake.gray.value(&signals) + hot_gray) * lit;
+						let gray = (snake.gray.value_gated(&signals, glow) + hot_gray) * lit;
 						stroke(draw, model, sx, sy, angle, fill * unit, paint(model, gray, color));
 					}
 				}
 			}
 			Kind::Points(points) => {
-				let gray = (points.gray.value(&signals) + hot_gray) * lit;
+				let gray = (points.gray.value_gated(&signals, glow) + hot_gray) * lit;
 				dot(draw, model, x, y, paint(model, gray, points.color.value(&signals)));
 			}
 			Kind::Rings(rings) => {
@@ -1141,7 +1151,7 @@ fn render(
 				let grown = gate(1.0, 0.0, Unlock::Rings);
 				let radius = (gate(rings.radius.value(&signals), RING, Unlock::Size) + hot_length) * unit * grown;
 				let spin = gate(rings.spin.value(&signals), 0.0, Unlock::Rotation) * time;
-				let gray = (rings.gray.value(&signals) + hot_gray) * lit;
+				let gray = (rings.gray.value_gated(&signals, glow) + hot_gray) * lit;
 				shape(
 					draw,
 					model,
@@ -1171,7 +1181,7 @@ fn render(
 				);
 				let pull = orbits.pull.value(&signals).clamp(0.0, 1.0);
 				let (ex, ey) = (x1 + (x2 - x1) * pull, y1 + (y2 - y1) * pull);
-				let gray = (orbits.gray.value(&signals) + hot_gray) * lit;
+				let gray = (orbits.gray.value_gated(&signals, glow) + hot_gray) * lit;
 				let color = orbits.color.value(&signals);
 				dot(draw, model, x, y, paint(model, 0.9 * lit, 0.0));
 				dot(draw, model, x1, y1, paint(model, 0.5 * lit, 0.0));
