@@ -365,12 +365,14 @@ function renderTopbar() {
 
 function renderLists() {
   const t = track(), s = scene();
-  const item = (type, index, label, bars, extra = '', stage) => el('li', {
+  const item = (type, index, label, bars, extra = '', stage, lead = null) => el('li', {
     class: (sel && sel.type === type && sel.index === index ? 'sel ' : '') + extra,
     'data-index': index,
     onclick: () => select(type, index),
-  }, el('span', {}, label, stage ? el('span', { class: 'stage' }, stage) : null), el('span', { class: 'bars' }, bars ? `${bars[0]}–${bars[1]}` : ''));
-  $('#scene-list').replaceChildren(...t.scenes.map((s, k) => item('scene', k, s.id, s.bars, k === si ? 'here' : '')));
+  }, el('span', {}, lead, label, stage ? el('span', { class: 'stage' }, stage) : null), el('span', { class: 'bars' }, bars ? `${bars[0]}–${bars[1]}` : ''));
+  // a play button per scene: the music (and so the preview) jumps to its first bar; the playing one is lit
+  const go = (s) => el('button', { class: 'go', title: 'play this scene from its first bar', onclick: (e) => { e.stopPropagation(); seek(s.bars[0]); } }, '▶');
+  $('#scene-list').replaceChildren(...t.scenes.map((s, k) => item('scene', k, s.id, s.bars, k === si ? 'here' : '', null, go(s))));
   stageFilter = viewedStage();
   $('#hotspot-title').textContent = s ? `hotspots of ${s.id}` : 'hotspots';
   $('#layer-title').textContent = s ? `layers of ${s.id}` : 'layers';

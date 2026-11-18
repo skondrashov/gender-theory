@@ -95,7 +95,9 @@ main { display: flex; height: 500px; flex: none; border-bottom: 1px solid var(--
 #lists li:hover { background: #26262e; }
 #lists li.sel { background: var(--sel); }
 #lists li.here:not(.sel) { background: #262a33; }
-#lists li.playing > span:first-child::before { content: '▶ '; color: var(--accent); font-size: 9px; }
+#lists li .go { background: none; border: 0; padding: 0 5px 0 0; color: var(--dim); font-size: 9px; cursor: pointer; opacity: .55; }
+#lists li .go:hover { opacity: 1; color: var(--fg, #fff); }
+#lists li.playing .go { color: var(--accent); opacity: 1; }
 #lists li .stage { color: var(--dim); font-size: 10px; margin-left: 4px; }
 .block .loop { position: absolute; top: 0; bottom: 0; right: 0; background: repeating-linear-gradient(135deg, transparent 0 4px, rgba(255,255,255,.12) 4px 6px); pointer-events: none; }
 .stages .stage-row { display: flex; gap: 6px; align-items: center; padding: 2px 0; }
