@@ -483,11 +483,19 @@ function addScene() {
   const t = track();
   const end = Math.max(0, ...t.scenes.map((s) => s.bars[1]));
   snapshotForUndo();
-  t.scenes.push({ id: `${t.id}/${t.scenes.length}`, bars: [end, end + 16], loop: end, stages: [], layers: [], hotspots: [] });
+  // The base layer: every dot at gray 1, nothing sidechained — what everything else transforms.
+  const id = `${t.id}/${t.scenes.length}`;
+  t.scenes.push({ id, bars: [end, end + 16], loop: end, stages: [], layers: [baseLayer()], hotspots: [] });
   si = t.scenes.length - 1;
   sel = { type: 'scene', index: si };
   commit({ silent: true, inspector: true });
+  // Go there now, so the new scene is what's on the stage.
+  clearTimeout(pushTimer);
+  follow = true;
+  send(JSON.stringify({ album, seek: { scene: id, bar: end } }));
 }
+
+const baseLayer = () => ({ id: uid('l'), name: 'field', region: {}, kind: 'marks', params: defaultParams('marks') });
 
 // New layers and hotspots go in the stage the lists are filtered to, if any.
 const inFilteredStage = () => (stageFilter ? { stage: stageFilter } : {});

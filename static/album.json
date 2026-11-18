@@ -54,7 +54,7 @@
  "presets": [
   {
    "id": "p-snake-retreat",
-   "name": "snake · retreat",
+   "name": "snake \u00b7 retreat",
    "layer": {
     "name": "snake retreat",
     "region": {
@@ -104,7 +104,7 @@
   },
   {
    "id": "p-snake-arrive",
-   "name": "snake · arrive",
+   "name": "snake \u00b7 arrive",
    "layer": {
     "name": "snake arrive",
     "region": {
@@ -175,10 +175,41 @@
      ],
      "layers": [
       {
+       "id": "l-base-act-1",
+       "name": "field",
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "along",
+        "offset": 0,
+        "spin": {
+         "base": 0,
+         "chains": []
+        },
+        "alternate": false,
+        "length": {
+         "base": 1,
+         "chains": []
+        },
+        "bend": {
+         "base": 0,
+         "chains": []
+        },
+        "gray": {
+         "base": 1,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        }
+       }
+      },
+      {
        "id": "l1",
        "name": "e in met",
        "region": {
-        "map": "....................\n....................\n....................\n....................\n....................\n##########.######...\n...##.#########.#.##\n..#######....##.##.#\n.########.##..##.#.#\n.....####.....##....\n......#..#######....\n......#....#.##.....\n.......####.........\n....................\n....................\n....................\n....................\n....................\n....................\n...................."
+        "map": "...........\n...........\n...........\n..######..#\n.######.###\n...#.####..\n...#..##...\n...........\n...........\n...........\n..........."
        },
        "kind": "marks",
        "params": {
@@ -1460,6 +1491,49 @@
      ],
      "loop": 72,
      "stages": []
+    },
+    {
+     "id": "sine/2",
+     "bars": [
+      84,
+      100
+     ],
+     "loop": 84,
+     "stages": [],
+     "layers": [
+      {
+       "id": "l-base-2",
+       "name": "field",
+       "region": {},
+       "kind": "marks",
+       "params": {
+        "angle": "along",
+        "offset": 0,
+        "spin": {
+         "base": 0,
+         "chains": []
+        },
+        "alternate": false,
+        "length": {
+         "base": 1,
+         "chains": []
+        },
+        "bend": {
+         "base": 0,
+         "chains": []
+        },
+        "gray": {
+         "base": 1,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        }
+       }
+      }
+     ],
+     "hotspots": []
     }
    ]
   },
