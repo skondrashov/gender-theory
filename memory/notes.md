@@ -163,6 +163,16 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   hotspots have a `region` like layers (`Hotspot.inside` narrows the bounding `cells`;
   outline/hints use the rectangle round it; old `rect` still reads). The drag-paint bug was
   an operator-precedence inversion in the grid's mousemove.
+- **11 × 11 locked in** (owner, 2026-11-18): engine `CANVAS_WIDTH/HEIGHT` = 11,
+  `Model::scaling` f32 = min(window w, h) ÷ 11 every frame (editor: px ÷ 11), `DOT` 3 px,
+  `WEIGHT` 3 px round caps, a zero-length line draws as the dot; cell (5, 5) is the window
+  centre. Album regions rescaled 20 → 11 by a script (rects × 11/20, maps nearest-sampled):
+  act 1 is garbage at this size and needs redrawing by the owner. Also: sources `distance`
+  and `bearing`, chain `delay` (phase sources shifted by delay × distance), glow layers
+  stack with `op` multiply|add, rings `count`/`gap` (halos), marks angle `radial`/`tangent`.
+  The owner's model: "a basic layer is just a gray value of 1 that isn't sidechained in any
+  way, and then any layers on top can apply transformations to that layer" — so new marks
+  default to gray 1 and the masks are the glow layers.
 - **Grid and dot size** (owner, 2026-11-18, from the Grid Sizes page,
   https://claude.ai/artifact/MQwKA832rW6kBjGQXUGWDQ): "3px definitely seems correct. the
   lines will have to be the appropriate thickness to completely cover the dots but not more"

@@ -6,9 +6,9 @@
 
 import init, { main_web, editor as send, state as readState, spectrum as readSpectrum, catalogue as readCatalogue } from './app/gender.js';
 
-const W = 20, H = 20;
+const W = 11, H = 11;  // the grid (app/src/model.rs: CANVAS_WIDTH): odd, a centre dot
 const STAGE = 500;
-const CELL = 12.5;   // grid px per cell
+const CELL = 250 / W;  // grid px per cell
 const PPB = 12;      // timeline px per bar
 const GUTTER = 72;   // timeline lane labels
 const UNLOCKS = ['glow', 'lines', 'length', 'angle', 'bend', 'rings', 'size', 'fill', 'morph', 'flatness', 'rotation', 'color'];
@@ -306,7 +306,7 @@ function builtins() {
   const per = spec.length / 16;
   return {
     beat, bar, pulse: beat * (0.7 + 0.3 * bar),
-    span: NaN, noise: NaN, transition: 0,
+    span: NaN, noise: NaN, distance: NaN, bearing: NaN, transition: 0,
     bass: coarse(0, 2 * per), mid: coarse(2 * per, 8 * per), treble: coarse(8 * per, 16 * per),
   };
 }
@@ -731,7 +731,7 @@ function paramRow(params, name, spec) {
     const chainsBox = el('div', { class: 'chains' });
     const renderChains = () => {
       chainsBox.replaceChildren(...p.chains.map((c, k) => chainRow(p, c, k, renderChains)),
-        el('button', { class: 'link', onclick: () => { snapshotForUndo(); p.chains.push({ source: album.bands[0]?.id ?? 'beat', depth: 1, threshold: 0, width: 1, curve: 1, invert: false, on: true }); commit({ silent: true }); renderChains(); } }, '+ sidechain'));
+        el('button', { class: 'link', onclick: () => { snapshotForUndo(); p.chains.push({ source: album.bands[0]?.id ?? 'beat', depth: 1, threshold: 0, width: 1, curve: 1, invert: false, on: true, delay: 0 }); commit({ silent: true }); renderChains(); } }, '+ sidechain'));
     };
     renderChains();
     chainsBox.hidden = p.chains.length === 0;
@@ -743,7 +743,7 @@ function paramRow(params, name, spec) {
   if (spec.type === 'bool') return row(name, checkInput(params, name, spec.doc || ''));
   if (spec.type === 'select') return row(name, selectInput(params, name, spec.options), spec.doc ? el('span', { class: 'doc' }, spec.doc) : null);
   if (spec.type === 'angle') {
-    const named = ['along', 'across', 'noise', 'checker', 'around'];
+    const named = ['along', 'across', 'noise', 'checker', 'around', 'radial', 'tangent'];
     const isNum = typeof params[name] === 'number';
     const sel = el('select', { onchange: (e) => { snapshotForUndo(); params[name] = e.target.value === 'degrees' ? 0 : e.target.value; commit({ silent: true, inspector: true }); } },
       ...named.map((o) => el('option', { value: o, ...(params[name] === o ? { selected: '' } : {}) }, o)), el('option', { value: 'degrees', ...(isNum ? { selected: '' } : {}) }, 'degrees'));
@@ -770,6 +770,7 @@ function chainRow(p, c, k, rerender) {
     el('span', { class: 'lbl' }, 'depth'), num('depth', 0.1),
     el('span', { class: 'lbl' }, 'threshold'), num('threshold', 0.05),
     el('span', { class: 'lbl' }, 'width'), num('width', 0.05),
+    el('span', { class: 'lbl', title: 'the source arrives later the farther the cell is from the centre: this × its distance (0..1), in cycles — beat, bar, pulse, span, transition' }, 'delay'), num('delay', 0.1),
     el('span', { class: 'lbl' }, 'curve'), num('curve', 0.1),
     el('label', {}, el('input', { type: 'checkbox', ...(c.invert ? { checked: '' } : {}), onchange: (e) => { snapshotForUndo(); c.invert = e.target.checked; commit({ silent: true }); } }), 'invert'),
     el('button', { class: 'link danger', onclick: () => { snapshotForUndo(); p.chains.splice(k, 1); commit({ silent: true }); rerender(); } }, '×'));
@@ -784,7 +785,7 @@ function hotspotInspector(h) {
       commit({ silent: true, inspector: true });
     } }, ...['tap', 'outline', 'drag'].map((o) => el('option', { value: o, ...(o === on ? { selected: '' } : {}) }, o))),
     el('span', { class: 'doc' }, on === 'tap' ? 'press and release inside' : on === 'outline' ? 'draw its perimeter in one stroke' : 'press inside, release in the target'));
-  const dragRow = on === 'drag' ? row('drag to', ...[0, 1, 2, 3].map((k) => numberInput(h.on.drag, k, { step: 1, min: 0, max: 20 })), el('span', { class: 'doc' }, 'i0 j0 i1 j1')) : null;
+  const dragRow = on === 'drag' ? row('drag to', ...[0, 1, 2, 3].map((k) => numberInput(h.on.drag, k, { step: 1, min: 0, max: W })), el('span', { class: 'doc' }, 'i0 j0 i1 j1')) : null;
   const actions = el('div', { class: 'actions' });
   const renderActions = () => {
     actions.replaceChildren(...h.then.map((a, k) => {

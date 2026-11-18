@@ -19,9 +19,13 @@ use {
 	},
 };
 
-pub const CANVAS_WIDTH: usize = 20;
-pub const CANVAS_HEIGHT: usize = 20;
-const SCALING: usize = 40;
+/// The grid: odd, so there's a centre dot (owner, 2026-11-18). Levels are designed on it and
+/// it scales to the screen: a cell is the shorter side ÷ 11 (`Model::scaling`, set every
+/// frame from the window; the editor's fixed square canvas ÷ 11).
+pub const CANVAS_WIDTH: usize = 11;
+pub const CANVAS_HEIGHT: usize = 11;
+/// A cell in px before the window is known.
+const SCALING: f32 = 40.0;
 /// Seconds a drawn trail segment takes to fade out.
 const TRAIL_LIFE: f32 = 1.5;
 /// Seconds a completed outline stays lit before fading.
@@ -64,7 +68,7 @@ struct Segment {
 pub struct Model {
 	pub noise_matrix: RidgedMulti,
 	pub noisemap: NoiseMap,
-	pub scaling: usize,
+	pub scaling: f32,
 	pub audio: Audio,
 	pub debug: bool,
 	/// Driven by the editor page (`?editor`): progress isn't saved, commands come in
@@ -674,6 +678,11 @@ pub fn spectrum_copy() -> Vec<u8> {
 pub fn update(app: &App, model: &mut Model, update: Update) {
 	let now = model.audio.now();
 	model.time = app.time;
+	if !model.editor {
+		// The grid takes the shorter side of the window, whatever the window is.
+		let window = app.window_rect();
+		model.scaling = window.w().min(window.h()) / CANVAS_WIDTH as f32;
+	}
 
 	let commands: Vec<String> = COMMANDS.with(|commands| std::mem::take(&mut *commands.borrow_mut()));
 	for command in commands {

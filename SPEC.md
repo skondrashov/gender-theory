@@ -103,13 +103,20 @@ for new *kinds* of mechanic (`scenes/data.rs`).
 - `scenes::dangling()` reports doors to nowhere at startup. **open:** a check that every
   `needs` is reachable before the phase that needs it (the spine is honoured).
 
-## The grid (owner, 2026-11-18, to confirm after looking on the phone)
+## The grid (owner, 2026-11-18: "i love 11x11 also, so let's lock that into the editor along with 3px")
 
 - **11 × 11** cells: odd, so there is a centre dot to build on (rings round it, centred on
   the screen). The grid scales to the screen: pitch = shorter side ÷ 11 (≈ 36 px on a phone,
-  98 px at 1080p). **open:** what happens in the leftover strip of a non-square screen.
+  98 px at 1080p). **open:** what happens in the leftover strip of a non-square screen
+  (black for now).
 - Dots **3 px**; lines **3 px, round caps**, so a line covers its dot exactly and no more.
-- Not yet in the engine (20 × 20, 40 px, 1 px lines, fixed 800 px canvas).
+- **Distance and angle**: anything can be a function of a cell's distance from the centre
+  dot or its bearing (sources `distance`, `bearing`), and the beat can arrive later further
+  out (a chain's `delay`) — ripples. Brightness masks (glow layers) stack, each on its own
+  cells, multiplying or adding; so a missing dot is a dot nothing draws, and a ripple only
+  touches the cells its mask is painted on (owner: "these masks can stack and each mask is
+  enabled on certain cells with the same editor as the hotspot and layers").
+- The old 20 × 20 designs were rescaled to 11 × 11 mechanically; act 1 needs redrawing.
 
 ## Open questions, collected
 

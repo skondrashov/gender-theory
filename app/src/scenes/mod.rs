@@ -1,7 +1,7 @@
 use {
 	crate::model::{Model, CANVAS_HEIGHT, CANVAS_WIDTH},
 	nannou::{prelude::*, Draw},
-	std::{f32::consts::SQRT_2, ops::Range},
+	std::ops::Range,
 };
 
 pub mod data;
@@ -325,17 +325,18 @@ pub fn dangling() -> Vec<String> {
 
 /// Window coordinates of the centre of cell (i, j).
 pub fn scale_coordinates(model: &Model, i: usize, j: usize) -> (f32, f32) {
+	// Cell (5, 5) is the centre of the window: the centre dot.
 	(
-		(i as f32 - (CANVAS_WIDTH as f32 / 2.0) as f32) * model.scaling as f32,
-		(j as f32 - (CANVAS_HEIGHT as f32 / 2.0) as f32) * model.scaling as f32,
+		(i as f32 - (CANVAS_WIDTH - 1) as f32 / 2.0) * model.scaling,
+		(j as f32 - (CANVAS_HEIGHT - 1) as f32 / 2.0) * model.scaling,
 	)
 }
 
 /// The cell whose centre is nearest to window point (x, y), if that's on the grid.
 pub fn cell_at(model: &Model, x: f32, y: f32) -> Option<(usize, usize)> {
-	let scaling = model.scaling as f32;
-	let i = (x / scaling + CANVAS_WIDTH as f32 / 2.0).round();
-	let j = (y / scaling + CANVAS_HEIGHT as f32 / 2.0).round();
+	let scaling = model.scaling;
+	let i = (x / scaling + (CANVAS_WIDTH - 1) as f32 / 2.0).round();
+	let j = (y / scaling + (CANVAS_HEIGHT - 1) as f32 / 2.0).round();
 	(i >= 0.0 && j >= 0.0 && i < CANVAS_WIDTH as f32 && j < CANVAS_HEIGHT as f32)
 		.then(|| (i as usize, j as usize))
 }
@@ -388,6 +389,10 @@ pub enum Shape {
 
 /// The default radius of a ring, in cells: what a ring is until size is unlocked.
 pub const RING: f32 = 0.4;
+/// A dot's diameter and a line's weight, px (owner, 2026-11-18: 3 px dots; lines thick enough
+/// to cover their dot and no more — round caps make the cap the dot).
+pub const DOT: f32 = 3.0;
+pub const WEIGHT: f32 = 3.0;
 
 impl Mark {
 	pub fn is_line(&self) -> bool {
@@ -397,8 +402,11 @@ impl Mark {
 	pub fn draw(&self, draw: &Draw) {
 		match self.shape {
 			Shape::Line { angle, length, bend } => {
-				if bend.abs() < 1e-3 {
-					draw.line().color(self.color).points(
+				if length < 0.5 {
+					// A dot.
+					draw.ellipse().color(self.color).x_y(self.x, self.y).radius(DOT / 2.0);
+				} else if bend.abs() < 1e-3 {
+					draw.line().weight(WEIGHT).caps_round().color(self.color).points(
 						pt2(self.x, self.y),
 						pt2(self.x + length * angle.cos(), self.y + length * angle.sin()),
 					);
@@ -413,7 +421,7 @@ impl Mark {
 						let a = angle - PI / 2.0 + theta * k as f32 / N as f32;
 						pt2(cx + r * a.cos(), cy + r * a.sin())
 					});
-					draw.polyline().weight(1.0).color(self.color).points(points);
+					draw.polyline().weight(WEIGHT).caps_round().color(self.color).points(points);
 				}
 			}
 			Shape::Ring {
@@ -629,14 +637,14 @@ pub fn mark_bent(
 	let color = paint(model, gray, color);
 	let lines = model.reveal(Unlock::Lines);
 	let shape = if lines == 0.0 {
-		// A point: the shortest line that shows.
+		// A point: a line of no length draws as the dot.
 		Shape::Line {
-			angle: PI / 4.0,
-			length: SQRT_2,
+			angle: 0.0,
+			length: 0.0,
 			bend: 0.0,
 		}
 	} else {
-		let unit = model.scaling as f32;
+		let unit = model.scaling;
 		Shape::Line {
 			angle: angle + turn * model.reveal(Unlock::Angle),
 			length: (unit + (length - unit) * model.reveal(Unlock::Length)) * lines,
@@ -663,7 +671,7 @@ pub fn stroke(_draw: &Draw, model: &Model, x: f32, y: f32, angle: f32, length: f
 
 /// A bare point, whatever the player has unlocked (a `mark` becomes a line). Scenery.
 pub fn dot(draw: &Draw, model: &Model, x: f32, y: f32, color: Rgb) {
-	stroke(draw, model, x, y, PI / 4.0, SQRT_2, color);
+	stroke(draw, model, x, y, 0.0, 0.0, color);
 }
 
 /// An event, the way music has them: at `phase` 0 it hits, then it falls away before the

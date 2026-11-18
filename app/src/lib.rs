@@ -56,6 +56,7 @@ pub async fn main_web(album: String) {
 		// URL flags: ?debug shows the overlay, ?msaa=N sets window multisampling (default 4),
 		// ?scene=<id> starts on that scene, ?reset forgets saved progress,
 		// ?unlock=lines+angle grants those unlocks.
+		// The game canvas is the browser viewport at load; the grid sits on its shorter side.
 		let search = web_sys::window()
 			.and_then(|w| w.location().search().ok())
 			.unwrap_or_default();
@@ -67,7 +68,7 @@ pub async fn main_web(album: String) {
 		let reset = query_param(&search, "reset").is_some();
 		let unlock = query_param(&search, "unlock");
 		// ?editor[=px]: driven by the editor page — a fixed square canvas (800 px, or as
-		// given, a multiple of 20), nothing saved.
+		// given), nothing saved.
 		let editor = query_param(&search, "editor");
 		let size = editor
 			.as_deref()
@@ -76,9 +77,8 @@ pub async fn main_web(album: String) {
 			.unwrap_or(800);
 		let mut model = Model::new(debug, start, reset, unlock, editor.is_some());
 		if editor.is_some() {
-			model.scaling = size as usize / 20;
+			model.scaling = size as f32 / crate::model::CANVAS_WIDTH as f32;
 		}
-		let size = (model.scaling * 20) as u32;
 		let editor = editor.is_some();
 		MODEL.with(|m| m.borrow_mut().replace(model));
 

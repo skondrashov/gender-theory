@@ -321,6 +321,10 @@ pub struct Sidechain {
 	pub curve: f32,
 	pub invert: bool,
 	pub on: bool,
+	/// The source arrives later the farther the cell is from the centre: `delay` × the cell's
+	/// distance (0 centre .. 1 corner), in cycles of the source. For beat, bar, pulse, span,
+	/// transition — the sources that are a phase. A ripple.
+	pub delay: f32,
 }
 
 impl Default for Sidechain {
@@ -333,6 +337,7 @@ impl Default for Sidechain {
 			curve: 1.0,
 			invert: false,
 			on: true,
+			delay: 0.0,
 		}
 	}
 }
@@ -390,8 +395,9 @@ impl Param {
 				.iter()
 				.filter(|chain| chain.on)
 				.map(|chain| {
-					let gate = if chain.source == "noise" { 1.0 } else { gate };
-					gate * chain.depth * chain.shape(signals.get(&chain.source))
+					let fixed = matches!(chain.source.as_str(), "noise" | "distance" | "bearing");
+					let gate = if fixed { 1.0 } else { gate };
+					gate * chain.depth * chain.shape(signals.get_delayed(&chain.source, chain.delay * signals.distance))
 				})
 				.sum::<f32>()
 	}
@@ -411,6 +417,13 @@ pub struct Signals<'a> {
 	pub bass: f32,
 	pub mid: f32,
 	pub treble: f32,
+	/// The cell's distance from the centre dot: 0 there, 1 at a corner.
+	pub distance: f32,
+	/// The cell's direction from the centre dot: 0 straight up, round clockwise to 1.
+	pub bearing: f32,
+	/// The bar's phase and the beat's, 0..1, for delaying.
+	pub whole: f32,
+	pub quarter: f32,
 }
 
 impl Signals<'_> {
@@ -422,11 +435,33 @@ impl Signals<'_> {
 			"pulse" => self.pulse,
 			"noise" => self.noise,
 			"transition" => self.transition,
+			"distance" => self.distance,
+			"bearing" => self.bearing,
 			"bass" => self.bass,
 			"mid" => self.mid,
 			"treble" => self.treble,
 			// a band's level, or `id.pitch` / `id.chroma`
 			band => self.bands.get(band).copied().unwrap_or(0.0),
+		}
+	}
+
+	/// The source as it was `shift` cycles ago, for the sources that are a phase (the beat
+	/// and bar hits, the pulse, span, transition); the others as they are.
+	pub fn get_delayed(&self, source: &str, shift: f32) -> f32 {
+		if shift.abs() < 1e-6 {
+			return self.get(source);
+		}
+		let whole = (self.whole - shift).rem_euclid(1.0);
+		match source {
+			"beat" => hit((self.quarter - shift).rem_euclid(1.0), 2.5),
+			"bar" => hit(whole, 1.5),
+			"pulse" => {
+				let [whole, _, quarter, ..] = fold(whole);
+				hit(quarter, 2.5) * (0.7 + 0.3 * hit(whole, 1.5))
+			}
+			"span" => (self.span - shift).clamp(0.0, 1.0),
+			"transition" => (self.transition - shift).clamp(0.0, 1.0),
+			_ => self.get(source),
 		}
 	}
 }
@@ -436,7 +471,7 @@ impl Signals<'_> {
 /// What the editor needs to know about the kinds and their params. Types: `param` (a base
 /// and sidechains), `number`, `bool`, `angle`, `select` (with `options`), `sub`.
 pub const CATALOGUE: &str = r##"{
-  "sources": ["span", "beat", "bar", "pulse", "noise", "transition", "bass", "mid", "treble"],
+  "sources": ["span", "beat", "bar", "pulse", "noise", "distance", "bearing", "transition", "bass", "mid", "treble"],
   "sourceDocs": {
     "span": "0..1 across the layer's own bars (the scene's if it has none): where we are in it",
     "beat": "hits on every beat and falls away before the next",
@@ -446,19 +481,21 @@ pub const CATALOGUE: &str = r##"{
     "transition": "0..1 along a via passage out of the scene",
     "bass": "the old coarse bands: 0-2.7 kHz",
     "mid": "2.7-11 kHz",
-    "treble": "11-22 kHz"
+    "treble": "11-22 kHz",
+    "distance": "how far the cell is from the centre dot: 0 there, 1 at a corner (fixed per cell; shape it with threshold and width)",
+    "bearing": "which way the cell is from the centre dot: 0 straight up, round clockwise to 1 (fixed per cell)"
   },
   "kinds": {
     "marks": {
       "doc": "The cell's mark: a point until lines are unlocked, then a line pointing where `angle` says; its length is 1 until length is unlocked, it turns once angle is, it bends once bend is.",
       "params": {
-        "angle": {"type": "angle", "default": "along", "doc": "along / across / noise / checker (along or across by the cell's noise) / around (clockwise round the region's rectangle) / degrees"},
+        "angle": {"type": "angle", "default": "along", "doc": "along / across / noise / checker (along or across by the cell's noise) / around (clockwise round the region's rectangle) / radial (away from the centre dot) / tangent (round the centre dot) / degrees"},
         "offset": {"type": "number", "default": 0, "step": 15, "doc": "degrees added to the angle"},
         "spin": {"type": "param", "default": 0, "doc": "radians per time unit (needs angle)"},
         "alternate": {"type": "bool", "default": false, "doc": "every other cell spins the other way"},
         "length": {"type": "param", "default": 1, "step": 0.1, "doc": "in cells (needs length to be other than 1)"},
         "bend": {"type": "param", "default": 0, "step": 0.1, "doc": "0 straight .. 1 a half circle, turning left; negative turns right (needs bend)"},
-        "gray": {"type": "param", "default": 0.7, "step": 0.05, "doc": "brightness; its sidechains act once glow is unlocked"},
+        "gray": {"type": "param", "default": 1, "step": 0.05, "doc": "brightness; glow layers over the cell change it, and its own sidechains act once glow is unlocked"},
         "color": {"type": "param", "default": 0, "step": 0.1, "doc": "0 grey .. 1 the color (needs color)"}
       }
     },
@@ -488,7 +525,9 @@ pub const CATALOGUE: &str = r##"{
       "doc": "A ring on each cell, once rings are unlocked (it grows in). A circle 0.4 cells across its radius until size is unlocked; each of fill, morph, flatness and rotation does nothing until its own unlock. A line turning inside one is a clock.",
       "params": {
         "radius": {"type": "param", "default": 0.4, "step": 0.05, "doc": "in cells (needs size to be other than 0.4)"},
-        "weight": {"type": "number", "default": 1.5, "step": 0.5, "doc": "stroke, px"},
+        "weight": {"type": "number", "default": 3, "step": 0.5, "doc": "stroke, px"},
+        "count": {"type": "number", "default": 1, "step": 1, "doc": "how many rings, concentric; the centre dot's halos"},
+        "gap": {"type": "number", "default": 1, "step": 0.25, "doc": "cells between them"},
         "fill": {"type": "param", "default": 0, "step": 0.1, "doc": "0 an outline .. 1 a disc (needs fill)"},
         "morph": {"type": "param", "default": 0, "step": 0.1, "doc": "0 a circle .. 1 a square (needs morph)"},
         "flatness": {"type": "param", "default": 0, "step": 0.1, "doc": "0 round .. 1 squashed flat (needs flatness)"},
@@ -514,9 +553,10 @@ pub const CATALOGUE: &str = r##"{
     },
     "glow": {
       "modifier": true,
-      "doc": "Dims every draw layer under it in this region by `level`, once glow is unlocked — nothing until then; cells under no glow layer are drawn at their own gray. Sidechain it to breathe over many layers at once: base 0.35 + 0.65 of the pulse is a field, base 1 − 1 of it the inverse. (A single layer breathes by sidechaining its own gray.)",
+      "doc": "A mask on brightness: changes the gray of every draw layer under it in this region, once glow is unlocked — nothing until then. Glow layers stack: each multiplies (or adds to) what the ones before it left. Sidechain `level` to breathe over many layers at once (base 0.35 + 0.65 of the pulse is a field, base 1 − 1 of it the inverse); sidechain it to distance, or give the pulse a delay, for ripples.",
       "params": {
-        "level": {"type": "param", "default": 1, "step": 0.05, "doc": "× the gray of what's under it, 0 dark .. 1 as drawn; later glow layers over the same cell win"}
+        "op": {"type": "select", "options": ["multiply", "add"], "default": "multiply", "doc": "multiply: 1 leaves things alone, 0 is dark; add: 0 leaves things alone, negative darkens"},
+        "level": {"type": "param", "default": 1, "step": 0.05}
       }
     },
     "walk": {
@@ -562,7 +602,7 @@ impl Default for Marks {
 			alternate: false,
 			length: Param::new(1.0),
 			bend: Param::new(0.0),
-			gray: Param::new(0.7),
+			gray: Param::new(1.0),
 			color: Param::new(0.0),
 		}
 	}
@@ -628,6 +668,8 @@ impl Default for Points {
 struct Rings {
 	radius: Param,
 	weight: f32,
+	count: usize,
+	gap: f32,
 	fill: Param,
 	morph: Param,
 	flatness: Param,
@@ -644,7 +686,9 @@ impl Default for Rings {
 	fn default() -> Self {
 		Rings {
 			radius: Param::new(RING),
-			weight: 1.5,
+			weight: WEIGHT,
+			count: 1,
+			gap: 1.0,
 			fill: Param::new(0.0),
 			morph: Param::new(0.0),
 			flatness: Param::new(0.0),
@@ -688,13 +732,15 @@ impl Default for Orbits {
 #[derive(Deserialize)]
 #[serde(default)]
 struct Glow {
-	/// The brightness of the marks under it, 0..1, once glow is unlocked.
+	/// multiply (1 is nothing) or add (0 is nothing) to the brightness of what's under it.
+	op: String,
 	level: Param,
 }
 
 impl Default for Glow {
 	fn default() -> Self {
 		Glow {
+			op: "multiply".into(),
 			level: Param::new(1.0),
 		}
 	}
@@ -765,6 +811,19 @@ pub fn unlock_named(name: &str) -> Option<Unlock> {
 }
 
 /// The direction a cell on the edge of `area` draws in to go round it clockwise.
+/// Straight away from the centre dot (right, for the centre itself).
+fn radial(i: usize, j: usize) -> f32 {
+	let (di, dj) = (
+		i as f32 - (CANVAS_WIDTH - 1) as f32 / 2.0,
+		j as f32 - (CANVAS_HEIGHT - 1) as f32 / 2.0,
+	);
+	if di == 0.0 && dj == 0.0 {
+		0.0
+	} else {
+		dj.atan2(di)
+	}
+}
+
 fn around(area: Area, i: usize, j: usize) -> f32 {
 	if j + 1 == area.j1 && i + 1 < area.i1 {
 		0.0
@@ -969,11 +1028,16 @@ fn render(
 	modifiers: [f32; 8],
 ) {
 	let bar = model.bar();
-	let unit = model.scaling as f32;
+	let unit = model.scaling;
 	let (x, y) = scale_coordinates(model, i, j);
 	let raw = model.noisemap.get_value(i, j) as f32;
 	let [whole, _half, quarter, _eighth, _sixteenth, bass, mid, treble] = modifiers;
 	let pulse = pulse(&modifiers);
+	let (di, dj) = (
+		i as f32 - (CANVAS_WIDTH - 1) as f32 / 2.0,
+		j as f32 - (CANVAS_HEIGHT - 1) as f32 / 2.0,
+	);
+	let corner = ((CANVAS_WIDTH - 1) as f32 / 2.0).hypot((CANVAS_HEIGHT - 1) as f32 / 2.0);
 	let signals = Signals {
 		bands: model.bands(),
 		span: 0.0,
@@ -985,6 +1049,10 @@ fn render(
 		bass,
 		mid,
 		treble,
+		distance: (di.hypot(dj) / corner).min(1.0),
+		bearing: if di == 0.0 && dj == 0.0 { 0.0 } else { di.atan2(dj).rem_euclid(TAU) / TAU },
+		whole,
+		quarter,
 	};
 	// The same signals, with `span` where the bar is in this layer's own bars.
 	let with_span = |rt: &LayerRt| {
@@ -1014,7 +1082,8 @@ fn render(
 		match &rt.kind {
 			Kind::Glow(glow) => {
 				if gate(scene, model, &rt.layer).is_some() {
-					level = glow.level.value(&signals);
+					let value = glow.level.value(&signals);
+					level = if glow.op == "add" { level + value } else { level * value };
 				}
 			}
 			Kind::Walk(walk) => {
@@ -1057,6 +1126,8 @@ fn render(
 							}
 						}
 						"around" => around(rt.layer.region.area(), i, j),
+						"radial" => radial(i, j),
+						"tangent" => radial(i, j) + PI / 2.0,
 						_ => 0.0,
 					},
 				};
@@ -1152,21 +1223,28 @@ fn render(
 				let radius = (gate(rings.radius.value(&signals), RING, Unlock::Size) + hot_length) * unit * grown;
 				let spin = gate(rings.spin.value(&signals), 0.0, Unlock::Rotation) * time;
 				let gray = (rings.gray.value_gated(&signals, glow) + hot_gray) * lit;
-				shape(
-					draw,
-					model,
-					x,
-					y,
-					Shape::Ring {
-						radius,
-						weight: rings.weight,
-						fill: gate(rings.fill.value(&signals), 0.0, Unlock::Fill),
-						square: gate(rings.morph.value(&signals), 0.0, Unlock::Morph),
-						flat: gate(rings.flatness.value(&signals), 0.0, Unlock::Flatness),
-						angle: rings.angle.to_radians() + spin,
-					},
-					paint(model, gray, rings.color.value(&signals)),
+				let (fill, square, flat) = (
+					gate(rings.fill.value(&signals), 0.0, Unlock::Fill),
+					gate(rings.morph.value(&signals), 0.0, Unlock::Morph),
+					gate(rings.flatness.value(&signals), 0.0, Unlock::Flatness),
 				);
+				for k in 0..rings.count.max(1) {
+					shape(
+						draw,
+						model,
+						x,
+						y,
+						Shape::Ring {
+							radius: radius + k as f32 * rings.gap * unit * grown,
+							weight: rings.weight,
+							fill,
+							square,
+							flat,
+							angle: rings.angle.to_radians() + spin,
+						},
+						paint(model, gray, rings.color.value(&signals)),
+					);
+				}
 			}
 			Kind::Orbits(orbits) => {
 				let near = (orbits.near_rate + orbits.vary * raw) * time + raw * TAU;
