@@ -54,7 +54,7 @@
  "presets": [
   {
    "id": "p-snake-retreat",
-   "name": "snake \u00b7 retreat",
+   "name": "snake · retreat",
    "layer": {
     "name": "snake retreat",
     "region": {
@@ -104,7 +104,7 @@
   },
   {
    "id": "p-snake-arrive",
-   "name": "snake \u00b7 arrive",
+   "name": "snake · arrive",
    "layer": {
     "name": "snake arrive",
     "region": {
@@ -177,113 +177,46 @@
       {
        "id": "l-base-act-1",
        "name": "field",
-       "region": {},
-       "kind": "marks",
-       "params": {
-        "angle": "along",
-        "offset": 0,
-        "spin": {
-         "base": 0,
-         "chains": []
-        },
-        "alternate": false,
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "bend": {
-         "base": 0,
-         "chains": []
-        },
-        "gray": {
-         "base": 1,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       }
-      },
-      {
-       "id": "l1",
-       "name": "e in met",
-       "region": {
-        "map": "...........\n...........\n...........\n..######..#\n.######.###\n...#.####..\n...#..##...\n...........\n...........\n...........\n..........."
-       },
-       "kind": "marks",
-       "params": {
-        "angle": "along",
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "gray": {
-         "base": 0.9,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        },
-        "offset": 0,
-        "spin": {
-         "base": 0,
-         "chains": []
-        },
-        "alternate": false,
-        "bend": {
-         "base": 0,
-         "chains": []
-        }
-       },
-       "stage": "met ends",
-       "needs": []
-      },
-      {
-       "id": "lmwlv2imug0n",
-       "name": "e in ends",
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n..#........\n..#........\n...........\n...........\n..........."
-       },
-       "kind": "marks",
-       "params": {
-        "angle": "along",
-        "length": {
-         "base": 1,
-         "chains": []
-        },
-        "gray": {
-         "base": 0.9,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        },
-        "offset": 0,
-        "spin": {
-         "base": 0,
-         "chains": []
-        },
-        "alternate": false,
-        "bend": {
-         "base": 0,
-         "chains": []
-        }
-       },
-       "stage": "met ends",
-       "needs": []
-      },
-      {
-       "id": "lmwlv2yjyxsu",
-       "name": "d in ends",
        "region": {
         "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
        },
        "kind": "marks",
        "params": {
         "angle": "along",
+        "offset": 0,
+        "spin": {
+         "base": 0,
+         "chains": []
+        },
+        "alternate": false,
+        "length": {
+         "base": 1,
+         "chains": []
+        },
+        "bend": {
+         "base": 0,
+         "chains": []
+        },
+        "gray": {
+         "base": 0.3,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        }
+       },
+       "needs": []
+      },
+      {
+       "id": "lmwlv4cz6pu1",
+       "name": "middle",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n....###....\n....#.#....\n....###....\n...........\n...........\n...........\n..........."
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "along",
         "length": {
          "base": 1,
          "chains": []
@@ -311,10 +244,10 @@
        "needs": []
       },
       {
-       "id": "lmwlv1qbsjmi",
-       "name": "met",
+       "id": "lmwlybct9oor",
+       "name": "top",
        "region": {
-        "map": "...........\n...........\n.##....###.\n.####.#.#..\n.###.##.#..\n...........\n...........\n...........\n...........\n...........\n..........."
+        "map": "...........\n.#########.\n..#.....#..\n...#...#...\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
        },
        "kind": "marks",
        "params": {
@@ -324,7 +257,7 @@
          "chains": []
         },
         "gray": {
-         "base": 1,
+         "base": 0.9,
          "chains": []
         },
         "color": {
@@ -345,14 +278,83 @@
        "stage": "met ends",
        "needs": [
         "glow"
-       ],
-       "ignore_glow": true
+       ]
       },
       {
-       "id": "lmwlv4cz6pu1",
-       "name": "ends",
+       "id": "lmwmc9gmm6ej",
+       "name": "left",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n....#..#.#.\n.#.....###.\n..#...###..\n...........\n..........."
+        "map": "...........\n.#.........\n.##........\n.#.#.......\n.#.........\n.#.........\n.#.........\n.#.#.......\n.##........\n.#.........\n..........."
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "along",
+        "length": {
+         "base": 1,
+         "chains": []
+        },
+        "gray": {
+         "base": 0.9,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        },
+        "offset": 0,
+        "spin": {
+         "base": 0,
+         "chains": []
+        },
+        "alternate": false,
+        "bend": {
+         "base": 0,
+         "chains": []
+        }
+       },
+       "stage": "met ends",
+       "needs": []
+      },
+      {
+       "id": "lmwmces6t9qs",
+       "name": "bottom",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...#...#...\n..#.....#..\n.#########.\n..........."
+       },
+       "kind": "marks",
+       "params": {
+        "angle": "along",
+        "length": {
+         "base": 1,
+         "chains": []
+        },
+        "gray": {
+         "base": 0.9,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        },
+        "offset": 0,
+        "spin": {
+         "base": 0,
+         "chains": []
+        },
+        "alternate": false,
+        "bend": {
+         "base": 0,
+         "chains": []
+        }
+       },
+       "stage": "met ends",
+       "needs": []
+      },
+      {
+       "id": "lmwmcets0juy",
+       "name": "right",
+       "region": {
+        "map": "...........\n.........#.\n........##.\n.......#.#.\n.........#.\n.........#.\n.........#.\n.......#.#.\n........##.\n.........#.\n..........."
        },
        "kind": "marks",
        "params": {
@@ -1241,9 +1243,14 @@
      "hotspots": [
       {
        "id": "e",
-       "name": "e in met",
+       "name": "middle",
        "region": {
-        "map": "...........\n...........\n.....#.....\n.....#.....\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
+        "rect": [
+         4,
+         4,
+         7,
+         7
+        ]
        },
        "needs": [],
        "on": "tap",
@@ -1298,9 +1305,9 @@
       },
       {
        "id": "hmw4rooy7v5i",
-       "name": "e in ends",
+       "name": "top",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n..#........\n..#........\n...........\n...........\n..........."
+        "map": "...........\n.#########.\n..#######..\n...#####...\n....###....\n...........\n...........\n...........\n...........\n...........\n..........."
        },
        "needs": [],
        "on": "tap",
@@ -1309,9 +1316,31 @@
       },
       {
        "id": "hmw5ia2bz7hc",
-       "name": "d in ends",
+       "name": "left",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
+        "map": "...........\n.#.........\n.##........\n.###.......\n.####......\n.####......\n.####......\n.###.......\n.##........\n.#.........\n..........."
+       },
+       "needs": [],
+       "on": "tap",
+       "then": [],
+       "stage": "met ends"
+      },
+      {
+       "id": "hmwmcjqognib",
+       "name": "bottom",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n....###....\n...#####...\n..#######..\n.#########.\n..........."
+       },
+       "needs": [],
+       "on": "tap",
+       "then": [],
+       "stage": "met ends"
+      },
+      {
+       "id": "hmwmckrxcayc",
+       "name": "right",
+       "region": {
+        "map": "...........\n.........#.\n........##.\n.......###.\n......####.\n......####.\n......####.\n.......###.\n........##.\n.........#.\n..........."
        },
        "needs": [],
        "on": "tap",
