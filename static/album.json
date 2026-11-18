@@ -185,22 +185,26 @@
         "brightness": {
          "op": "set",
          "base": 0.3,
-         "chains": []
+         "chains": [],
+         "masks": []
         },
         "lines": {
          "op": "set",
          "base": 1,
-         "chains": []
+         "chains": [],
+         "masks": []
         },
         "length": {
          "op": "set",
          "base": 1,
-         "chains": []
+         "chains": [],
+         "masks": []
         },
         "angle": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": []
         }
        }
       },
@@ -214,23 +218,9 @@
        "params": {
         "brightness": {
          "op": "set",
-         "base": 0.9,
-         "chains": []
-        },
-        "lines": {
-         "op": "set",
          "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "angle": {
-         "op": "set",
-         "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": []
         }
        },
        "stage": "met ends"
@@ -245,11 +235,31 @@
        "params": {
         "brightness": {
          "op": "set",
-         "base": 0.9,
+         "base": 0.550000008195639,
          "chains": [],
          "masks": [
           {
            "source": "unlock:glow",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": false,
+           "delay": 0
+          },
+          {
+           "source": "b-kick",
+           "depth": 2.6,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1.9,
+           "invert": true,
+           "on": true,
+           "delay": 0
+          },
+          {
+           "source": "distance",
            "depth": 1,
            "threshold": 0,
            "width": 1,
@@ -267,29 +277,15 @@
        "id": "lmwmc9gmm6ej",
        "name": "left",
        "region": {
-        "map": "...........\n.#.........\n.##........\n.#.#.......\n.#.........\n.#.........\n.#.........\n.#.#.......\n.##........\n.#.........\n..........."
+        "map": "...........\n.#.........\n.#.........\n.#.........\n.#.........\n.#.........\n.#.........\n.#.#.......\n.##........\n.#.........\n..........."
        },
        "kind": "cells",
        "params": {
         "brightness": {
          "op": "set",
-         "base": 0.9,
-         "chains": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "angle": {
-         "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": []
         }
        },
        "stage": "met ends"
@@ -298,29 +294,33 @@
        "id": "lmwmces6t9qs",
        "name": "bottom",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...#...#...\n..#.....#..\n.#########.\n..........."
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n.......#...\n........#..\n.#########.\n..........."
        },
        "kind": "cells",
        "params": {
         "brightness": {
          "op": "set",
-         "base": 0.9,
-         "chains": []
+         "base": 0,
+         "chains": [],
+         "masks": []
         },
         "lines": {
          "op": "set",
          "base": 1,
-         "chains": []
+         "chains": [],
+         "masks": []
         },
         "length": {
          "op": "set",
          "base": 1,
-         "chains": []
+         "chains": [],
+         "masks": []
         },
         "angle": {
          "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": []
         }
        },
        "stage": "met ends"
@@ -329,29 +329,15 @@
        "id": "lmwmcets0juy",
        "name": "right",
        "region": {
-        "map": "...........\n.........#.\n........##.\n.......#.#.\n.........#.\n.........#.\n.........#.\n.......#.#.\n........##.\n.........#.\n..........."
+        "map": "...........\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n..........."
        },
        "kind": "cells",
        "params": {
         "brightness": {
          "op": "set",
-         "base": 0.9,
-         "chains": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "angle": {
-         "op": "set",
          "base": 0,
-         "chains": []
+         "chains": [],
+         "masks": []
         }
        },
        "stage": "met ends"
@@ -1326,69 +1312,31 @@
        "on": "tap",
        "then": [
         {
+         "unlock": "glow"
+        }
+       ],
+       "stage": "met ends"
+      },
+      {
+       "id": "hmw4rooy7v5i",
+       "name": "top",
+       "region": {
+        "map": "...........\n..#######..\n...#####...\n....###....\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
          "stage": "square"
         }
        ],
        "stage": "met ends"
       },
       {
-       "id": "centre",
-       "name": "the centre",
-       "region": {
-        "rect": [
-         4,
-         4,
-         7,
-         7
-        ]
-       },
-       "needs": [],
-       "on": "tap",
-       "then": [
-        {
-         "unlock": "length"
-        }
-       ],
-       "stage": "cross"
-      },
-      {
-       "id": "centre-2",
-       "name": "the centre, again",
-       "region": {
-        "rect": [
-         4,
-         4,
-         7,
-         7
-        ]
-       },
-       "needs": [
-        "length"
-       ],
-       "on": "tap",
-       "then": [
-        {
-         "go": "sine/5"
-        }
-       ],
-       "stage": "cross"
-      },
-      {
-       "id": "hmw4rooy7v5i",
-       "name": "top",
-       "region": {
-        "map": "...........\n.#########.\n..#######..\n...#####...\n....###....\n...........\n...........\n...........\n...........\n...........\n..........."
-       },
-       "needs": [],
-       "on": "tap",
-       "then": [],
-       "stage": "met ends"
-      },
-      {
        "id": "hmw5ia2bz7hc",
        "name": "left",
        "region": {
-        "map": "...........\n.#.........\n.##........\n.###.......\n.####......\n.####......\n.####......\n.###.......\n.##........\n.#.........\n..........."
+        "map": "...........\n...........\n.#.........\n.##........\n.###.......\n.####......\n.###.......\n.##........\n.#.........\n...........\n..........."
        },
        "needs": [],
        "on": "tap",
@@ -1399,7 +1347,7 @@
        "id": "hmwmcjqognib",
        "name": "bottom",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n....###....\n...#####...\n..#######..\n.#########.\n..........."
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n....###....\n...#####...\n..#######..\n..........."
        },
        "needs": [],
        "on": "tap",
@@ -1410,7 +1358,7 @@
        "id": "hmwmckrxcayc",
        "name": "right",
        "region": {
-        "map": "...........\n.........#.\n........##.\n.......###.\n......####.\n......####.\n......####.\n.......###.\n........##.\n.........#.\n..........."
+        "map": "...........\n...........\n.........#.\n........##.\n.......###.\n.......###.\n.......###.\n........##.\n.........#.\n...........\n..........."
        },
        "needs": [],
        "on": "tap",
@@ -1418,259 +1366,6 @@
        "stage": "met ends"
       }
      ]
-    },
-    {
-     "id": "sine/5",
-     "bars": [
-      72,
-      84
-     ],
-     "layers": [
-      {
-       "id": "l17",
-       "name": "field",
-       "region": {},
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.15,
-         "chains": [
-          {
-           "source": "noise",
-           "depth": 0.45,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          },
-          {
-           "source": "treble",
-           "depth": 0.25,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "mid",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "angle": {
-         "op": "set",
-         "base": 105,
-         "chains": [
-          {
-           "source": "noise",
-           "depth": 360,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ],
-         "spin": 8.59,
-         "alternate": true
-        },
-        "color": {
-         "op": "set",
-         "base": 0,
-         "chains": [
-          {
-           "source": "noise",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          },
-          {
-           "source": "bass",
-           "depth": 0.5,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        }
-       }
-      },
-      {
-       "id": "l18",
-       "name": "sixteenths",
-       "region": {},
-       "kind": "walk",
-       "params": {
-        "cols": 4,
-        "rows": 4,
-        "sub": "sixteenth",
-        "length": 0.8,
-        "brightness": 0.25
-       }
-      },
-      {
-       "id": "l19",
-       "name": "door",
-       "region": {
-        "rect": [
-         4,
-         4,
-         7,
-         7
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "bar",
-           "depth": 0.7,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ],
-         "masks": [
-          {
-           "source": "hotspot:door-sine/5",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "length": {
-         "op": "set",
-         "base": 0.6,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 0.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ],
-         "masks": [
-          {
-           "source": "hotspot:door-sine/5",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "angle": {
-         "op": "set",
-         "base": 0,
-         "chains": [
-          {
-           "source": "noise",
-           "depth": 360,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ],
-         "masks": [
-          {
-           "source": "hotspot:door-sine/5",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "color": {
-         "op": "set",
-         "base": 0,
-         "chains": [],
-         "masks": [
-          {
-           "source": "hotspot:door-sine/5",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       }
-      }
-     ],
-     "hotspots": [
-      {
-       "id": "door-sine/5",
-       "name": "on",
-       "region": {
-        "rect": [
-         4,
-         4,
-         7,
-         7
-        ]
-       },
-       "needs": [],
-       "on": "tap",
-       "then": [
-        {
-         "go": "sasha-grips/0"
-        }
-       ]
-      }
-     ],
-     "loop": 72,
-     "stages": []
     },
     {
      "id": "sine/2",
