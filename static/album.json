@@ -221,7 +221,7 @@
          "chains": [],
          "masks": [
           {
-           "source": "b-kick",
+           "source": "pulse",
            "depth": 1,
            "threshold": 0,
            "width": 1,
