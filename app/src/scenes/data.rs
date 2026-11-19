@@ -566,10 +566,10 @@ pub const CATALOGUE: &str = r##"{
       }
     },
     "bars": {
-      "doc": "A grid of dots where every dot owns one segment. Extend: every other dot along the bottom grows a line up to the next dot, which grows to the next, and so on off the top; in the other columns a line comes down from the top dot the same way. Rotate: every segment turns a quarter turn on its own dot — the way that points it right in even rows and left in odd ones — so the columns' segments tile into full horizontal lines, each dot turning its own way. Retreat: the rows retreat in the reverse of the growing, even rows into their left dot, odd rows into their right. Pause: the dots turn, which nobody sees. Then the same the other way round — even columns down, odd up, even rows left, odd right. Each part takes `per` beats of the track — a bar each by default, so a half-cycle is 4 bars and the whole 8. Not a cells layer: rows don't reach it.",
+      "doc": "A grid of dots where every dot owns one segment. Extend: every other dot along the bottom grows a line up to the next dot, which grows to the next, and so on off the top; in the other columns a line comes down from the top dot the same way. Rotate: every segment turns a quarter turn on its own dot — the way that points it right in even rows and left in odd ones — so the columns' segments tile into full horizontal lines, each dot turning its own way. Retreat: the rows retreat in the reverse of the growing, even rows into their left dot, odd rows into their right (the dots turn, which nobody sees). Then the same the other way round — even columns down, odd up, even rows left, odd right. Each part takes `per` beats of the track — a bar each by default, so a half-cycle is 3 bars and the whole 6. Not a cells layer: rows don't reach it.",
       "params": {
-        "per": {"type": "number", "default": 4, "step": 1, "doc": "beats each part lasts, on the track's beats: 4 is a bar each — extend, rotate, retreat, pause, a half-cycle in 4 bars, the whole in 8. 0: `progress` drives it instead"},
-        "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "with `per` 0: 0..1 through the eight parts"},
+        "per": {"type": "number", "default": 4, "step": 1, "doc": "beats each part lasts, on the track's beats: 4 is a bar each — extend, rotate, retreat, a half-cycle in 3 bars, the whole in 6. 0: `progress` drives it instead"},
+        "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "with `per` 0: 0..1 through the six parts"},
         "brightness": {"type": "param", "default": 0.9, "step": 0.05, "doc": "the lines'; sidechains act once glow is unlocked"},
         "dots": {"type": "param", "default": 0.6, "step": 0.05, "doc": "the grid's dots, 0 to leave them to the layers below"},
         "color": {"type": "param", "default": 0, "step": 0.1}
@@ -940,7 +940,7 @@ impl Cells {
 #[derive(Deserialize)]
 #[serde(default)]
 struct Bars {
-	/// Beats a part lasts (extend, rotate, retreat, pause), on the track's beats; 0 for
+	/// Beats a part lasts (extend, rotate, retreat), on the track's beats; 0 for
 	/// `progress`.
 	per: f32,
 	progress: Param,
@@ -1517,11 +1517,10 @@ fn render(
 				//   pointing right in even rows and left in odd ones — so the columns' segments tile
 				//   into full horizontal lines, each dot turning its own way, a pinwheel;
 				// retreat — the rows retreat in the reverse of the growing, even rows back into
-				//   their left dot, odd rows into their right;
-				// pause — the dots turn, which nobody sees.
+				//   their left dot, odd rows into their right (the dots turn, which nobody sees).
 				// Then the same the other way round — even columns down, odd up; even rows left,
-				// odd right — eight parts in all, each `per` beats of the track (4: a bar each, on
-				// the bar lines; a half-cycle 4 bars, the cycle 8), or an eighth of `progress` when
+				// odd right — six parts in all, each `per` beats of the track (4: a bar each, on
+				// the bar lines; a half-cycle 3 bars, the cycle 6), or a sixth of `progress` when
 				// `per` is 0.
 				let color = bars.color.value(&signals);
 				let dots = bars.dots.value_gated(&signals, glow) + hot_brightness;
@@ -1531,30 +1530,29 @@ fn render(
 				let last = CANVAS_HEIGHT - 1;
 				let count = CANVAS_HEIGHT as f32; // segments along a line, the last off the grid
 				let t = if bars.per > 0.0 {
-					(signals.bars * 4.0 / bars.per).rem_euclid(8.0)
+					(signals.bars * 4.0 / bars.per).rem_euclid(6.0)
 				} else {
-					bars.progress.value(&signals).rem_euclid(1.0) * 8.0
+					bars.progress.value(&signals).rem_euclid(1.0) * 6.0
 				};
-				let part = (t.floor() as usize).min(7);
+				let part = (t.floor() as usize).min(5);
 				let f = t - part as f32;
-				let (flipped, phase) = (part >= 4, part % 4);
+				let (flipped, phase) = (part >= 3, part % 3);
 				let (col_even, row_even) = ((i % 2 == 0) != flipped, (j % 2 == 0) != flipped);
 				let up = std::f32::consts::FRAC_PI_2;
 				let from = if col_even { up } else { -up }; // the column's way
 				let to = if row_even { 0.0 } else { std::f32::consts::PI }; // the row's way
 				// a quarter turn from the one to the other, the short way (they are at right angles)
 				let turn = if (col_even && row_even) || (!col_even && !row_even) { -up } else { up };
-				let (angle, fill) = match phase % 4 {
+				let (angle, fill) = match phase {
 					0 => {
 						let n = if col_even { j } else { last - j } as f32;
 						(from, (f * count - n).clamp(0.0, 1.0))
 					}
 					1 => (from + turn * f, 1.0),
-					2 => {
+					_ => {
 						let n = if row_even { i } else { last - i } as f32;
 						(to, ((1.0 - f) * count - n).clamp(0.0, 1.0))
 					}
-					_ => (to, 0.0),
 				};
 				if fill <= 0.0 {
 					continue;
