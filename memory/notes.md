@@ -229,6 +229,20 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   chain can be a field). Contact sheet of all 41 at 11 × 11 was checked headless
   (scratchpad `cdp_fields.py`). Editor: source select has optgroups per family; a field's
   params unfold under the chain with their own sidechain buttons.
+- **The 'left' stage of sine/1: turning bars** (owner, 2026-11-18; built by scratchpad
+  `left_stage.py`, group `turning bars`): two 8-bar cycles in the 16-bar loop — A on the even
+  columns growing up, B on the odd ones growing down; each: arrive 2 bars → fold 2 → collapse
+  2 → rest 2. The fold is cells layers (lines/brightness masked by `unlock:angle`, angle 90 or
+  270 with a span chain ±90: neighbouring columns pivot toward each other into short
+  horizontal bars — a true per-dot pivot can't make full-width bars, the owner chose pairs
+  turning opposite ways); without angle the vertical bars hold and collapse as they are
+  (snakes whose brightness is `0.9 − 0.9 × unlock:angle`). The folded bars' collapse is a
+  snake per block with `heads` = rows (bars in neighbouring rows touch, so a block is one
+  piece; heads cuts it into a run per row). One segment (dot 4, row 5, cycle A) is missing
+  from the fold: a drag hotspot (needs angle, bars 2–6) from it to the next dot unlocks
+  `length` (placeholder choice), and a layer shows the drawn segment once length is had.
+  Snake `dots` 1.0 to match the stage's base dots (a dot of brightness 0 would paint black
+  over them: marks draw in order).
 - **A snake per piece** (owner, 2026-11-18: "if i set a layer to be every 2 cols from 0
   with a retreat or arrive effect, i'd want each region to get its own effect … or really
   for any split map"): `SnakePaths` on `LayerRt`, built at install — the region's cells
