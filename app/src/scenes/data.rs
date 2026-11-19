@@ -550,7 +550,7 @@ pub const CATALOGUE: &str = r##"{
       "doc": "Every cell in the region: a dot, with a line out of it and a ring round it. Twelve rows, one per unlock; this layer sets, adds to or multiplies the rows it has, over what the layers before it left (nothing: a dark dot). A new layer is just brightness 1. Mask a row by distance, bearing or around (where it lands), by a hotspot (a hint) or an unlock (once it's had); sidechain it from the music to move it, which comes in with its unlock."
     },
     "snake": {
-      "doc": "One line through every cell of the region's rectangle, row by row (or column by column), as a snake. retreat: it pulls back cell by cell from its start, leaving a dot at each. arrive: from the dots, each dot in turn extends (and turns) a line to the next until the line is whole. Where it is comes from `progress`: the layer's own bars by default, so put a retreat and an arrive on consecutive bars. Not a cells layer: rows don't reach it.",
+      "doc": "One line through every cell of the region, row by row (or column by column), as a snake — and a snake of its own through each separate piece of the region (every other column, each blob of a map), all running at once. retreat: it pulls back cell by cell from its start, leaving a dot at each. arrive: from the dots, each dot in turn extends (and turns) a line to the next until the line is whole. Where it is comes from `progress`: the layer's own bars by default, so put a retreat and an arrive on consecutive bars. Not a cells layer: rows don't reach it.",
       "params": {
         "mode": {"type": "select", "options": ["retreat", "arrive"], "default": "retreat"},
         "axis": {"type": "select", "options": ["rows", "cols"], "default": "rows", "doc": "the lines run along rows (left-right) or columns (up-down)"},
@@ -1068,6 +1068,69 @@ struct LayerRt {
 	kind: Kind,
 	/// Index of the stage it belongs to, if one.
 	stage: Option<usize>,
+	/// A snake layer's region cut into its pieces.
+	snake: Option<SnakePaths>,
+}
+
+/// The region of a snake layer as separate (4-connected) pieces, each its cells in
+/// serpentine order — a whole rectangle is one piece, so it threads as it always did; every
+/// other column, or each blob of a map, is its own snake (owner, 2026-11-18: "each region
+/// gets its own effect").
+struct SnakePaths {
+	pieces: Vec<Vec<(usize, usize)>>,
+	/// Cell → (piece, index along it).
+	at: HashMap<(usize, usize), (usize, usize)>,
+}
+
+impl SnakePaths {
+	fn new(region: &Region, snake: &Snake) -> Self {
+		let mut seen = HashMap::new();
+		let mut pieces = vec![];
+		for i0 in 0..CANVAS_WIDTH {
+			for j0 in 0..CANVAS_HEIGHT {
+				if !region.contains(i0, j0) || seen.contains_key(&(i0, j0)) {
+					continue;
+				}
+				// flood the piece
+				let mut cells = vec![(i0, j0)];
+				seen.insert((i0, j0), ());
+				let mut k = 0;
+				while k < cells.len() {
+					let (i, j) = cells[k];
+					k += 1;
+					let around = [(i.wrapping_sub(1), j), (i + 1, j), (i, j.wrapping_sub(1)), (i, j + 1)];
+					for (ni, nj) in around {
+						if ni < CANVAS_WIDTH && nj < CANVAS_HEIGHT && region.contains(ni, nj) && !seen.contains_key(&(ni, nj)) {
+							seen.insert((ni, nj), ());
+							cells.push((ni, nj));
+						}
+					}
+				}
+				// serpentine order within the piece's own rectangle: lines top-down along rows
+				// (or left-right along columns), every other line the other way
+				let (imin, jmax) = (cells.iter().map(|c| c.0).min().unwrap(), cells.iter().map(|c| c.1).max().unwrap());
+				let jmin = cells.iter().map(|c| c.1).min().unwrap();
+				let (iw, jh) = (cells.iter().map(|c| c.0).max().unwrap() + 1 - imin, jmax + 1 - jmin);
+				let along_rows = snake.axis != "cols";
+				let key = |&(i, j): &(usize, usize)| {
+					let (line, pos, len) = if along_rows { (jmax - j, i - imin, iw) } else { (i - imin, j - jmin, jh) };
+					let pos = if snake.alternate && line % 2 == 1 { len - 1 - pos } else { pos };
+					(line, pos)
+				};
+				cells.sort_by_key(key);
+				if snake.reverse {
+					cells.reverse();
+				}
+				pieces.push(cells);
+			}
+		}
+		let at = pieces
+			.iter()
+			.enumerate()
+			.flat_map(|(p, cells)| cells.iter().enumerate().map(move |(k, &cell)| (cell, (p, k))))
+			.collect();
+		SnakePaths { pieces, at }
+	}
 }
 
 struct DataScene {
@@ -1121,7 +1184,11 @@ pub fn install(json: &str) -> Result<usize, String> {
 				let kind = parse_kind(&layer.kind, &layer.params)
 					.map_err(|e| format!("{} layer {:?}: {e}", scene.id, layer.name))?;
 				let stage = stage_index(&layer.stage);
-				layers.push(LayerRt { layer, kind, stage });
+				let snake = match &kind {
+					Kind::Snake(snake) => Some(SnakePaths::new(&layer.region, snake)),
+					_ => None,
+				};
+				layers.push(LayerRt { layer, kind, stage, snake });
 			}
 			let layers: &'static [LayerRt] = Vec::leak(layers);
 			let bars = scene.bars[0]..scene.bars[1].max(scene.bars[0] + 1);
@@ -1344,39 +1411,15 @@ fn render(
 				}
 			}
 			Kind::Snake(snake) => {
-				// One polyline through the cell centres of the region's rectangle in serpentine
-				// order; cell k owns the segment from its centre to the next cell's.
-				let rect = rt.layer.region.area();
-				let (w, h) = (rect.i1.saturating_sub(rect.i0), rect.j1.saturating_sub(rect.j0));
-				if w == 0 || h == 0 {
-					continue;
-				}
-				let n = w * h;
-				let along_rows = snake.axis != "cols";
-				let len = if along_rows { w } else { h };
-				let order = |i: usize, j: usize| {
-					let (line, pos) = if along_rows {
-						(rect.j1 - 1 - j, i - rect.i0)
-					} else {
-						(i - rect.i0, j - rect.j0)
-					};
-					let pos = if snake.alternate && line % 2 == 1 { len - 1 - pos } else { pos };
-					let k = line * len + pos;
-					if snake.reverse { n - 1 - k } else { k }
-				};
-				let cell_at = |k: usize| {
-					let k = if snake.reverse { n - 1 - k } else { k };
-					let (line, pos) = (k / len, k % len);
-					let pos = if snake.alternate && line % 2 == 1 { len - 1 - pos } else { pos };
-					if along_rows {
-						(rect.i0 + pos, rect.j1 - 1 - line)
-					} else {
-						(rect.i0 + line, rect.j0 + pos)
-					}
-				};
+				// One polyline through the cell centres of each piece of the region in serpentine
+				// order (`SnakePaths`); cell k owns the segment from its centre to the next cell's.
+				let Some(paths) = &rt.snake else { continue };
+				let Some(&(piece, k)) = paths.at.get(&(i, j)) else { continue };
+				let cells = &paths.pieces[piece];
+				let n = cells.len();
+				let cell_at = |k: usize| cells[k];
 				let heads = snake.heads.clamp(1, n);
 				let run = (n + heads - 1) / heads;
-				let k = order(i, j);
 				let (head, c) = (k / run, k % run);
 				let last = ((head + 1) * run).min(n) - 1;
 				let run_len = last + 1 - head * run;

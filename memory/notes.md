@@ -229,6 +229,12 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   chain can be a field). Contact sheet of all 41 at 11 × 11 was checked headless
   (scratchpad `cdp_fields.py`). Editor: source select has optgroups per family; a field's
   params unfold under the chain with their own sidechain buttons.
+- **A snake per piece** (owner, 2026-11-18: "if i set a layer to be every 2 cols from 0
+  with a retreat or arrive effect, i'd want each region to get its own effect … or really
+  for any split map"): `SnakePaths` on `LayerRt`, built at install — the region's cells
+  flood-filled into 4-connected pieces, each in serpentine order within its own rectangle
+  (so a plain rectangle is exactly the old order), `heads`/`progress` per piece. A checker
+  region is all singletons: dots, no line.
 - **Layer groups** (owner, 2026-11-18: "would be nice to be able to group layers into
   groups, since i use a bunch of layers to make certain sections"): `layer.group` (a name;
   the engine ignores it). Editor: header li over each contiguous run in the list (fold/unfold
