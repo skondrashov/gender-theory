@@ -266,10 +266,10 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   (owner: "extend the cycle so that the lines alternate the other way when they're vertical
   again? and then horizontal again? … each beat does one thing … extend rotate retract
   pause? since it's 4 count") the second half with both parities flipped — eight phases,
-  on `Signals::bars × 4`; then (owner: "make it extend one cell (at a linear pace) per
-  beat") a schedule in beats × `per`: extend 11 (a cell a beat, linear), turn 1, retreat 11,
-  pause 1 = 24 a half-cycle (6 bars), 48 the cycle; `progress` × 48 when `per` is 0.
-  Params: per, progress, brightness, dots (default 0.6), color. Replaced the 15-layer `turning bars` group (and the
+  on `Signals::bars × 4`; a cell-a-beat schedule was tried ("weird because i have 11
+  dots. forget that then, let's just do 4 beats per part") — so: eight parts of `per` beats
+  (default 4 = a bar: extend, rotate, retreat, pause; a half-cycle 4 bars, the cycle 8),
+  `progress` × 8 when `per` is 0. Params: per, progress, brightness, dots (0.6), color. Replaced the 15-layer `turning bars` group (and the
   missing-segment hotspot) in sine/1's left stage with one `bars` layer; the fill-in-a-gap
   unlock idea is open (a `gap` param would be the way).
 - **Snake `tail`** (owner, 2026-11-18: "i want the effect to extend the last dot in the
