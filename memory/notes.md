@@ -262,8 +262,13 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   would come out dashed); grow: fill = clamp(g·11 − n) with n the dot's place from its
   column's start; turn: each segment pivots ±90° on its dot — even rows end pointing right,
   odd rows left, which is what tiles 11 dots into a full row either way; retreat: the same
-  fill with g falling and n counted from the row's start; fourth phase nothing. `progress`
-  0..1 = the four phases. Params: progress, brightness, dots (default 0.6), color. Replaced the 15-layer `turning bars` group (and the
+  fill with g falling and n counted from the row's start; fourth phase nothing. Then
+  (owner: "extend the cycle so that the lines alternate the other way when they're vertical
+  again? and then horizontal again? … each beat does one thing … extend rotate retract
+  pause? since it's 4 count") the second half with both parities flipped — eight phases,
+  `per` beats each on `Signals::bars × 4` (default 1: extend on the one, rotate on the two,
+  retreat on the three, pause on the four; a half-cycle a bar, the cycle two), or `progress`
+  × 8 when `per` is 0. Params: per, progress, brightness, dots (default 0.6), color. Replaced the 15-layer `turning bars` group (and the
   missing-segment hotspot) in sine/1's left stage with one `bars` layer; the fill-in-a-gap
   unlock idea is open (a `gap` param would be the way).
 - **Snake `tail`** (owner, 2026-11-18: "i want the effect to extend the last dot in the

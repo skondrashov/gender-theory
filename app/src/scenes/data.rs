@@ -566,9 +566,10 @@ pub const CATALOGUE: &str = r##"{
       }
     },
     "bars": {
-      "doc": "A grid of dots where every dot owns one segment. Four phases: every other dot along the bottom grows a line up to the next dot, which grows to the next, and so on off the top; in the other columns a line comes down from the top dot the same way. Then every segment turns a quarter turn on its own dot — the way that points it right in even rows and left in odd ones — so the columns' segments tile into full horizontal lines, each dot turning its own way. The rows then retreat in the reverse of the growing, even rows into their left dot, odd rows into their right; the dots turn, which nobody sees; and the columns grow again. `progress` 0..1 is one cycle — the layer's own bars by default. Not a cells layer: rows don't reach it.",
+      "doc": "A grid of dots where every dot owns one segment. Extend: every other dot along the bottom grows a line up to the next dot, which grows to the next, and so on off the top; in the other columns a line comes down from the top dot the same way. Rotate: every segment turns a quarter turn on its own dot — the way that points it right in even rows and left in odd ones — so the columns' segments tile into full horizontal lines, each dot turning its own way. Retreat: the rows retreat in the reverse of the growing, even rows into their left dot, odd rows into their right. Pause: the dots turn, which nobody sees. Then the same the other way round — even columns down, odd up, even rows left, odd right — eight phases, a beat each (`per`): a half-cycle a bar. Not a cells layer: rows don't reach it.",
       "params": {
-        "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "0..1 through the four phases: grow, turn, retreat, turn"},
+        "per": {"type": "number", "default": 1, "step": 0.5, "doc": "beats a phase lasts, on the track's beats: extend on the one, rotate on the two, retreat on the three, pause on the four — a half-cycle a bar, the whole cycle two. 0: `progress` drives it instead"},
+        "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "with `per` 0: 0..1 through the eight phases"},
         "brightness": {"type": "param", "default": 0.9, "step": 0.05, "doc": "the lines'; sidechains act once glow is unlocked"},
         "dots": {"type": "param", "default": 0.6, "step": 0.05, "doc": "the grid's dots, 0 to leave them to the layers below"},
         "color": {"type": "param", "default": 0, "step": 0.1}
@@ -939,6 +940,8 @@ impl Cells {
 #[derive(Deserialize)]
 #[serde(default)]
 struct Bars {
+	/// Beats a phase lasts, on the track's beats; 0 for `progress`.
+	per: f32,
 	progress: Param,
 	brightness: Param,
 	dots: Param,
@@ -948,6 +951,7 @@ struct Bars {
 impl Default for Bars {
 	fn default() -> Self {
 		Bars {
+			per: 1.0,
 			progress: Param {
 				base: 0.0,
 				chains: vec![Sidechain {
@@ -1513,24 +1517,33 @@ fn render(
 				//   into full horizontal lines, each dot turning its own way, a pinwheel;
 				// retreat — the rows retreat in the reverse of the growing, even rows back into
 				//   their left dot, odd rows into their right;
-				// turn — the dots turn, which nobody sees; then the columns grow again.
+				// pause — the dots turn, which nobody sees.
+				// Then the same the other way round — even columns down, odd up; even rows left,
+				// odd right — eight phases in all. A phase is `per` beats of the track (extend on
+				// the one, rotate on the two, retreat on the three, pause on the four), or an
+				// eighth of `progress` when `per` is 0.
 				let color = bars.color.value(&signals);
 				let dots = bars.dots.value_gated(&signals, glow) + hot_brightness;
 				if dots > 0.001 {
 					dot(draw, model, x, y, paint(model, dots, color));
 				}
-				let p = bars.progress.value(&signals).rem_euclid(1.0) * 4.0;
-				let phase = (p.floor() as usize).min(3);
+				let p = if bars.per > 0.0 {
+					(signals.bars * 4.0 / bars.per).rem_euclid(8.0)
+				} else {
+					bars.progress.value(&signals).rem_euclid(1.0) * 8.0
+				};
+				let phase = (p.floor() as usize).min(7);
 				let f = p - phase as f32;
+				let flipped = phase >= 4;
 				let last = CANVAS_HEIGHT - 1;
 				let count = CANVAS_HEIGHT as f32; // segments along a line, the last off the grid
-				let (col_even, row_even) = (i % 2 == 0, j % 2 == 0);
+				let (col_even, row_even) = ((i % 2 == 0) != flipped, (j % 2 == 0) != flipped);
 				let up = std::f32::consts::FRAC_PI_2;
 				let from = if col_even { up } else { -up }; // the column's way
 				let to = if row_even { 0.0 } else { std::f32::consts::PI }; // the row's way
 				// a quarter turn from the one to the other, the short way (they are at right angles)
 				let turn = if (col_even && row_even) || (!col_even && !row_even) { -up } else { up };
-				let (angle, fill) = match phase {
+				let (angle, fill) = match phase % 4 {
 					0 => {
 						let n = if col_even { j } else { last - j } as f32;
 						(from, (f * count - n).clamp(0.0, 1.0))
