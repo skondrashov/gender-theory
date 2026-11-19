@@ -105,6 +105,9 @@ main { display: flex; height: 500px; flex: none; border-bottom: 1px solid var(--
 #lists li .x:hover { color: #e66; }
 #lists li .bars { color: var(--dim); font-family: var(--mono); font-size: 11px; }
 #lists li.muted { opacity: .45; }
+#lists li.group { padding-top: 5px; font-weight: 600; }
+#lists li.group .caret { display: inline-block; width: 14px; color: var(--dim); font-weight: normal; }
+#lists li.in-group { padding-left: 24px; }
 
 #inspector { flex: 1; overflow: auto; padding: 8px 12px; }
 #inspector .hint { color: var(--dim); padding: 20px 0; }

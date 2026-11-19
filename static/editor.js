@@ -35,7 +35,8 @@ let si = 0;                // index of the scene being edited (its layers and ho
 let follow = true;         // si follows the scene playing, until a scene is picked by hand
 let stageFilter = '';      // the stage on preview: the lists show only its layers and hotspots (and the stageless)
 let lastStages = '';
-let sel = null;            // {type: 'scene'|'layer'|'hotspot'|'band', index}
+let sel = null;            // {type: 'scene'|'layer'|'hotspot'|'band', index} | {type: 'group', index: name}
+const collapsed = new Set(); // layer groups folded in the list, as "scene id|group"
 let st = {};               // last state from the app
 let history = [], future = [];
 let dirty = false;
@@ -422,7 +423,24 @@ function renderLists() {
   $('#hotspot-title').textContent = s ? `hotspots of ${s.id}` : 'hotspots';
   $('#layer-title').textContent = s ? `layers of ${s.id}` : 'layers';
   $('#hotspot-list').replaceChildren(...(s?.hotspots ?? []).map((h, k) => inStage(h) ? item('hotspot', k, h.name || h.id, h.bars, '', h.stage) : null).filter(Boolean));
-  $('#layer-list').replaceChildren(...(s?.layers ?? []).map((l, k) => inStage(l) ? item('layer', k, `${l.name || l.id} · ${l.kind}`, l.bars, l.muted ? 'muted' : '', l.stage) : null).filter(Boolean));
+  // layers, with a header over each run of layers that share a group (a group is a label; draw order is the list's)
+  const layerItems = [];
+  let lastGroup = null;
+  (s?.layers ?? []).forEach((l, k) => {
+    if (!inStage(l)) return;
+    const g = l.group || '';
+    if (g && g !== lastGroup) {
+      const key = `${s.id}|${g}`, folded = collapsed.has(key);
+      const members = s.layers.filter((m) => m.group === g);
+      layerItems.push(el('li', { class: 'group' + (sel && sel.type === 'group' && sel.index === g ? ' sel' : '') + (members.every((m) => m.muted) ? ' muted' : ''), onclick: () => select('group', g) },
+        el('span', {}, el('span', { class: 'caret', title: folded ? 'unfold' : 'fold', onclick: (e) => { e.stopPropagation(); if (folded) collapsed.delete(key); else collapsed.add(key); renderLists(); } }, folded ? '▸' : '▾'), g,
+          el('span', { class: 'stage' }, `${members.length} layer${members.length === 1 ? '' : 's'}`))));
+    }
+    lastGroup = g;
+    if (g && collapsed.has(`${s.id}|${g}`)) return;
+    layerItems.push(item('layer', k, `${l.name || l.id} · ${l.kind}`, l.bars, (l.muted ? 'muted ' : '') + (g ? 'in-group' : ''), l.stage));
+  });
+  $('#layer-list').replaceChildren(...layerItems);
   $('#preset-list').replaceChildren(...(album.presets ?? []).map((p, k) => el('li', { title: 'click to add a copy to this scene', onclick: () => insertPreset(k) },
     el('span', {}, p.name, el('span', { class: 'stage' }, p.layer.kind)),
     el('span', { class: 'x', title: 'forget this preset', onclick: (e) => { e.stopPropagation(); deletePreset(k); } }, '×'))));
@@ -447,8 +465,18 @@ function selected() {
   if (sel.type === 'layer') return s?.layers[sel.index];
   if (sel.type === 'hotspot') return s?.hotspots[sel.index];
   if (sel.type === 'band') return album.bands[sel.index];
+  if (sel.type === 'group') return groupOf(sel.index);
   return null;
 }
+
+// A group is the layers of the scene that carry its name (editor-only; the engine ignores `group`).
+function groupOf(name) {
+  const layers = (scene()?.layers ?? []).filter((l) => l.group === name);
+  return layers.length ? { name, layers } : null;
+}
+const groupNames = () => [...new Set((scene()?.layers ?? []).map((l) => l.group).filter(Boolean))];
+// The group a new layer should join: the selected group, or the selected layer's.
+const currentGroup = () => (sel?.type === 'group' ? sel.index : sel?.type === 'layer' ? selected()?.group : null) || null;
 
 function listOf(type) {
   const t = track(), s = scene();
@@ -457,6 +485,15 @@ function listOf(type) {
 
 function deleteSelected() {
   if (!sel) return;
+  if (sel.type === 'group') {
+    const g = selected();
+    if (!g) return;
+    snapshotForUndo();
+    scene().layers = scene().layers.filter((l) => l.group !== g.name);
+    sel = null;
+    commit({ silent: true, inspector: true });
+    return;
+  }
   const list = listOf(sel.type);
   snapshotForUndo();
   list.splice(sel.index, 1);
@@ -467,6 +504,19 @@ function deleteSelected() {
 
 function duplicateSelected() {
   if (!sel || sel.type === 'band') return;
+  if (sel.type === 'group') {
+    const g = selected();
+    if (!g) return;
+    const name = g.name + ' copy';
+    const copies = g.layers.map((l) => ({ ...JSON.parse(JSON.stringify(l)), id: uid('l'), group: name }));
+    snapshotForUndo();
+    const s = scene();
+    const last = Math.max(...g.layers.map((l) => s.layers.indexOf(l)));
+    s.layers.splice(last + 1, 0, ...copies);
+    sel = { type: 'group', index: name };
+    commit({ silent: true, inspector: true });
+    return;
+  }
   const list = listOf(sel.type);
   const copy = JSON.parse(JSON.stringify(list[sel.index]));
   if (sel.type === 'scene') { copy.id = copy.id + '-copy'; const len = copy.bars[1] - copy.bars[0]; const old = [...copy.bars]; copy.bars = [copy.bars[1], copy.bars[1] + len]; fitScene(copy, old); }
@@ -495,7 +545,20 @@ function nudgeSelected(d) {
 function moveSelectedTo(sceneId) {
   const t = track();
   const k = t.scenes.findIndex((s) => s.id === sceneId);
-  if (k < 0 || k === si || !sel || (sel.type !== 'layer' && sel.type !== 'hotspot')) return;
+  if (k < 0 || k === si || !sel) return;
+  if (sel.type === 'group') {
+    const g = selected();
+    if (!g) return;
+    snapshotForUndo();
+    const s = scene(), to = t.scenes[k];
+    s.layers = s.layers.filter((l) => l.group !== g.name);
+    for (const l of g.layers) { delete l.bars; delete l.stage; }
+    to.layers = [...(to.layers || []), ...g.layers];
+    si = k;
+    commit({ silent: true, inspector: true });
+    return;
+  }
+  if (sel.type !== 'layer' && sel.type !== 'hotspot') return;
   snapshotForUndo();
   const list = listOf(sel.type);
   const [item] = list.splice(sel.index, 1);
@@ -581,8 +644,12 @@ function addLayer() {
   if (!s) { setStatus('add a scene first'); return; }
   snapshotForUndo();
   s.layers ??= [];
-  s.layers.push({ id: uid('l'), name: 'layer', region: emptyRegion(), kind: 'cells', params: defaultParams('cells'), ...inFilteredStage() });
-  sel = { type: 'layer', index: s.layers.length - 1 };
+  const group = currentGroup();
+  const layer = { id: uid('l'), name: 'layer', region: emptyRegion(), kind: 'cells', params: defaultParams('cells'), ...inFilteredStage(), ...(group ? { group } : {}) };
+  // into its group, after the last member; else at the end
+  const at = group ? Math.max(...s.layers.map((l, k) => (l.group === group ? k : -1))) + 1 : s.layers.length;
+  s.layers.splice(at, 0, layer);
+  sel = { type: 'layer', index: at };
   commit({ silent: true, inspector: true });
 }
 
@@ -695,7 +762,33 @@ function renderInspector() {
     box.replaceChildren(head(item.name || item.id, 'hotspot'), ...hotspotInspector(item).filter(Boolean));
   } else if (sel.type === 'band') {
     box.replaceChildren(head(item.name || item.id, 'band'), ...bandInspector(item));
+  } else if (sel.type === 'group') {
+    box.replaceChildren(head(item.name, `group · ${item.layers.length} layers`), ...groupInspector(item).filter(Boolean));
   }
+}
+
+// A group: rename, stage, mute, move or duplicate its layers together.
+function groupInspector(g) {
+  const s = scene();
+  const all = (fn) => { snapshotForUndo(); g.layers.forEach(fn); commit({ silent: true, inspector: true }); };
+  const names = s.stages || [];
+  const stages = new Set(g.layers.map((l) => l.stage || ''));
+  const muted = g.layers.filter((l) => l.muted).length;
+  const mute = el('input', { type: 'checkbox', ...(muted === g.layers.length ? { checked: '' } : {}), onchange: (e) => all((l) => { l.muted = e.target.checked; }) });
+  mute.indeterminate = muted > 0 && muted < g.layers.length;
+  return [
+    row('name', el('input', { type: 'text', value: g.name, onchange: (e) => { const name = e.target.value.trim(); if (!name) return; all((l) => { l.group = name; }); sel = { type: 'group', index: name }; renderLists(); renderInspector(); } })),
+    names.length ? row('stage', el('select', { onchange: (e) => all((l) => { if (e.target.value) l.stage = e.target.value; else delete l.stage; }) },
+      ...(stages.size > 1 ? [el('option', { value: '', selected: '' }, 'mixed')] : []),
+      el('option', { value: '', ...(stages.size === 1 && stages.has('') ? { selected: '' } : {}) }, 'every stage'),
+      ...names.map((n) => el('option', { value: n, ...(stages.size === 1 && stages.has(n) ? { selected: '' } : {}) }, n))),
+      el('span', { class: 'doc' }, 'sets it on every layer of the group')) : null,
+    moveRow(),
+    row('', el('label', {}, mute, 'muted'), el('button', { class: 'small', onclick: addLayer, title: 'a new layer in this group, after its last one' }, '+ layer')),
+    el('fieldset', {}, el('legend', {}, 'layers'), ...g.layers.map((l) => el('div', { class: 'row' },
+      el('button', { class: 'link', onclick: () => select('layer', s.layers.indexOf(l)) }, l.name || l.id), el('span', { class: 'doc' }, `${l.kind}${l.stage ? ' · ' + l.stage : ''}${l.muted ? ' · muted' : ''}`)))),
+    el('div', { class: 'doc' }, 'a group is a name on its layers — draw order is still the list order; layers of a group are shown together when they are next to each other'),
+  ];
 }
 
 function stagesEditor(s) {
@@ -761,8 +854,12 @@ function layerInspector(l) {
   l.params ??= {};
   delete l.ignore_glow; delete l.glow; delete l.when; delete l.fade; delete l.needs; // older files: a row's masks now
 
+  const groups = el('datalist', { id: 'group-names' }, ...groupNames().map((n) => el('option', { value: n })));
   return [
     row('name', textInput(l, 'name')),
+    row('group', el('input', { type: 'text', value: l.group || '', placeholder: 'none', list: 'group-names', onchange: (e) => {
+      snapshotForUndo(); const name = e.target.value.trim(); if (name) l.group = name; else delete l.group; commit({ silent: true, inspector: true });
+    } }), groups, el('span', { class: 'doc' }, 'layers that make one thing together: name a group, and the list folds them, the group can be staged, muted, moved and duplicated as one')),
     row('kind', selectInput(l, 'kind', kinds, { commit: { inspector: true }, then: () => { l.params = defaultParams(l.kind); commit({ silent: true, inspector: true }); } }),
       el('span', { class: 'doc' }, spec.doc)),
     stageRow(l),
@@ -1062,6 +1159,12 @@ function regionCells(r) {
 }
 
 function sendHighlight() {
+  if (sel?.type === 'group') {
+    const seen = new Set(), cells = [];
+    for (const l of selected()?.layers ?? []) for (const c of regionCells(l.region || {})) { const key = c.join(','); if (!seen.has(key)) { seen.add(key); cells.push(c); } }
+    send(JSON.stringify({ highlight: cells }));
+    return;
+  }
   const r = regionOf();
   send(JSON.stringify({ highlight: r ? regionCells(r) : [] }));
 }
@@ -1130,7 +1233,7 @@ function renderGrid() {
   sendHighlight();
   // tools
   const tools = $('#region-tools');
-  if (!r) { tools.replaceChildren(el('span', {}, 'select a layer or hotspot to edit its region')); return; }
+  if (!r) { tools.replaceChildren(el('span', {}, sel?.type === 'group' ? 'a group: its layers light up on the preview; select one to edit its region' : 'select a layer or hotspot to edit its region')); return; }
   const go = () => commit({ silent: true, lists: false, timeline: false, inspector: sel.type === 'hotspot' });
   const btn = (label, on, fn) => el('button', { class: 'small' + (on ? ' on' : ''), onclick: () => { snapshotForUndo(); fn(); go(); } }, label);
   tools.replaceChildren(

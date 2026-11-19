@@ -229,6 +229,13 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   chain can be a field). Contact sheet of all 41 at 11 × 11 was checked headless
   (scratchpad `cdp_fields.py`). Editor: source select has optgroups per family; a field's
   params unfold under the chain with their own sidechain buttons.
+- **Layer groups** (owner, 2026-11-18: "would be nice to be able to group layers into
+  groups, since i use a bunch of layers to make certain sections"): `layer.group` (a name;
+  the engine ignores it). Editor: header li over each contiguous run in the list (fold/unfold
+  per scene in memory), `sel = {type: 'group', index: name}`, `groupOf(name)` = every layer
+  of the scene with that name; the inspector renames/stages/mutes/moves/duplicates/deletes
+  them together and adds a layer after the group's last; the preview highlights the union of
+  their cells. Draw order is untouched: a group is a label, not a container.
 - **The graph tab** (owner, 2026-11-18: "i feel like at some point i'm gonna want a graph
   i can edit of how all the scenes are connected" → "do it"): a tab beside the timeline in
   the bottom panel (`gt-view` in localStorage), SVG, `renderGraph()` in editor.js. Nodes =
