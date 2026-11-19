@@ -202,27 +202,27 @@
         "brightness": {
          "op": "add",
          "base": 0,
-         "chains": [],
-         "masks": [
+         "chains": [
           {
            "source": "pulse",
-           "depth": 1000,
+           "depth": 1,
            "threshold": 0,
            "width": 1,
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0,
-           "add": true
-          },
+           "delay": 0
+          }
+         ],
+         "masks": [
           {
            "source": "distance",
-           "depth": 1,
+           "depth": 2.5,
            "threshold": 0,
            "width": 1,
            "curve": 1,
            "invert": true,
-           "on": false,
+           "on": true,
            "delay": 0,
            "add": true
           }
@@ -250,9 +250,9 @@
       },
       {
        "id": "lmwmc9gmm6ej",
-       "name": "left",
+       "name": "left top half",
        "region": {
-        "map": "...........\n...........\n.#.........\n.#.........\n.#.........\n.#.........\n.#.........\n.#.........\n.#.........\n...........\n..........."
+        "map": "...........\n.#.........\n.#.........\n.#.........\n.#.........\n...........\n...........\n...........\n...........\n...........\n..........."
        },
        "kind": "cells",
        "params": {
@@ -261,15 +261,27 @@
          "base": 0,
          "chains": [],
          "masks": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "angle": {
+         "op": "set",
+         "base": 270,
+         "chains": [],
+         "masks": []
         }
        },
        "stage": "foyer"
       },
       {
-       "id": "lmwmh5ehy372",
-       "name": "bottom left",
+       "id": "lmwmwmlzdi2o",
+       "name": "left bottom half",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...#.......\n..#........\n.#.........\n..........."
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n.#.........\n.#.........\n.#.........\n.#.........\n..........."
        },
        "kind": "cells",
        "params": {
@@ -277,6 +289,124 @@
          "op": "set",
          "base": 0,
          "chains": [],
+         "masks": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "angle": {
+         "op": "set",
+         "base": 90,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "foyer"
+      },
+      {
+       "id": "lmwmwo72pig6",
+       "name": "left",
+       "region": {
+        "map": "...........\n.#.........\n.#.........\n.#.........\n.#.........\n.#.........\n.#.........\n.#.........\n.#.........\n.#.........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "add",
+         "base": 0,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "masks": []
+        }
+       },
+       "stage": "foyer"
+      },
+      {
+       "id": "lmwmwqed4evm",
+       "name": "left copy",
+       "region": {
+        "map": "...........\n...........\n..#........\n...#.......\n....#......\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "add",
+         "base": 0,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          },
+          {
+           "source": "b-kick",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "masks": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "angle": {
+         "op": "set",
+         "base": 135,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "foyer"
+      },
+      {
+       "id": "lmwmwqf8bg9j",
+       "name": "left copy copy",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n....#......\n...#.......\n..#........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "add",
+         "base": 0,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
          "masks": []
         }
        },
@@ -338,17 +468,19 @@
          "chains": [
           {
            "source": "pulse",
-           "depth": 2.5,
+           "depth": 1,
            "threshold": 0,
            "width": 1,
            "curve": 1,
            "invert": false,
            "on": true,
            "delay": 0
-          },
+          }
+         ],
+         "masks": [
           {
            "source": "distance",
-           "depth": 1,
+           "depth": 0.8,
            "threshold": 0,
            "width": 1,
            "curve": 1,
@@ -356,8 +488,7 @@
            "on": true,
            "delay": 0
           }
-         ],
-         "masks": []
+         ]
         }
        },
        "stage": "top"
