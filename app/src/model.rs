@@ -889,15 +889,8 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 		}
 	}
 
-	// Something has been set in motion: a white border until it lands.
-	if model.transitioning() {
-		draw.rect()
-			.no_fill()
-			.stroke_color(WHITE)
-			.stroke_weight(8.0)
-			.xy(window.xy())
-			.wh(window.wh());
-	}
+	// (A transition used to draw a white border until it landed; the morph telegraphs it
+	// on its own now — owner, 2026-11-18.)
 
 	if model.menu {
 		draw_menu(&draw, model, window);

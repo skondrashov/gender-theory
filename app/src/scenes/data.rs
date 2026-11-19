@@ -303,6 +303,11 @@ pub struct Sidechain {
 	/// With `source` "position": the field this is, a function of where the cell is
 	/// (`fields::FIELDS`), with parameters that are params of their own.
 	pub field: Option<fields::Field>,
+	/// As a mask: `+` instead of `×` — its share (depth × shape) is added to what the other
+	/// masks let through, so a row masked by distance + pulse lands where either says (owner,
+	/// 2026-11-18: "add pulse instead of multiplying … glow effects on stars that are blacked
+	/// out by default").
+	pub add: bool,
 }
 
 impl Default for Sidechain {
@@ -317,6 +322,7 @@ impl Default for Sidechain {
 			on: true,
 			delay: 0.0,
 			field: None,
+			add: false,
 		}
 	}
 }
@@ -516,6 +522,7 @@ impl Signals<'_> {
 pub const CATALOGUE: &str = r##"{
   "sources": ["span", "beat", "bar", "pulse", "bar.phase", "beat.phase", "clock", "noise", "distance", "bearing", "around", "transition", "bass", "mid", "treble"],
   "fields": [],
+  "elsewhere": [],
   "sourceDocs": {
     "span": "0..1 across the layer's own bars (the scene's if it has none): where we are in it",
     "beat": "hits on every beat and falls away before the next",
@@ -600,9 +607,17 @@ pub fn catalogue() -> String {
 			})
 		})
 		.collect();
+	// The hand-written scenes (for_against.rs, …): ids a door can lead to that aren't in the
+	// album, so the editor's graph knows a door to one of them isn't a door to nowhere.
+	let elsewhere: Vec<&str> = super::for_against::SCENES
+		.iter()
+		.chain(super::terra_firmament::SCENES.iter())
+		.map(|scene| scene.id)
+		.collect();
 	CATALOGUE
 		.replace("\"rows\": [],", &format!("\"rows\": {},", serde_json::to_string(&rows).unwrap()))
 		.replace("\"fields\": [],", &format!("\"fields\": {},", fields::fields_json()))
+		.replace("\"elsewhere\": [],", &format!("\"elsewhere\": {},", serde_json::to_string(&elsewhere).unwrap()))
 }
 
 // ---- the rows of a cell ----
@@ -683,23 +698,44 @@ impl<'de> Deserialize<'de> for Row {
 }
 
 impl Row {
-	/// How much of this row's change lands: the product of its masks, each `1 − depth × (1 −
-	/// shape)`, a moving one scaled by `gate` like a sidechain.
+	/// How much of this row's change lands: the product of its `×` masks, each `1 − depth ×
+	/// (1 − shape)`, plus the share of each `+` mask, `depth × shape` (so with only `+` masks
+	/// nothing lands until one says so); a moving one scaled by `gate` like a sidechain.
 	pub fn amount(&self, signals: &Signals, gate: f32) -> f32 {
-		self.mask_parts(signals, gate).iter().product::<f32>().clamp(0.0, 1.0)
+		let parts = self.mask_parts(signals, gate);
+		let (mut product, mut sum, mut any_mul, mut any_add) = (1.0, 0.0, false, false);
+		for (mask, part) in self.masks.iter().zip(parts) {
+			if !mask.on {
+				continue;
+			}
+			if mask.add {
+				sum += part;
+				any_add = true;
+			} else {
+				product *= part;
+				any_mul = true;
+			}
+		}
+		let through = if any_mul { product } else if any_add { 0.0 } else { 1.0 };
+		(through + sum).clamp(0.0, 1.0)
 	}
 
-	/// What each mask lets through right now (1 for one that is off): the probe's breakdown.
+	/// What each mask does right now — a `×` mask what it lets through (1 when off), a `+`
+	/// mask what it adds (0 when off): the probe's breakdown.
 	pub fn mask_parts(&self, signals: &Signals, gate: f32) -> Vec<f32> {
 		self.masks
 			.iter()
 			.map(|mask| {
 				if !mask.on {
-					return 1.0;
+					return if mask.add { 0.0 } else { 1.0 };
 				}
 				let scale = if Signals::fixed(&mask.source) { 1.0 } else { gate };
 				let shaped = mask.shape(signals.level(mask, gate, 0));
-				1.0 - scale * mask.depth * (1.0 - shaped)
+				if mask.add {
+					scale * mask.depth * shaped
+				} else {
+					1.0 - scale * mask.depth * (1.0 - shaped)
+				}
 			})
 			.collect()
 	}

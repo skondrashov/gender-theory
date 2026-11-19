@@ -134,11 +134,53 @@ legend { color: var(--dim); font-size: 10px; text-transform: uppercase; letter-s
 .chain input[type=number] { width: 48px; }
 .chain .lbl { color: var(--dim); }
 .chain.off { opacity: .5; }
+.chain button.mode { font-family: var(--mono); font-size: 12px; min-width: 18px; padding: 0 2px; }
 button.link { background: none; border: none; color: var(--accent); padding: 0 4px; }
 button.danger { color: #ff6b6b; }
 .actions .action { display: flex; gap: 6px; align-items: center; padding: 2px 0; }
 
-#timeline { flex: 1; min-height: 140px; overflow: auto; background: var(--panel); position: relative; }
+#bottom { flex: 1; min-height: 160px; display: flex; flex-direction: column; background: var(--panel); }
+#tabs { display: flex; align-items: center; gap: 2px; padding: 2px 8px 0; border-bottom: 1px solid var(--line); font-size: 11px; flex: none; }
+#tabs .tab { background: none; border: 1px solid transparent; border-bottom: 0; border-radius: 3px 3px 0 0; color: var(--dim); padding: 1px 8px; }
+#tabs .tab.on { color: var(--text); border-color: var(--line); background: var(--bg); }
+#graph-report { margin-left: 12px; }
+#graph-report .warn { color: var(--accent); }
+#graph-help { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#timeline { flex: 1; overflow: auto; position: relative; }
+#graph { flex: 1; overflow: auto; background: var(--bg); position: relative; }
+#graph svg { display: block; font: 11px system-ui, sans-serif; }
+#graph .node rect.box { fill: #1f1f25; stroke: #4a4a60; stroke-width: 1; rx: 4; }
+#graph .node:hover rect.box { stroke: var(--dim); }
+#graph .node.sel rect.box { stroke: var(--accent); stroke-width: 2; }
+#graph .node.playing rect.box { fill: #262a33; }
+#graph .node.unreachable rect.box { stroke-dasharray: 4 3; }
+#graph .node.ghost rect.box { fill: none; stroke: #ff6b6b; stroke-dasharray: 4 3; }
+#graph .node text { fill: var(--text); pointer-events: none; }
+#graph .node .id { font-weight: 600; }
+#graph .node .bars, #graph .node .stage { fill: var(--dim); font-size: 10px; }
+#graph .node .stage { font-family: var(--mono); }
+#graph .node .marks { fill: #d6c08a; font-size: 10px; }
+#graph .node .start { fill: var(--accent); font-size: 9px; letter-spacing: .08em; }
+#graph .node .go { fill: var(--dim); font-size: 10px; pointer-events: all; cursor: pointer; }
+#graph .node .go:hover, #graph .node.playing .go { fill: var(--accent); }
+#graph .node .port { fill: var(--bg); stroke: var(--dim); cursor: crosshair; opacity: 0; }
+#graph .node:hover .port, #graph.linking .node .port { opacity: 1; }
+#graph .node .port:hover { stroke: var(--accent); fill: var(--accent); }
+#graph .node { cursor: grab; }
+#graph .edge path.line { fill: none; stroke: #7a6a4a; stroke-width: 1.5; pointer-events: none; }
+#graph .edge path.hit { fill: none; stroke: transparent; stroke-width: 10; cursor: pointer; }
+#graph .edge.sel path.line { stroke: var(--accent); stroke-width: 2; }
+#graph .edge.dangling path.line { stroke: #ff6b6b; stroke-dasharray: 4 3; }
+#graph .edge:hover path.line { stroke: #d6c08a; }
+#graph .edge text { fill: #b8a888; font-size: 9px; paint-order: stroke; stroke: var(--bg); stroke-width: 3px; pointer-events: none; }
+#graph .edge.sel text { fill: var(--accent); }
+#graph .edge .head { fill: #7a6a4a; stroke: none; cursor: move; }
+#graph .edge.sel .head { fill: var(--accent); }
+#graph .edge .head:hover { fill: #fff; }
+#graph .edge .drop { fill: #ff6b6b; font-size: 11px; cursor: pointer; pointer-events: all; paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }
+#graph .link { fill: none; stroke: var(--accent); stroke-dasharray: 4 3; pointer-events: none; }
+#graph .node.target rect.box { stroke: var(--accent); }
+#graph .track-label { fill: var(--dim); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; pointer-events: none; }
 #lanes { position: relative; min-width: 100%; }
 .lane { position: relative; height: 22px; border-bottom: 1px solid var(--line); }
 #wave { height: 48px; }

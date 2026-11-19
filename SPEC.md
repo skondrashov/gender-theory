@@ -115,9 +115,10 @@ for new *kinds* of mechanic (`scenes/data.rs`).
   hotspot on the same cells can be the door that needs it.
 - A stage change lands at the next bar, morphing like a scene change; the music is
   untouched. A scene change restarts the new stretch from its first bar.
-- From a trigger until the change lands: white border, no input, the scene morphs into
+- From a trigger until the change lands: no input, the scene morphs into
   the next over the last 1.5 s.
-- Progress (scene + unlocks) is saved in the browser. **M** opens the whole graph.
+- Progress (scene + unlocks) is saved in the browser. **M** opens the whole graph. The
+  editor's graph tab is the same graph, editable (doors drawn between scenes).
 - `scenes::dangling()` reports doors to nowhere at startup. **open:** a check that every
   `needs` is reachable before the phase that needs it (the spine is honoured).
 

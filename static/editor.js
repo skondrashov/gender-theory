@@ -113,6 +113,7 @@ async function boot() {
   setupGrid();
   setupSpectrum();
   setupTimeline();
+  setupGraph();
   renderAll();
   for (const t of album.tracks) decodeWave(t);
   requestAnimationFrame(loop);
@@ -124,6 +125,7 @@ function renderAll() {
   renderInspector();
   renderGrid();
   renderTimeline();
+  renderGraph();
   renderSources();
 }
 
@@ -147,6 +149,7 @@ function commit(opts = {}) {
   if (opts.inspector) renderInspector();
   if (opts.grid !== false) renderGrid();
   if (opts.timeline !== false) renderTimeline();
+  if (opts.graph !== false) renderGraph();
   if (opts.sources) renderSources();
 }
 
@@ -262,7 +265,7 @@ function keys(e) {
 
 // ---- the loop: poll the app ----
 
-let lastBar = -1;
+let lastBar = -1, lastPlayingScene = null;
 function loop() {
   try { st = JSON.parse(readState() || '{}'); } catch { st = {}; }
   const t = track();
@@ -293,6 +296,10 @@ function loop() {
   const now = t.scenes.findIndex((s) => s.id === st.scene && st.track === t.id);
   if ((playing ? +playing.dataset.index : -1) !== now) {
     for (const li of document.querySelectorAll('#scene-list li')) li.classList.toggle('playing', +li.dataset.index === now);
+  }
+  if (st.scene !== lastPlayingScene) {
+    lastPlayingScene = st.scene;
+    for (const g of document.querySelectorAll('#graph .node')) g.classList.toggle('playing', g.dataset.scene === st.scene);
   }
   for (const u of UNLOCKS) {
     const box = $(`#unlock-${u}`);
@@ -359,7 +366,7 @@ function updateReadouts() {
     const chain = chainRefs[r.dataset.chainRef];
     const unlock = rowSpec(row)?.unlock;
     const waiting = chain && !fixedSource(chain.source) && unlock && !unlocked(unlock) ? ` · needs ${unlock}` : '';
-    r.textContent = (kind === 'masks' ? `× ${v.toFixed(2)}` : `${v < 0 ? '−' : '+'} ${Math.abs(v).toFixed(2)}`) + waiting;
+    r.textContent = (kind === 'masks' ? `${chain?.add ? '+' : '×'} ${v.toFixed(2)}` : `${v < 0 ? '−' : '+'} ${Math.abs(v).toFixed(2)}`) + waiting;
   }
 }
 
@@ -682,7 +689,7 @@ function renderInspector() {
   } else if (sel.type === 'layer') {
     box.replaceChildren(head(item.name || item.id, item.kind), ...layerInspector(item));
   } else if (sel.type === 'hotspot') {
-    box.replaceChildren(head(item.name || item.id, 'hotspot'), ...hotspotInspector(item));
+    box.replaceChildren(head(item.name || item.id, 'hotspot'), ...hotspotInspector(item).filter(Boolean));
   } else if (sel.type === 'band') {
     box.replaceChildren(head(item.name || item.id, 'band'), ...bandInspector(item));
   }
@@ -820,7 +827,7 @@ function chainsUi(p, step, key = 'chains', probeKey = null) {
       : 'add a source to this: the music for motion, noise / distance / bearing / around for a pattern',
     onclick: () => { box.hidden = !box.hidden; } }, label());
   const render = () => {
-    box.replaceChildren(...list.map((c, k) => chainRow(list, c, k, render, probeKey ? `${probeKey}|${key}|${k}` : null)),
+    box.replaceChildren(...list.map((c, k) => chainRow(list, c, k, render, probeKey ? `${probeKey}|${key}|${k}` : null, key === 'masks')),
       el('button', { class: 'link', onclick: () => { snapshotForUndo(); list.push({ source: masks ? 'distance' : (album.bands[0]?.id ?? 'beat'), depth: !masks && step >= 1 ? 360 : 1, threshold: 0, width: 1, curve: 1, invert: false, on: true, delay: 0 }); commit({ silent: true }); render(); } }, masks ? '+ mask' : '+ sidechain'));
     toggle.textContent = label(); // the count on the button follows adds and removes
   };
@@ -846,7 +853,7 @@ function paramRow(params, name, spec) {
   return row(name, el('span', { class: 'doc' }, 'unknown param type ' + spec.type));
 }
 
-function chainRow(list, c, k, rerender, probePart = null) {
+function chainRow(list, c, k, rerender, probePart = null, isMask = false) {
   const id = uid('m');
   chainRefs[id] = c;
   const sources = [
@@ -875,6 +882,11 @@ function chainRow(list, c, k, rerender, probePart = null) {
   const fieldBox = field ? fieldParams(field) : null;
   return el('div', { class: 'chain-and-field' }, el('div', { class: 'chain' + (c.on ? '' : ' off') },
     el('label', {}, el('input', { type: 'checkbox', ...(c.on ? { checked: '' } : {}), title: 'on', onchange: (e) => { snapshotForUndo(); c.on = e.target.checked; commit({ silent: true }); rerender(); } })),
+    // a mask multiplies (lets the row's change through by this much) or adds its share on top
+    isMask ? el('button', { class: 'link mode', title: c.add
+      ? '+ : adds its share (depth × level) to what the × masks let through — distance + pulse lands where either says; a + pulse alone lights only on the pulse. click for ×'
+      : '× : lets the change of the row through by this much, multiplied with the other masks — distance × pulse lands only where both say. click for +',
+      onclick: () => { snapshotForUndo(); c.add = !c.add; commit({ silent: true }); rerender(); } }, c.add ? '+' : '×') : null,
     source,
     el('div', { class: 'meter', 'data-chain': id, title: 'what it adds right now' }, el('i')),
     probePart ? el('span', { class: 'readout mono', 'data-probe-part': probePart, 'data-chain-ref': id, title: 'at the probe cell right now: what this adds (a sidechain) or lets through (a mask)' }, '—') : null,
@@ -1372,6 +1384,313 @@ function drawWave(t) {
   }
   g.fillStyle = '#2e2e36';
   for (let k = 0; k <= wave.bars; k += 4) g.fillRect(k * PPB, 0, 1, c.height);
+}
+
+// ---- the graph: how the scenes connect ----
+//
+// One node per scene of every track; an arrow per hotspot action that leads somewhere (a
+// `go` or a `via`). Positions are the owner's, kept on the scene as `graph: {x, y}` (the
+// engine ignores it); a scene without one sits in its track's column until it is dragged.
+// Clicking a node edits that scene, clicking an arrow edits its hotspot; dragging from a
+// node's port onto another makes a door (a tap hotspot with an empty region to paint),
+// dragging an arrowhead onto another node retargets it.
+
+const NODE_W = 160, NODE_HEAD = 24, NODE_LINE = 14, NODE_PAD = 6, COL_GAP = 90, ROW_GAP = 28, MARGIN = 24, EDGE_SPREAD = 22;
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const svg = (tag, attrs = {}, ...children) => {
+  const node = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v);
+  }
+  for (const c of children.flat()) if (c != null) node.append(c.nodeType ? c : String(c));
+  return node;
+};
+const graph = { drag: null, nodes: new Map() };
+let view = localStorage.getItem('gt-view') || 'timeline';
+
+function setupGraph() {
+  for (const b of document.querySelectorAll('#tabs .tab')) b.onclick = () => setView(b.dataset.view);
+  setView(view);
+  window.addEventListener('mousemove', graphMove);
+  window.addEventListener('mouseup', graphUp);
+}
+
+function setView(v) {
+  view = v;
+  localStorage.setItem('gt-view', v);
+  for (const b of document.querySelectorAll('#tabs .tab')) b.classList.toggle('on', b.dataset.view === v);
+  $('#timeline').hidden = v !== 'timeline';
+  $('#graph').hidden = v !== 'graph';
+  $('#graph-help').hidden = v !== 'graph';
+  if (v === 'graph') renderGraph(); else renderTimeline();
+}
+
+// The lines inside a node: one per stage, with that stage's unlock (◆) and stage (→)
+// hotspots as marks, and one more for the stageless ones if there are any.
+function nodeLines(s) {
+  const marks = (stage) => (s.hotspots || []).filter((h) => (h.stage || '') === stage).flatMap((h) => (h.then || []).map((a) =>
+    a.unlock ? `◆ ${a.unlock}` : a.stage ? `→ ${a.stage}` : null)).filter(Boolean).join('  ');
+  const lines = (s.stages || []).map((name) => ({ stage: name, marks: marks(name) }));
+  const loose = marks('');
+  if (loose) lines.push({ stage: lines.length ? '·' : '', marks: loose });
+  return lines;
+}
+
+// Every scene as a node: its saved position, or a place in its track's column.
+function graphNodes() {
+  const nodes = new Map();
+  let x = MARGIN;
+  album.tracks.forEach((t, tk) => {
+    let y = MARGIN + 34; // under the track label, with room for the START badge
+    t.scenes.forEach((s, k) => {
+      const lines = nodeLines(s);
+      const h = NODE_HEAD + lines.length * NODE_LINE + (lines.length ? NODE_PAD : 0);
+      const pos = s.graph || { x, y };
+      nodes.set(s.id, { id: s.id, s, t, ti: tk, si: k, x: pos.x, y: pos.y, w: NODE_W, h, lines, column: x });
+      y += h + ROW_GAP;
+    });
+    x += NODE_W + COL_GAP;
+  });
+  return nodes;
+}
+
+// Every hotspot action that leads somewhere, as an arrow. A target that is not in the
+// album is a ghost node: red if it is nowhere at all, grey if it is a hand-written scene.
+function graphEdges(nodes) {
+  const edges = [];
+  const ghosts = new Map();
+  for (const n of [...nodes.values()]) (n.s.hotspots || []).forEach((h, k) => (h.then || []).forEach((a, ai) => {
+    const toId = a.go ?? (a.via ? a.via[0] : null);
+    if (toId == null) return;
+    let to = nodes.get(toId) || ghosts.get(toId);
+    if (!to) {
+      const elsewhere = (cat.elsewhere || []).includes(toId);
+      to = { id: toId, ghost: true, elsewhere, x: n.x + n.w + COL_GAP / 2, y: n.y + n.h + ROW_GAP + ghosts.size * (NODE_HEAD + 10), w: NODE_W, h: NODE_HEAD, lines: [] };
+      ghosts.set(toId, to);
+    }
+    edges.push({ from: n, to, h, k, ai, via: a.via, dangling: to.ghost && !to.elsewhere });
+  }));
+  // Parallel arrows between the same two scenes (either way) fan out instead of overlapping.
+  const groups = {};
+  for (const e of edges) {
+    const key = [e.from.id, e.to.id].sort().join('\0');
+    (groups[key] ??= []).push(e);
+  }
+  for (const group of Object.values(groups)) group.forEach((e, k) => { e.spread = (k - (group.length - 1) / 2) * EDGE_SPREAD; e.flip = e.from.id > e.to.id ? -1 : 1; });
+  return { edges, ghosts };
+}
+
+// Where a line from the node's centre towards (px, py) leaves the node.
+function anchor(n, px, py) {
+  const cx = n.x + n.w / 2, cy = n.y + n.h / 2;
+  const dx = px - cx, dy = py - cy;
+  if (!dx && !dy) return [cx + n.w / 2, cy];
+  const s = Math.min(dx ? (n.w / 2) / Math.abs(dx) : Infinity, dy ? (n.h / 2) / Math.abs(dy) : Infinity);
+  return [cx + dx * s, cy + dy * s];
+}
+
+// The arrow's geometry: a quadratic from one node's edge to the other's, bowed sideways by
+// `spread`; a loop out of the top right corner when a scene leads to itself.
+function edgePath(e) {
+  const a = e.from, b = e.to;
+  if (a === b) {
+    const x = a.x + a.w, y = a.y;
+    const p0 = [x - 24, y], c1 = [x + 10, y - 44], c2 = [x + 50, y - 6], p1 = [x, y + 12];
+    const mid = [(p0[0] + 3 * c1[0] + 3 * c2[0] + p1[0]) / 8, (p0[1] + 3 * c1[1] + 3 * c2[1] + p1[1]) / 8];
+    return { d: `M${p0}C${c1} ${c2} ${p1}`, end: p1, dir: [p1[0] - c2[0], p1[1] - c2[1]], mid };
+  }
+  const ac = [a.x + a.w / 2, a.y + a.h / 2], bc = [b.x + b.w / 2, b.y + b.h / 2];
+  const len = Math.hypot(bc[0] - ac[0], bc[1] - ac[1]) || 1;
+  const nx = -(bc[1] - ac[1]) / len, ny = (bc[0] - ac[0]) / len; // perpendicular, consistent for both directions
+  const o = (e.spread || 0) * (e.flip || 1);
+  const c = [(ac[0] + bc[0]) / 2 + nx * o * 2, (ac[1] + bc[1]) / 2 + ny * o * 2];
+  const p0 = anchor(a, c[0], c[1]), p1 = anchor(b, c[0], c[1]);
+  const mid = [(p0[0] + 2 * c[0] + p1[0]) / 4, (p0[1] + 2 * c[1] + p1[1]) / 4];
+  return { d: `M${p0}Q${c} ${p1}`, end: p1, dir: [p1[0] - c[0], p1[1] - c[1]], mid };
+}
+
+function edgeLabel(e) {
+  const h = e.h;
+  const on = typeof h.on === 'string' ? h.on : 'drag';
+  const parts = [on];
+  if ((h.needs || []).length) parts.push(`needs ${h.needs.join(' ')}`);
+  if (e.via) parts.push(`via ${e.via[1][0]}–${e.via[1][1]}`);
+  if (h.stage) parts.push(h.stage);
+  return parts.join(' · ');
+}
+
+// Scenes a player can reach from the start by doors alone (unlocks not counted).
+function reachable(edges) {
+  const start = album.tracks[0]?.scenes[0]?.id;
+  const seen = new Set(start ? [start] : []);
+  const queue = [...seen];
+  while (queue.length) {
+    const id = queue.shift();
+    for (const e of edges) if (e.from.id === id && !seen.has(e.to.id)) { seen.add(e.to.id); queue.push(e.to.id); }
+  }
+  return seen;
+}
+
+const scenePos = (n) => `translate(${n.x},${n.y})`;
+
+function renderGraph() {
+  if (view !== 'graph' || !album) return;
+  const root = $('#graph-svg');
+  const nodes = graphNodes();
+  const { edges, ghosts } = graphEdges(nodes);
+  graph.nodes = nodes;
+  graph.ghosts = ghosts;
+  const reach = reachable(edges);
+  const start = album.tracks[0]?.scenes[0]?.id;
+  const current = scene();
+  const selHotspot = sel?.type === 'hotspot' ? current?.hotspots?.[sel.index] : null;
+  const all = [...nodes.values(), ...ghosts.values()];
+  const width = Math.max(600, ...all.map((n) => n.x + n.w)) + MARGIN + 60;
+  const height = Math.max(200, ...all.map((n) => n.y + n.h)) + MARGIN + 40;
+  root.setAttribute('width', width); root.setAttribute('height', height);
+  const out = [];
+  // track names over their columns
+  album.tracks.forEach((t, tk) => out.push(svg('text', { class: 'track-label', x: MARGIN + tk * (NODE_W + COL_GAP), y: MARGIN + 4 }, t.id)));
+  for (const e of edges) {
+    const { d, end, dir, mid } = edgePath(e);
+    const isSel = selHotspot && e.h === selHotspot;
+    const ang = Math.atan2(dir[1], dir[0]) * 180 / Math.PI;
+    const g = svg('g', { class: 'edge' + (isSel ? ' sel' : '') + (e.dangling ? ' dangling' : '') });
+    g.append(
+      svg('path', { class: 'hit', d, onmousedown: (ev) => { ev.stopPropagation(); selectFromGraph(e.from, { type: 'hotspot', index: e.k }); } }),
+      svg('path', { class: 'line', d }),
+      svg('polygon', { class: 'head', points: '0,0 -10,-5 -10,5', transform: `translate(${end}) rotate(${ang})`, onmousedown: (ev) => {
+        ev.stopPropagation(); ev.preventDefault();
+        graph.drag = { kind: 'retarget', e, start: anchor(e.from, end[0], end[1]) };
+        $('#graph').classList.add('linking');
+      } }),
+      svg('text', { x: mid[0], y: mid[1] - 4, 'text-anchor': 'middle' }, edgeLabel(e)),
+    );
+    if (isSel) g.append(svg('text', { class: 'drop', x: mid[0], y: mid[1] - 16, 'text-anchor': 'middle', onmousedown: (ev) => {
+      ev.stopPropagation(); ev.preventDefault();
+      snapshotForUndo();
+      e.h.then.splice(e.ai, 1);
+      commit({ silent: true, inspector: true });
+    } }, '× remove this door', svg('title', {}, 'take this action off the hotspot (the hotspot stays: delete it from the list if it has nothing else to do)')));
+    out.push(g);
+  }
+  for (const n of all) {
+    const classes = ['node'];
+    if (n.ghost) classes.push('ghost', n.elsewhere ? 'elsewhere' : 'nowhere');
+    else {
+      if (sel?.type === 'scene' && n.s === current && sel.index === si && n.ti === ti) classes.push('sel');
+      if (st.scene === n.id) classes.push('playing');
+      if (!reach.has(n.id)) classes.push('unreachable');
+    }
+    const g = svg('g', { class: classes.join(' '), transform: scenePos(n), 'data-scene': n.id });
+    g.append(svg('rect', { class: 'box', width: n.w, height: n.h }));
+    if (n.ghost) {
+      g.append(svg('text', { class: 'id', x: 8, y: 16 }, n.id), svg('title', {}, n.elsewhere ? 'a hand-written scene (not in the album)' : 'no scene has this id: a door to nowhere'));
+      out.push(g);
+      continue;
+    }
+    g.addEventListener('mousedown', (ev) => {
+      if (ev.button !== 0) return;
+      ev.preventDefault();
+      selectFromGraph(n, { type: 'scene', index: n.si });
+      graph.drag = { kind: 'move', n, x0: ev.clientX, y0: ev.clientY, ox: n.x, oy: n.y, moved: false };
+    });
+    g.append(
+      svg('title', {}, [n.id, !reach.has(n.id) && n.id !== start ? 'no door leads here from the start' : null].filter(Boolean).join(' — ')),
+      svg('text', { class: 'go', x: 6, y: 16, onmousedown: (ev) => { ev.stopPropagation(); ev.preventDefault(); playScene(n); } }, '▶', svg('title', {}, 'play this scene from its first bar')),
+      svg('text', { class: 'id', x: 20, y: 16 }, n.id),
+      svg('text', { class: 'bars', x: n.w - 8, y: 16, 'text-anchor': 'end' }, `${n.s.bars[0]}–${n.s.bars[1]}`),
+    );
+    if (n.id === start) g.append(svg('text', { class: 'start', x: 0, y: -5 }, 'START'));
+    n.lines.forEach((l, k) => {
+      const y = NODE_HEAD + k * NODE_LINE + 10;
+      g.append(svg('text', { class: 'stage', x: 8, y }, l.stage), svg('text', { class: 'marks', x: 66, y }, l.marks));
+    });
+    g.append(svg('circle', { class: 'port', cx: n.w, cy: n.h / 2, r: 5, onmousedown: (ev) => {
+      ev.stopPropagation(); ev.preventDefault();
+      graph.drag = { kind: 'link', from: n, start: [n.x + n.w, n.y + n.h / 2] };
+      $('#graph').classList.add('linking');
+    } }, svg('title', {}, 'drag onto another scene to make a door to it')));
+    out.push(g);
+  }
+  out.push(svg('path', { id: 'graph-link', class: 'link', d: '' }));
+  root.replaceChildren(...out);
+  const nowhere = edges.filter((e) => e.dangling).length;
+  const lost = [...nodes.values()].filter((n) => !reach.has(n.id)).length;
+  $('#graph-report').replaceChildren(
+    `${nodes.size} scenes · ${edges.length} doors`,
+    lost ? el('span', { class: 'warn' }, ` · ${lost} unreachable from the start`) : null,
+    nowhere ? el('span', { class: 'warn' }, ` · ${nowhere} to nowhere`) : null,
+  );
+}
+
+// Edit the node's scene (or one of its hotspots): switch track and scene, select, redraw.
+function selectFromGraph(n, selection) {
+  ti = n.ti; si = n.si; follow = false;
+  sel = selection;
+  renderAll();
+  sendHighlight();
+}
+
+function playScene(n) {
+  selectFromGraph(n, { type: 'scene', index: n.si });
+  follow = true;
+  send(JSON.stringify({ seek: { scene: n.id, bar: n.s.bars[0] } }));
+}
+
+// Pointer position in the svg's own coordinates.
+function graphPoint(ev) {
+  const r = $('#graph-svg').getBoundingClientRect();
+  return [ev.clientX - r.left, ev.clientY - r.top];
+}
+
+const nodeAt = (x, y) => [...graph.nodes.values()].find((n) => x >= n.x && x <= n.x + n.w && y >= n.y && y <= n.y + n.h);
+
+function graphMove(ev) {
+  const d = graph.drag;
+  if (!d) return;
+  if (d.kind === 'move') {
+    const dx = ev.clientX - d.x0, dy = ev.clientY - d.y0;
+    if (!d.moved && Math.hypot(dx, dy) < 3) return;
+    if (!d.moved) { snapshotForUndo(); d.moved = true; }
+    d.n.s.graph = { x: Math.max(0, Math.round(d.ox + dx)), y: Math.max(0, Math.round(d.oy + dy)) };
+    renderGraph();
+    return;
+  }
+  // a link or a retarget: a dashed line to the pointer, the node under it lit
+  const [x, y] = graphPoint(ev);
+  const over = nodeAt(x, y);
+  for (const g of document.querySelectorAll('#graph .node')) g.classList.toggle('target', over?.id === g.dataset.scene);
+  $('#graph-link')?.setAttribute('d', `M${d.start}L${x},${y}`);
+}
+
+function graphUp(ev) {
+  const d = graph.drag;
+  if (!d) return;
+  graph.drag = null;
+  $('#graph').classList.remove('linking');
+  if (d.kind === 'move') {
+    if (d.moved) commit({ silent: true, lists: false, grid: false, timeline: false });
+    return;
+  }
+  const [x, y] = graphPoint(ev);
+  const over = nodeAt(x, y);
+  if (!over) { renderGraph(); return; }
+  snapshotForUndo();
+  if (d.kind === 'link') {
+    const s = d.from.s;
+    s.hotspots ??= [];
+    s.hotspots.push({ id: uid('h'), name: 'door', region: emptyRegion(), needs: [], on: 'tap', then: [{ go: over.id }] });
+    selectFromGraph(d.from, { type: 'hotspot', index: s.hotspots.length - 1 });
+    commit({ silent: true, inspector: true });
+    setStatus(`a door from ${s.id} to ${over.id}: paint its cells on the grid`);
+  } else {
+    const a = d.e.h.then[d.e.ai];
+    if (a.via) a.via[0] = over.id; else a.go = over.id;
+    selectFromGraph(d.e.from, { type: 'hotspot', index: d.e.k });
+    commit({ silent: true, inspector: true });
+  }
 }
 
 boot().catch((e) => {

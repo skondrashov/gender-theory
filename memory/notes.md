@@ -84,7 +84,8 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
 
 - Reviving, not archiving. Technical side handed to the agent; owner designs scenes.
 - Unlocks are global across the album; songs are an illusion, you browse the album.
-- Taps land on the next bar. White border + input block from trigger to landing.
+- Taps land on the next bar. Input block from trigger to landing (the white border was
+  dropped 2026-11-18: "the transitions look smooth enough now and telegraph what's going on").
 - Unlocks never move you; the door that needs them appears on the same scene.
 - A transition intensifies the *current* scene with a passage of the *current* track.
 - Rotation means movement; a still line may point anywhere.
@@ -228,6 +229,27 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   chain can be a field). Contact sheet of all 41 at 11 × 11 was checked headless
   (scratchpad `cdp_fields.py`). Editor: source select has optgroups per family; a field's
   params unfold under the chain with their own sidechain buttons.
+- **The graph tab** (owner, 2026-11-18: "i feel like at some point i'm gonna want a graph
+  i can edit of how all the scenes are connected" → "do it"): a tab beside the timeline in
+  the bottom panel (`gt-view` in localStorage), SVG, `renderGraph()` in editor.js. Nodes =
+  scenes (all tracks), `s.graph = {x, y}` saved only once dragged (serde ignores unknown
+  fields, so no engine change); edges = `go`/`via` actions; reachability BFS from the first
+  scene of the first track (how `Model::new` picks the start); ghosts for targets not in
+  the album, red unless `catalogue().elsewhere` (the hand-written scenes) has them. Drags:
+  node move, port → door (`{name: 'door', on: 'tap', region: empty map, then: [{go}]}`),
+  arrowhead → retarget. Checked headless with scratchpad `cdp_graph.py` (door made,
+  retarget, move saved, edge click selects the hotspot). The game's M menu is still a list;
+  using the saved positions there is an offer, not done.
+- **+ masks** (owner, 2026-11-18: "i wanna be able to add pulse instead of multiplying.
+  cause i want glow effects to work on stars that are blacked out by default"; chose
+  "masks can add" over a recipe): `Sidechain.add` (file `"add": true`), editor × / + button
+  on each mask. `Row::amount` = clamp(Π × masks + Σ + masks' shares), where with only +
+  masks the product term is 0 (nothing lands until a + says so). The readout shows `+ 0.35`
+  for a + mask. The owner's 'top' layer in sine/1 foyer (brightness add 0, pulse mask depth
+  −5.5) was the symptom — a mask can't light anything on a change of 0; with + it needs a
+  base too (set/add 1, + pulse).
+- **No transition border** (owner, 2026-11-18): the white 8 px frame from trigger to
+  landing is gone; the morph is the telegraph. Input is still blocked meanwhile.
 - **Seeded noise** (owner, 2026-11-18: "it'd be cool to set a seed for the noise, also in
   some kind of sidechained way … flashing new random patterns each pulse looks cool"): field
   `noise` — `hash3(cell, seed)`, `seed` a param (a new pattern per whole number crossed: chain

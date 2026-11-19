@@ -55,7 +55,15 @@
     </div>
   </section>
 
-  <footer id="timeline">
+  <footer id="bottom">
+    <div id="tabs">
+      <button class="tab" data-view="timeline">timeline</button>
+      <button class="tab" data-view="graph">graph</button>
+      <span id="graph-report" class="dim"></span>
+      <span class="spacer"></span>
+      <span id="graph-help" class="dim">click a scene to edit it · ▶ plays it · drag to arrange · drag from a scene's ○ onto another to make a door · drag an arrowhead to retarget · click an arrow to edit the hotspot</span>
+    </div>
+    <div id="timeline">
     <div id="lanes">
       <div id="ruler" class="lane"></div>
       <div id="wave" class="lane"><canvas id="wave-canvas" height="48"></canvas></div>
@@ -64,6 +72,8 @@
       <div id="layer-lanes"></div>
       <div id="playhead"></div>
     </div>
+    </div>
+    <div id="graph"><svg id="graph-svg"></svg></div>
   </footer>
 
   <script type="module" src="editor.js"></script>
