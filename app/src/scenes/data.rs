@@ -566,13 +566,11 @@ pub const CATALOGUE: &str = r##"{
       }
     },
     "bars": {
-      "doc": "Bars in every `step`th column, each growing from its own end of the grid — the first from the bottom, the next from the top, and so on — until they run off the far edge; then the whole figure turns a quarter turn about the centre (the bars are now horizontal, in every `step`th row), the bars retract to their starting dots, the figure turns again (nothing to see: it is dots), and the bars grow again, now from the other ends. Eight phases to one `progress` 0..1 — grow, turn, retract, turn, grow, turn, retract, turn — a full turn, so it loops seamlessly; the layer's own bars by default. Not a cells layer: rows don't reach it.",
+      "doc": "A grid of dots where every dot owns one segment. Four phases: every other dot along the bottom grows a line up to the next dot, which grows to the next, and so on off the top; in the other columns a line comes down from the top dot the same way. Then every segment turns a quarter turn on its own dot — the way that points it right in even rows and left in odd ones — so the columns' segments tile into full horizontal lines, each dot turning its own way. The rows then retreat in the reverse of the growing, even rows into their left dot, odd rows into their right; the dots turn, which nobody sees; and the columns grow again. `progress` 0..1 is one cycle — the layer's own bars by default. Not a cells layer: rows don't reach it.",
       "params": {
-        "step": {"type": "number", "default": 2, "step": 1, "doc": "a bar every this many columns"},
-        "turn": {"type": "select", "options": ["anticlockwise", "clockwise"], "default": "anticlockwise", "doc": "which way the figure turns"},
-        "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "0..1 through the eight phases"},
-        "brightness": {"type": "param", "default": 0.9, "step": 0.05, "doc": "the bars'; sidechains act once glow is unlocked"},
-        "dots": {"type": "param", "default": 0, "step": 0.05, "doc": "the grid's dots under it, 0 to leave them to the layers below"},
+        "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "0..1 through the four phases: grow, turn, retreat, turn"},
+        "brightness": {"type": "param", "default": 0.9, "step": 0.05, "doc": "the lines'; sidechains act once glow is unlocked"},
+        "dots": {"type": "param", "default": 0.6, "step": 0.05, "doc": "the grid's dots, 0 to leave them to the layers below"},
         "color": {"type": "param", "default": 0, "step": 0.1}
       }
     },
@@ -933,13 +931,14 @@ impl Cells {
 
 // ---- the other kinds ----
 
-/// Bars in every `step`th column growing off the grid from alternating ends, the figure
-/// turning a quarter turn between growing and retracting (owner, 2026-11-18).
+/// Columns of segments growing dot to dot from alternating ends, every segment pivoting a
+/// quarter turn on its own dot into rows, which retreat (owner, 2026-11-18: "every other dot
+/// on the bottom grows a line upward, and when it touches the next dot, that dot grows to
+/// the next dot etc. … all of the line segments … rotate in such a way that they form
+/// alternating lines horizontally, and then the lines retreat in the reverse animation").
 #[derive(Deserialize)]
 #[serde(default)]
 struct Bars {
-	step: usize,
-	turn: String,
 	progress: Param,
 	brightness: Param,
 	dots: Param,
@@ -949,8 +948,6 @@ struct Bars {
 impl Default for Bars {
 	fn default() -> Self {
 		Bars {
-			step: 2,
-			turn: "anticlockwise".into(),
 			progress: Param {
 				base: 0.0,
 				chains: vec![Sidechain {
@@ -959,7 +956,7 @@ impl Default for Bars {
 				}],
 			},
 			brightness: Param::new(0.9),
-			dots: Param::new(0.0),
+			dots: Param::new(0.6),
 			color: Param::new(0.0),
 		}
 	}
@@ -1507,41 +1504,49 @@ fn render(
 				}
 			}
 			Kind::Bars(bars) => {
-				// The figure lives in its own frame — bars along every `step`th column, each from
-				// its own end — and the world sees it turned by a quarter turn per turning phase,
-				// about the centre of the grid. Growing and retracting happen in the figure frame.
-				let step = bars.step.max(1);
-				let p = bars.progress.value(&signals).rem_euclid(1.0) * 8.0;
-				let phase = (p.floor() as usize).min(7);
-				let f = p - phase as f32;
-				let growth = match phase % 4 {
-					0 => f,
-					1 => 1.0,
-					2 => 1.0 - f,
-					_ => 0.0,
-				};
-				let turns = (phase / 2) as f32 + if phase % 2 == 1 { f } else { 0.0 };
-				let theta = turns * std::f32::consts::FRAC_PI_2 * if bars.turn == "clockwise" { -1.0 } else { 1.0 };
+				// Every dot owns one segment, a dot's pitch long. Four phases to a cycle:
+				// grow — even columns climb from the bottom dot, each dot's segment growing to the
+				//   next once the line reaches it; odd columns descend from the top the same way;
+				//   the last dot's segment runs off the grid;
+				// turn — every segment pivots a quarter turn on its own dot, the way that lands it
+				//   pointing right in even rows and left in odd ones — so the columns' segments tile
+				//   into full horizontal lines, each dot turning its own way, a pinwheel;
+				// retreat — the rows retreat in the reverse of the growing, even rows back into
+				//   their left dot, odd rows into their right;
+				// turn — the dots turn, which nobody sees; then the columns grow again.
 				let color = bars.color.value(&signals);
 				let dots = bars.dots.value_gated(&signals, glow) + hot_brightness;
 				if dots > 0.001 {
 					dot(draw, model, x, y, paint(model, dots, color));
 				}
-				if i % step != 0 {
-					continue;
-				}
-				let from_bottom = (i / step) % 2 == 0;
-				let n = if from_bottom { j } else { CANVAS_HEIGHT - 1 - j };
-				// the bar's segments light up from its starting end; the last one runs off the grid
-				let fill = (growth * CANVAS_HEIGHT as f32 - n as f32).clamp(0.0, 1.0);
+				let p = bars.progress.value(&signals).rem_euclid(1.0) * 4.0;
+				let phase = (p.floor() as usize).min(3);
+				let f = p - phase as f32;
+				let last = CANVAS_HEIGHT - 1;
+				let count = CANVAS_HEIGHT as f32; // segments along a line, the last off the grid
+				let (col_even, row_even) = (i % 2 == 0, j % 2 == 0);
+				let up = std::f32::consts::FRAC_PI_2;
+				let from = if col_even { up } else { -up }; // the column's way
+				let to = if row_even { 0.0 } else { std::f32::consts::PI }; // the row's way
+				// a quarter turn from the one to the other, the short way (they are at right angles)
+				let turn = if (col_even && row_even) || (!col_even && !row_even) { -up } else { up };
+				let (angle, fill) = match phase {
+					0 => {
+						let n = if col_even { j } else { last - j } as f32;
+						(from, (f * count - n).clamp(0.0, 1.0))
+					}
+					1 => (from + turn * f, 1.0),
+					2 => {
+						let n = if row_even { i } else { last - i } as f32;
+						(to, ((1.0 - f) * count - n).clamp(0.0, 1.0))
+					}
+					_ => (to, 0.0),
+				};
 				if fill <= 0.0 {
 					continue;
 				}
-				let along = if from_bottom { std::f32::consts::FRAC_PI_2 } else { -std::f32::consts::FRAC_PI_2 };
-				let (sin, cos) = theta.sin_cos();
-				let (sx, sy) = (x * cos - y * sin, x * sin + y * cos);
 				let brightness = bars.brightness.value_gated(&signals, glow) + hot_brightness;
-				stroke(draw, model, sx, sy, along + theta, fill * unit, paint(model, brightness, color));
+				stroke(draw, model, x, y, angle, fill * unit, paint(model, brightness, color));
 			}
 			Kind::Orbits(orbits) => {
 				let near = (orbits.near_rate + orbits.vary * raw) * time + raw * TAU;

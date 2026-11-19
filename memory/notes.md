@@ -249,10 +249,21 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   the lines rotate to make alternating lines of horizontal bars which retract, rotate, then
   grow off the grid again, etc"): `Kind::Bars` in data.rs. The figure (bars along every
   `step`th column, the first from the bottom, the next from the top …) is drawn in its own
-  frame and turned rigidly about the grid centre by a quarter turn per turning phase, which
-  is what makes "columns → rows" exact (a per-dot pivot can't). `progress` 0..1 = eight
-  phases: grow, turn, retract, turn, grow (now from the other ends), turn, retract, turn =
-  a full turn, so the loop is seamless. Replaced the 15-layer `turning bars` group (and the
+  frame; first version turned the whole figure rigidly about the centre — owner: "bro no…
+  it's not that the whole figure turns, it's that each individual line rotates … you're not
+  thinking trippy algorithmic art enough"; second version turned each whole bar about a
+  point of the diagonal; the owner then spelled it out: "every other dot on the bottom grows
+  a line upward, and when it touches the next dot, that dot grows to the next dot etc. on
+  the columns where this isn't happening, a line extends down from the top dot … all of the
+  line segments that make up the alternating lines rotate in such a way that they form
+  alternating lines horizontally, and then the lines retreat in the reverse animation of the
+  growing, the dots 'rotate' which you can't see, and then extend lines vertically again".
+  So: per cell, one segment per dot (the last off the grid, else the top and bottom rows
+  would come out dashed); grow: fill = clamp(g·11 − n) with n the dot's place from its
+  column's start; turn: each segment pivots ±90° on its dot — even rows end pointing right,
+  odd rows left, which is what tiles 11 dots into a full row either way; retreat: the same
+  fill with g falling and n counted from the row's start; fourth phase nothing. `progress`
+  0..1 = the four phases. Params: progress, brightness, dots (default 0.6), color. Replaced the 15-layer `turning bars` group (and the
   missing-segment hotspot) in sine/1's left stage with one `bars` layer; the fill-in-a-gap
   unlock idea is open (a `gap` param would be the way).
 - **Snake `tail`** (owner, 2026-11-18: "i want the effect to extend the last dot in the

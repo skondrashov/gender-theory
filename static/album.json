@@ -1499,8 +1499,6 @@
        "region": {},
        "kind": "bars",
        "params": {
-        "step": 2,
-        "turn": "anticlockwise",
         "progress": {
          "base": 0,
          "chains": [
@@ -1521,7 +1519,7 @@
          "chains": []
         },
         "dots": {
-         "base": 0,
+         "base": 1,
          "chains": []
         },
         "color": {
