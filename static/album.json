@@ -175,23 +175,6 @@
      ],
      "layers": [
       {
-       "id": "l-base-act-1",
-       "name": "field",
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0,
-         "chains": [],
-         "masks": []
-        }
-       },
-       "stage": "foyer"
-      },
-      {
        "id": "lmwlybct9oor",
        "name": "top",
        "region": {
@@ -201,6 +184,21 @@
        "params": {
         "brightness": {
          "op": "add",
+         "base": 2.25000003352761,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "foyer"
+      },
+      {
+       "id": "lmwmxnjg7a8q",
+       "name": "glow pulse",
+       "region": {},
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "multiply",
          "base": 0,
          "chains": [
           {
@@ -223,30 +221,11 @@
            "curve": 1,
            "invert": true,
            "on": true,
-           "delay": 0,
-           "add": true
+           "delay": 0
           }
          ]
         }
-       },
-       "stage": "foyer"
-      },
-      {
-       "id": "lmwlv4cz6pu1",
-       "name": "middle",
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n....###....\n....#.#....\n....###....\n...........\n...........\n...........\n..........."
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
-        }
-       },
-       "stage": "foyer"
+       }
       },
       {
        "id": "lmwmc9gmm6ej",
@@ -462,6 +441,23 @@
         "brightness": {
          "op": "set",
          "base": 0,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "foyer"
+      },
+      {
+       "id": "lmwlv4cz6pu1",
+       "name": "middle",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n....###....\n....#.#....\n....###....\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 1,
          "chains": [],
          "masks": []
         }
@@ -1285,6 +1281,22 @@
        "stage": "top"
       },
       {
+       "id": "lmwmxm2auttl",
+       "name": "layer",
+       "region": {},
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "add",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "left",
+       "muted": false
+      },
+      {
        "id": "lmwmx5qmjp4v",
        "name": "snake retreat",
        "region": {
@@ -1317,6 +1329,58 @@
            "width": 1,
            "curve": 1,
            "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "dots": {
+         "base": 0,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        },
+        "brightness": {
+         "base": 0.9,
+         "chains": []
+        }
+       },
+       "stage": "left"
+      },
+      {
+       "id": "lmwmxlbdcb5c",
+       "name": "snake retreat copy",
+       "region": {
+        "rect": [
+         0,
+         0,
+         11,
+         11
+        ],
+        "cols": [
+         2,
+         1
+        ]
+       },
+       "kind": "snake",
+       "params": {
+        "mode": "retreat",
+        "axis": "rows",
+        "alternate": true,
+        "reverse": false,
+        "heads": 1,
+        "spin": 0,
+        "progress": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
            "on": true
           }
          ]
