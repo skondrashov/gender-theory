@@ -169,7 +169,7 @@
      "stages": [
       "foyer",
       "top",
-      "stripes",
+      "left",
       "boxes",
       "cross"
      ],
@@ -408,6 +408,18 @@
           }
          ],
          "masks": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "angle": {
+         "op": "set",
+         "base": 225,
+         "chains": [],
+         "masks": []
         }
        },
        "stage": "foyer"
@@ -492,157 +504,6 @@
         }
        },
        "stage": "top"
-      },
-      {
-       "id": "l6",
-       "name": "stripes",
-       "region": {
-        "rows": [
-         2,
-         0
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.85,
-         "chains": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "angle": {
-         "op": "set",
-         "base": 0,
-         "chains": []
-        }
-       },
-       "stage": "stripes"
-      },
-      {
-       "id": "l7",
-       "name": "rows between",
-       "region": {
-        "rows": [
-         2,
-         1
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.7,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:lines",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": true,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       },
-       "stage": "stripes"
-      },
-      {
-       "id": "l8",
-       "name": "patch",
-       "region": {
-        "rect": [
-         4,
-         4,
-         7,
-         7
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.9,
-         "chains": [
-          {
-           "source": "pulse",
-           "depth": -0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ],
-         "masks": [
-          {
-           "source": "hotspot:patch",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       },
-       "stage": "stripes"
-      },
-      {
-       "id": "l9",
-       "name": "gap",
-       "region": {
-        "rect": [
-         3,
-         6,
-         8,
-         7
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.55,
-         "chains": [
-          {
-           "source": "beat",
-           "depth": 0.45,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ],
-         "masks": [
-          {
-           "source": "hotspot:gap",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       },
-       "stage": "stripes"
       },
       {
        "id": "l12",
@@ -1280,6 +1141,28 @@
        "stage": "cross"
       },
       {
+       "id": "lmwmx202gu3o",
+       "name": "stripes",
+       "region": {
+        "rect": [
+         0,
+         0,
+         11,
+         11
+        ]
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "left"
+      },
+      {
        "id": "l11-cross",
        "name": "hidden box",
        "region": {
@@ -1470,7 +1353,11 @@
        },
        "needs": [],
        "on": "tap",
-       "then": [],
+       "then": [
+        {
+         "stage": "left"
+        }
+       ],
        "stage": "foyer"
       },
       {
