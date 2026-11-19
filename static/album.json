@@ -201,28 +201,30 @@
        "params": {
         "brightness": {
          "op": "add",
-         "base": 0.550000008195639,
+         "base": 0,
          "chains": [],
          "masks": [
           {
            "source": "pulse",
-           "depth": 1,
+           "depth": 1000,
            "threshold": 0,
-           "width": 0.75,
-           "curve": 0.3,
+           "width": 1,
+           "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "delay": 0,
+           "add": true
           },
           {
            "source": "distance",
-           "depth": 0.5,
+           "depth": 1,
            "threshold": 0,
            "width": 1,
            "curve": 1,
            "invert": true,
-           "on": true,
-           "delay": 0
+           "on": false,
+           "delay": 0,
+           "add": true
           }
          ]
         }
@@ -332,11 +334,11 @@
        "params": {
         "brightness": {
          "op": "add",
-         "base": -0.0500000007450581,
+         "base": 0,
          "chains": [
           {
            "source": "pulse",
-           "depth": 1,
+           "depth": 2.5,
            "threshold": 0,
            "width": 1,
            "curve": 1,
@@ -346,7 +348,7 @@
           },
           {
            "source": "distance",
-           "depth": 0.8,
+           "depth": 1,
            "threshold": 0,
            "width": 1,
            "curve": 1,
