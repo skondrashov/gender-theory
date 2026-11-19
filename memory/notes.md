@@ -238,11 +238,17 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   turning opposite ways); without angle the vertical bars hold and collapse as they are
   (snakes whose brightness is `0.9 − 0.9 × unlock:angle`). The folded bars' collapse is a
   snake per block with `heads` = rows (bars in neighbouring rows touch, so a block is one
-  piece; heads cuts it into a run per row). One segment (dot 4, row 5, cycle A) is missing
+  piece; heads cuts it into a run per row), with `tail` so a bar c0–c1 is the cells c0..c1−1. One segment (dot 4, row 5, cycle A) is missing
   from the fold: a drag hotspot (needs angle, bars 2–6) from it to the next dot unlocks
   `length` (placeholder choice), and a layer shows the drawn segment once length is had.
   Snake `dots` 1.0 to match the stage's base dots (a dot of brightness 0 would paint black
   over them: marks draw in order).
+- **Snake `tail`** (owner, 2026-11-18: "i want the effect to extend the last dot in the
+  sequence too for this, maybe call it bars instead of snake idk"): bool param; the last cell
+  of a run owns a segment too, carrying on the way the line was going (along the axis for a
+  lone cell), past the grid's edge if it must — so a bar is as long as its dots and a run
+  finishes its arrive/retreat at progress 1 instead of (n−1)/n. Default off (old snakes
+  unchanged); the left stage's snakes have it on. The kind keeps its name.
 - **A snake per piece** (owner, 2026-11-18: "if i set a layer to be every 2 cols from 0
   with a retreat or arrive effect, i'd want each region to get its own effect … or really
   for any split map"): `SnakePaths` on `LayerRt`, built at install — the region's cells

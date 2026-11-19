@@ -557,6 +557,7 @@ pub const CATALOGUE: &str = r##"{
         "alternate": {"type": "bool", "default": true, "doc": "every other line runs the opposite way, so it's one continuous snake"},
         "reverse": {"type": "bool", "default": false, "doc": "run the order from the other end"},
         "heads": {"type": "number", "default": 1, "step": 1, "doc": "how many snakes at once (the order cut into equal runs)"},
+        "tail": {"type": "bool", "default": false, "doc": "the last dot of a run extends a segment too, carrying straight on (past the edge of the grid if it must): every dot owns one, so bars are as long as their dots and a column folds whole"},
         "spin": {"type": "number", "default": 0, "step": 15, "doc": "degrees the moving end turns about its dot as it grows or shrinks"},
         "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "0 untouched .. 1 done, for the mode"},
         "brightness": {"type": "param", "default": 0.9, "step": 0.05, "doc": "the line's; sidechains act once glow is unlocked"},
@@ -929,6 +930,8 @@ struct Snake {
 	alternate: bool,
 	reverse: bool,
 	heads: usize,
+	/// The last cell of a run owns a segment too, continuing the line.
+	tail: bool,
 	/// Degrees.
 	spin: f32,
 	progress: Param,
@@ -945,6 +948,7 @@ impl Default for Snake {
 			alternate: true,
 			reverse: false,
 			heads: 1,
+			tail: false,
 			spin: 0.0,
 			progress: Param {
 				base: 0.0,
@@ -1427,9 +1431,23 @@ fn render(
 				let color = snake.color.value(&signals);
 				let dots = snake.dots.value_gated(&signals, glow) + hot_brightness;
 				dot(draw, model, x, y, paint(model, dots, color));
-				if k < last {
-					let (ni, nj) = cell_at(k + 1);
-					let (qx, qy) = scale_coordinates(model, ni, nj);
+				if k < last || snake.tail {
+					// the segment's far end: the next cell, or for the last cell with a tail, one
+					// more step the way the line was going (along the axis if it is alone)
+					let (qx, qy) = if k < last {
+						let (ni, nj) = cell_at(k + 1);
+						scale_coordinates(model, ni, nj)
+					} else {
+						let (di, dj) = if k > 0 && paths.at.get(&cell_at(k - 1)).map_or(false, |&(p, _)| p == piece) {
+							let (pi, pj) = cell_at(k - 1);
+							(i as f32 - pi as f32, j as f32 - pj as f32)
+						} else if snake.axis != "cols" {
+							(if snake.reverse { -1.0 } else { 1.0 }, 0.0)
+						} else {
+							(0.0, if snake.reverse { -1.0 } else { 1.0 })
+						};
+						(x + di * unit, y + dj * unit)
+					};
 					let arrive = snake.mode == "arrive";
 					let c = c as f32;
 					let fill = if arrive { front - c } else { c + 1.0 - front }.clamp(0.0, 1.0);
