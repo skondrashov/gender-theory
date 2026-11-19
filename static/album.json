@@ -1282,701 +1282,183 @@
       },
       {
        "id": "lmwmxm2auttl",
-       "name": "layer",
-       "region": {},
-       "kind": "cells",
+       "name": "v o bars",
+       "region": {
+        "cols": [
+         2,
+         0
+        ]
+       },
+       "kind": "snake",
        "params": {
+        "mode": "retreat",
+        "axis": "rows",
+        "alternate": true,
+        "reverse": false,
+        "heads": 1,
+        "spin": 0,
+        "progress": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
         "brightness": {
-         "op": "add",
          "base": 1,
-         "chains": [],
-         "masks": []
+         "chains": []
+        },
+        "dots": {
+         "base": 0,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
         }
        },
        "stage": "left",
-       "muted": false
-      },
-      {
-       "id": "lf1b73c7dujzd",
-       "name": "A · bars grow up",
-       "group": "turning bars",
-       "stage": "left",
+       "muted": false,
+       "group": "bars",
        "bars": [
         0,
+        1
+       ]
+      },
+      {
+       "id": "lmwmypjycjh1",
+       "name": "v e bars",
+       "region": {
+        "cols": [
+         2,
+         1
+        ]
+       },
+       "kind": "snake",
+       "params": {
+        "mode": "retreat",
+        "axis": "rows",
+        "alternate": true,
+        "reverse": true,
+        "heads": 1,
+        "spin": 0,
+        "progress": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "brightness": {
+         "base": 1,
+         "chains": []
+        },
+        "dots": {
+         "base": 0,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        }
+       },
+       "stage": "left",
+       "muted": false,
+       "group": "bars",
+       "bars": [
+        0,
+        1
+       ]
+      },
+      {
+       "id": "lmwmyuqspfg7",
+       "name": "exe bar rotate",
+       "region": {
+        "cols": [
+         2,
+         0
+        ],
+        "rows": [
+         2,
+         0
+        ]
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "angle": {
+         "op": "set",
+         "base": 90,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 90,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
+           "on": true,
+           "delay": 0
+          }
+         ],
+         "masks": []
+        }
+       },
+       "stage": "left",
+       "muted": false,
+       "group": "bars",
+       "bars": [
+        1,
         2
-       ],
+       ]
+      },
+      {
+       "id": "lmwmyuod1u3d",
+       "name": "oxo bar rotate",
        "region": {
-        "rect": [
-         0,
-         0,
-         11,
-         11
-        ],
         "cols": [
          2,
-         0
-        ]
-       },
-       "kind": "snake",
-       "params": {
-        "mode": "arrive",
-        "axis": "cols",
-        "alternate": true,
-        "reverse": false,
-        "heads": 1,
-        "spin": 0,
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "span",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "brightness": {
-         "base": 0.9,
-         "chains": []
-        },
-        "dots": {
-         "base": 1.0,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       }
-      },
-      {
-       "id": "lf1b73c7de8gx",
-       "name": "A · bars hold",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        2,
-        4
-       ],
-       "region": {
-        "rect": [
-         0,
-         0,
-         11,
-         11
+         1
         ],
-        "cols": [
-         2,
-         0
-        ]
-       },
-       "kind": "snake",
-       "params": {
-        "mode": "arrive",
-        "axis": "cols",
-        "alternate": true,
-        "reverse": false,
-        "heads": 1,
-        "spin": 0,
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "span",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "brightness": {
-         "base": 0.9,
-         "chains": [
-          {
-           "source": "unlock:angle",
-           "depth": -0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "dots": {
-         "base": 1.0,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       }
-      },
-      {
-       "id": "lf1b73c7dd6nc",
-       "name": "A · fold right",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        2,
-        4
-       ],
-       "region": {
-        "map": "...........\n#...#...#..\n#...#...#..\n#...#...#..\n#...#...#..\n#.......#..\n#...#...#..\n#...#...#..\n#...#...#..\n#...#...#..\n#...#...#.."
-       },
-       "kind": "cells",
-       "params": {
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:angle",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
-        },
-        "angle": {
-         "op": "set",
-         "base": 90,
-         "chains": [
-          {
-           "source": "span",
-           "depth": -90,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ],
-         "masks": []
-        },
-        "brightness": {
-         "op": "set",
-         "base": 0.9,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:angle",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       }
-      },
-      {
-       "id": "lf1b73c7df10e",
-       "name": "A · fold left",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        2,
-        4
-       ],
-       "region": {
-        "map": "...........\n..#...#...#\n..#...#...#\n..#...#...#\n..#...#...#\n..#...#...#\n..#...#...#\n..#...#...#\n..#...#...#\n..#...#...#\n..#...#...#"
-       },
-       "kind": "cells",
-       "params": {
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:angle",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
-        },
-        "angle": {
-         "op": "set",
-         "base": 90,
-         "chains": [
-          {
-           "source": "span",
-           "depth": 90,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ],
-         "masks": []
-        },
-        "brightness": {
-         "op": "set",
-         "base": 0.9,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:angle",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       }
-      },
-      {
-       "id": "lf1b73c7dpf91",
-       "name": "A · bars collapse",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        4,
-        6
-       ],
-       "region": {
-        "rect": [
-         0,
-         0,
-         11,
-         11
-        ],
-        "cols": [
-         2,
-         0
-        ]
-       },
-       "kind": "snake",
-       "params": {
-        "mode": "retreat",
-        "axis": "cols",
-        "alternate": true,
-        "reverse": false,
-        "heads": 1,
-        "spin": 0,
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "span",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "brightness": {
-         "base": 0.9,
-         "chains": [
-          {
-           "source": "unlock:angle",
-           "depth": -0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "dots": {
-         "base": 1.0,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       }
-      },
-      {
-       "id": "lf1b73c7ddhod",
-       "name": "A · folded bars collapse (round the gap)",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        4,
-        6
-       ],
-       "region": {
-        "map": "...........\n....###....\n....###....\n....###....\n....###....\n...........\n....###....\n....###....\n....###....\n....###....\n....###...."
-       },
-       "kind": "snake",
-       "params": {
-        "mode": "retreat",
-        "axis": "rows",
-        "alternate": false,
-        "reverse": false,
-        "heads": 5,
-        "spin": 0,
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "span",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "brightness": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "unlock:angle",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "dots": {
-         "base": 1.0,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       }
-      },
-      {
-       "id": "lf1b73c7dzdoc",
-       "name": "A · folded bar collapse (the gap row)",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        4,
-        6
-       ],
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n.....##....\n...........\n...........\n...........\n...........\n..........."
-       },
-       "kind": "snake",
-       "params": {
-        "mode": "retreat",
-        "axis": "rows",
-        "alternate": false,
-        "reverse": false,
-        "heads": 1,
-        "spin": 0,
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "span",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "brightness": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "unlock:angle",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "dots": {
-         "base": 1.0,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       }
-      },
-      {
-       "id": "lf1b73c7d9is0",
-       "name": "A · folded bars collapse",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        4,
-        6
-       ],
-       "region": {
-        "map": "...........\n###.....###\n###.....###\n###.....###\n###.....###\n###.....###\n###.....###\n###.....###\n###.....###\n###.....###\n###.....###"
-       },
-       "kind": "snake",
-       "params": {
-        "mode": "retreat",
-        "axis": "rows",
-        "alternate": false,
-        "reverse": false,
-        "heads": 10,
-        "spin": 0,
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "span",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "brightness": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "unlock:angle",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "dots": {
-         "base": 1.0,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       }
-      },
-      {
-       "id": "lf1b73c7dj8ht",
-       "name": "B · bars grow down",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        8,
-        10
-       ],
-       "region": {
-        "rect": [
-         0,
-         0,
-         11,
-         11
-        ],
-        "cols": [
+        "rows": [
          2,
          1
         ]
        },
-       "kind": "snake",
-       "params": {
-        "mode": "arrive",
-        "axis": "cols",
-        "alternate": true,
-        "reverse": true,
-        "heads": 1,
-        "spin": 0,
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "span",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "brightness": {
-         "base": 0.9,
-         "chains": []
-        },
-        "dots": {
-         "base": 1.0,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       }
-      },
-      {
-       "id": "lf1b73c7d9lgm",
-       "name": "B · bars hold",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        10,
-        12
-       ],
-       "region": {
-        "rect": [
-         0,
-         0,
-         11,
-         11
-        ],
-        "cols": [
-         2,
-         1
-        ]
-       },
-       "kind": "snake",
-       "params": {
-        "mode": "arrive",
-        "axis": "cols",
-        "alternate": true,
-        "reverse": true,
-        "heads": 1,
-        "spin": 0,
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "span",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "brightness": {
-         "base": 0.9,
-         "chains": [
-          {
-           "source": "unlock:angle",
-           "depth": -0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "dots": {
-         "base": 1.0,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       }
-      },
-      {
-       "id": "lf1b73c7dxg9e",
-       "name": "B · fold left",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        10,
-        12
-       ],
-       "region": {
-        "map": ".#...#...#.\n.#...#...#.\n.#...#...#.\n.#...#...#.\n.#...#...#.\n.#...#...#.\n.#...#...#.\n.#...#...#.\n.#...#...#.\n.#...#...#.\n..........."
-       },
        "kind": "cells",
        "params": {
-        "lines": {
+        "brightness": {
          "op": "set",
          "base": 1,
          "chains": [],
-         "masks": [
-          {
-           "source": "unlock:angle",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
+         "masks": []
         },
-        "length": {
+        "lines": {
          "op": "set",
          "base": 1,
          "chains": [],
@@ -1987,69 +1469,49 @@
          "base": 270,
          "chains": [
           {
-           "source": "span",
-           "depth": -90,
+           "source": "bar",
+           "depth": 90,
            "threshold": 0,
            "width": 1,
            "curve": 1,
-           "invert": false,
+           "invert": true,
            "on": true,
            "delay": 0
           }
          ],
          "masks": []
-        },
-        "brightness": {
-         "op": "set",
-         "base": 0.9,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:angle",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
         }
-       }
+       },
+       "stage": "left",
+       "muted": false,
+       "group": "bars",
+       "bars": [
+        1,
+        2
+       ]
       },
       {
-       "id": "lf1b73c7ddn58",
-       "name": "B · fold right",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        10,
-        12
-       ],
+       "id": "lmwmz3prl0rs",
+       "name": "exo bar rotate",
        "region": {
-        "map": "...#...#...\n...#...#...\n...#...#...\n...#...#...\n...#...#...\n...#...#...\n...#...#...\n...#...#...\n...#...#...\n...#...#...\n..........."
+        "cols": [
+         2,
+         1
+        ],
+        "rows": [
+         2,
+         0
+        ]
        },
        "kind": "cells",
        "params": {
-        "lines": {
+        "brightness": {
          "op": "set",
          "base": 1,
          "chains": [],
-         "masks": [
-          {
-           "source": "unlock:angle",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
+         "masks": []
         },
-        "length": {
+        "lines": {
          "op": "set",
          "base": 1,
          "chains": [],
@@ -2060,62 +1522,93 @@
          "base": 270,
          "chains": [
           {
-           "source": "span",
-           "depth": 90,
+           "source": "bar",
+           "depth": -90,
            "threshold": 0,
            "width": 1,
            "curve": 1,
-           "invert": false,
+           "invert": true,
            "on": true,
            "delay": 0
           }
          ],
          "masks": []
-        },
+        }
+       },
+       "stage": "left",
+       "muted": false,
+       "group": "bars",
+       "bars": [
+        1,
+        2
+       ]
+      },
+      {
+       "id": "lmwmz3q2vrsz",
+       "name": "oxe bar rotate",
+       "region": {
+        "cols": [
+         2,
+         0
+        ],
+        "rows": [
+         2,
+         1
+        ]
+       },
+       "kind": "cells",
+       "params": {
         "brightness": {
          "op": "set",
-         "base": 0.9,
+         "base": 1,
          "chains": [],
-         "masks": [
+         "masks": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "angle": {
+         "op": "set",
+         "base": 90,
+         "chains": [
           {
-           "source": "unlock:angle",
-           "depth": 1,
+           "source": "bar",
+           "depth": -90,
            "threshold": 0,
            "width": 1,
            "curve": 1,
-           "invert": false,
+           "invert": true,
            "on": true,
            "delay": 0
           }
-         ]
+         ],
+         "masks": []
         }
-       }
+       },
+       "stage": "left",
+       "muted": false,
+       "group": "bars",
+       "bars": [
+        1,
+        2
+       ]
       },
       {
-       "id": "lf1b73c7d1u33",
-       "name": "B · bars collapse",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        12,
-        14
-       ],
+       "id": "lmwmyqjqn8ht",
+       "name": "h odd bars",
        "region": {
-        "rect": [
-         0,
-         0,
-         11,
-         11
-        ],
-        "cols": [
+        "rows": [
          2,
-         1
+         0
         ]
        },
        "kind": "snake",
        "params": {
         "mode": "retreat",
-        "axis": "cols",
+        "axis": "rows",
         "alternate": true,
         "reverse": true,
         "heads": 1,
@@ -2124,168 +1617,88 @@
          "base": 0,
          "chains": [
           {
-           "source": "span",
+           "source": "bar",
            "depth": 1,
            "threshold": 0,
            "width": 1,
            "curve": 1,
            "invert": false,
-           "on": true,
-           "delay": 0
+           "on": true
           }
          ]
         },
         "brightness": {
-         "base": 0.9,
-         "chains": [
-          {
-           "source": "unlock:angle",
-           "depth": -0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
+         "base": 1,
+         "chains": []
         },
         "dots": {
-         "base": 1.0,
+         "base": 0,
          "chains": []
         },
         "color": {
          "base": 0,
          "chains": []
         }
-       }
+       },
+       "stage": "left",
+       "muted": false,
+       "group": "bars",
+       "bars": [
+        2,
+        16
+       ]
       },
       {
-       "id": "lf1b73c7dxtpl",
-       "name": "B · folded bars collapse",
-       "group": "turning bars",
-       "stage": "left",
-       "bars": [
-        12,
-        14
-       ],
+       "id": "lmwmyruanz0m",
+       "name": "h even bars",
        "region": {
-        "map": ".###.###.##\n.###.###.##\n.###.###.##\n.###.###.##\n.###.###.##\n.###.###.##\n.###.###.##\n.###.###.##\n.###.###.##\n.###.###.##\n..........."
+        "rows": [
+         2,
+         1
+        ]
        },
        "kind": "snake",
        "params": {
-        "mode": "retreat",
+        "mode": "arrive",
         "axis": "rows",
-        "alternate": false,
+        "alternate": true,
         "reverse": false,
-        "heads": 10,
+        "heads": 1,
         "spin": 0,
         "progress": {
          "base": 0,
          "chains": [
           {
-           "source": "span",
+           "source": "bar",
            "depth": 1,
            "threshold": 0,
            "width": 1,
            "curve": 1,
            "invert": false,
-           "on": true,
-           "delay": 0
+           "on": true
           }
          ]
         },
         "brightness": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "unlock:angle",
-           "depth": 0.9,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
+         "base": 1,
+         "chains": []
         },
         "dots": {
-         "base": 1.0,
+         "base": 0,
          "chains": []
         },
         "color": {
          "base": 0,
          "chains": []
         }
-       }
-      },
-      {
-       "id": "lf1b73c7dpft7",
-       "name": "A · the drawn segment",
-       "group": "turning bars",
+       },
        "stage": "left",
+       "muted": false,
+       "group": "bars",
        "bars": [
         2,
-        6
-       ],
-       "region": {
-        "rect": [
-         4,
-         5,
-         5,
-         6
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:length",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "length": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
-        },
-        "angle": {
-         "op": "set",
-         "base": 0,
-         "chains": [],
-         "masks": []
-        },
-        "brightness": {
-         "op": "set",
-         "base": 0.9,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:length",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       }
+        16
+       ]
       }
      ],
      "hotspots": [
