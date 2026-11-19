@@ -1591,6 +1591,11 @@ fn render(
 		}
 	}
 	let [brightness, lines, length, angle, bend, rings, radius, fill, morph, flatness, rotation, color] = cell;
+	// A black mark is nothing on a black ground — except that, drawn after the other kinds'
+	// marks, it would cover their dots (owner: "i'd like there to be dots on all the cells").
+	if brightness + hot_brightness <= 0.001 {
+		return;
+	}
 	let color = tint(brightness + hot_brightness, color);
 	// The dot — or the line out of it: a line of no length draws as the dot.
 	shape(
