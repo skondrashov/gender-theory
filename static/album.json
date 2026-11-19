@@ -1141,28 +1141,6 @@
        "stage": "cross"
       },
       {
-       "id": "lmwmx202gu3o",
-       "name": "stripes",
-       "region": {
-        "rect": [
-         0,
-         0,
-         11,
-         11
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
-        }
-       },
-       "stage": "left"
-      },
-      {
        "id": "l11-cross",
        "name": "hidden box",
        "region": {
@@ -1305,6 +1283,58 @@
         }
        },
        "stage": "top"
+      },
+      {
+       "id": "lmwmx5qmjp4v",
+       "name": "snake retreat",
+       "region": {
+        "rect": [
+         0,
+         0,
+         11,
+         11
+        ],
+        "cols": [
+         2,
+         0
+        ]
+       },
+       "kind": "snake",
+       "params": {
+        "mode": "arrive",
+        "axis": "rows",
+        "alternate": true,
+        "reverse": false,
+        "heads": 1,
+        "spin": 0,
+        "progress": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true
+          }
+         ]
+        },
+        "dots": {
+         "base": 0,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        },
+        "brightness": {
+         "base": 0.9,
+         "chains": []
+        }
+       },
+       "stage": "left"
       }
      ],
      "hotspots": [
