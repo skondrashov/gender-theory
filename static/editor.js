@@ -534,10 +534,14 @@ function duplicateSelected() {
 function nudgeSelected(d) {
   if (!sel || (sel.type !== 'layer' && sel.type !== 'hotspot')) return;
   const list = listOf(sel.type);
-  const k = sel.index + d;
+  // past the next one the list shows: the stage view hides layers of other stages, and a swap
+  // with a hidden neighbour moved nothing in sight
+  let k = sel.index + d;
+  while (k >= 0 && k < list.length && !inStage(list[k])) k += d;
   if (k < 0 || k >= list.length) return;
   snapshotForUndo();
-  [list[sel.index], list[k]] = [list[k], list[sel.index]];
+  const [item] = list.splice(sel.index, 1);
+  list.splice(k, 0, item);
   sel = { type: sel.type, index: k };
   commit({ silent: true, inspector: true });
 }
