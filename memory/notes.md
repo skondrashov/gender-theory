@@ -243,6 +243,18 @@ tempo at `MasterTrack//Tempo/Manual`, `Locator` elements, clip `CurrentStart/End
   `length` (placeholder choice), and a layer shows the drawn segment once length is had.
   Snake `dots` 1.0 to match the stage's base dots (a dot of brightness 0 would paint black
   over them: marks draw in order).
+- **The `bars` kind** (owner, 2026-11-18: "maybe i'll just let you write some of these
+  algorithms and use them as kinds of layers. so make a kind of layer where alternating
+  columns grow all the way off the grid from dots on alternating sides of the grid, then all
+  the lines rotate to make alternating lines of horizontal bars which retract, rotate, then
+  grow off the grid again, etc"): `Kind::Bars` in data.rs. The figure (bars along every
+  `step`th column, the first from the bottom, the next from the top …) is drawn in its own
+  frame and turned rigidly about the grid centre by a quarter turn per turning phase, which
+  is what makes "columns → rows" exact (a per-dot pivot can't). `progress` 0..1 = eight
+  phases: grow, turn, retract, turn, grow (now from the other ends), turn, retract, turn =
+  a full turn, so the loop is seamless. Replaced the 15-layer `turning bars` group (and the
+  missing-segment hotspot) in sine/1's left stage with one `bars` layer; the fill-in-a-gap
+  unlock idea is open (a `gap` param would be the way).
 - **Snake `tail`** (owner, 2026-11-18: "i want the effect to extend the last dot in the
   sequence too for this, maybe call it bars instead of snake idk"): bool param; the last cell
   of a run owns a segment too, carrying on the way the line was going (along the axis for a

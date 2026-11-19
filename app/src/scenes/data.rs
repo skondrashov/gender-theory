@@ -565,6 +565,17 @@ pub const CATALOGUE: &str = r##"{
         "color": {"type": "param", "default": 0, "step": 0.1}
       }
     },
+    "bars": {
+      "doc": "Bars in every `step`th column, each growing from its own end of the grid — the first from the bottom, the next from the top, and so on — until they run off the far edge; then the whole figure turns a quarter turn about the centre (the bars are now horizontal, in every `step`th row), the bars retract to their starting dots, the figure turns again (nothing to see: it is dots), and the bars grow again, now from the other ends. Eight phases to one `progress` 0..1 — grow, turn, retract, turn, grow, turn, retract, turn — a full turn, so it loops seamlessly; the layer's own bars by default. Not a cells layer: rows don't reach it.",
+      "params": {
+        "step": {"type": "number", "default": 2, "step": 1, "doc": "a bar every this many columns"},
+        "turn": {"type": "select", "options": ["anticlockwise", "clockwise"], "default": "anticlockwise", "doc": "which way the figure turns"},
+        "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "0..1 through the eight phases"},
+        "brightness": {"type": "param", "default": 0.9, "step": 0.05, "doc": "the bars'; sidechains act once glow is unlocked"},
+        "dots": {"type": "param", "default": 0, "step": 0.05, "doc": "the grid's dots under it, 0 to leave them to the layers below"},
+        "color": {"type": "param", "default": 0, "step": 0.1}
+      }
+    },
     "orbits": {
       "doc": "A point orbits each cell and a line runs out to it; a second, invisible point orbits further out the other way, and `pull` drags the tip of the line toward it. Not a cells layer.",
       "params": {
@@ -922,6 +933,38 @@ impl Cells {
 
 // ---- the other kinds ----
 
+/// Bars in every `step`th column growing off the grid from alternating ends, the figure
+/// turning a quarter turn between growing and retracting (owner, 2026-11-18).
+#[derive(Deserialize)]
+#[serde(default)]
+struct Bars {
+	step: usize,
+	turn: String,
+	progress: Param,
+	brightness: Param,
+	dots: Param,
+	color: Param,
+}
+
+impl Default for Bars {
+	fn default() -> Self {
+		Bars {
+			step: 2,
+			turn: "anticlockwise".into(),
+			progress: Param {
+				base: 0.0,
+				chains: vec![Sidechain {
+					source: "span".into(),
+					..Default::default()
+				}],
+			},
+			brightness: Param::new(0.9),
+			dots: Param::new(0.0),
+			color: Param::new(0.0),
+		}
+	}
+}
+
 #[derive(Deserialize)]
 #[serde(default)]
 struct Snake {
@@ -1017,6 +1060,7 @@ impl Default for Walk {
 enum Kind {
 	Cells(Cells),
 	Snake(Snake),
+	Bars(Bars),
 	Orbits(Orbits),
 	Walk(Walk),
 }
@@ -1030,6 +1074,7 @@ fn parse_kind(kind: &str, params: &Value) -> Result<Kind, String> {
 	Ok(match kind {
 		"cells" => Kind::Cells(serde_json::from_value(params).map_err(bad)?),
 		"snake" => Kind::Snake(serde_json::from_value(params).map_err(bad)?),
+		"bars" => Kind::Bars(serde_json::from_value(params).map_err(bad)?),
 		"orbits" => Kind::Orbits(serde_json::from_value(params).map_err(bad)?),
 		"walk" => Kind::Walk(serde_json::from_value(params).map_err(bad)?),
 		other => return Err(format!("no such kind: {other}")),
@@ -1460,6 +1505,43 @@ fn render(
 						stroke(draw, model, sx, sy, angle, fill * unit, paint(model, brightness, color));
 					}
 				}
+			}
+			Kind::Bars(bars) => {
+				// The figure lives in its own frame — bars along every `step`th column, each from
+				// its own end — and the world sees it turned by a quarter turn per turning phase,
+				// about the centre of the grid. Growing and retracting happen in the figure frame.
+				let step = bars.step.max(1);
+				let p = bars.progress.value(&signals).rem_euclid(1.0) * 8.0;
+				let phase = (p.floor() as usize).min(7);
+				let f = p - phase as f32;
+				let growth = match phase % 4 {
+					0 => f,
+					1 => 1.0,
+					2 => 1.0 - f,
+					_ => 0.0,
+				};
+				let turns = (phase / 2) as f32 + if phase % 2 == 1 { f } else { 0.0 };
+				let theta = turns * std::f32::consts::FRAC_PI_2 * if bars.turn == "clockwise" { -1.0 } else { 1.0 };
+				let color = bars.color.value(&signals);
+				let dots = bars.dots.value_gated(&signals, glow) + hot_brightness;
+				if dots > 0.001 {
+					dot(draw, model, x, y, paint(model, dots, color));
+				}
+				if i % step != 0 {
+					continue;
+				}
+				let from_bottom = (i / step) % 2 == 0;
+				let n = if from_bottom { j } else { CANVAS_HEIGHT - 1 - j };
+				// the bar's segments light up from its starting end; the last one runs off the grid
+				let fill = (growth * CANVAS_HEIGHT as f32 - n as f32).clamp(0.0, 1.0);
+				if fill <= 0.0 {
+					continue;
+				}
+				let along = if from_bottom { std::f32::consts::FRAC_PI_2 } else { -std::f32::consts::FRAC_PI_2 };
+				let (sin, cos) = theta.sin_cos();
+				let (sx, sy) = (x * cos - y * sin, x * sin + y * cos);
+				let brightness = bars.brightness.value_gated(&signals, glow) + hot_brightness;
+				stroke(draw, model, sx, sy, along + theta, fill * unit, paint(model, brightness, color));
 			}
 			Kind::Orbits(orbits) => {
 				let near = (orbits.near_rate + orbits.vary * raw) * time + raw * TAU;
