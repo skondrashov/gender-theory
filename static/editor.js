@@ -355,7 +355,10 @@ function updateReadouts() {
     const sym = p.op === 'add' ? '+' : p.op === 'multiply' ? '×' : '=';
     // a row that is itself an unlock sits at its resting value until the unlock is on in the preview
     const frozen = r.dataset.gate !== 'sidechains' && !unlocked(r.dataset.unlock) ? ` · needs ${r.dataset.unlock} (at ${r.dataset.gate})` : '';
-    r.textContent = `${sym} ${p.value.toFixed(2)}${p.amount < 0.995 ? ` · ${Math.round(p.amount * 100)}%` : ''}${frozen}`;
+    // masks scale the row's change: a row that adds 0 (or multiplies by 1) gives them nothing to land
+    const idle = (p.op === 'add' && Math.abs(p.value) < 0.005) || (p.op === 'multiply' && Math.abs(p.value - 1) < 0.005);
+    const nothing = idle && p.masks && p.masks.length ? ' · nothing for the masks to land — a mask scales the change, a sidechain makes one' : '';
+    r.textContent = `${sym} ${p.value.toFixed(2)}${p.amount < 0.995 ? ` · ${Math.round(p.amount * 100)}%` : ''}${frozen}${nothing}`;
   }
   for (const r of document.querySelectorAll('.readout[data-probe-part]')) {
     const [layer, row, kind, k] = r.dataset.probePart.split('|');
