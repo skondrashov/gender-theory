@@ -160,15 +160,15 @@
    "bpm": 135,
    "scenes": [
     {
-     "id": "sine/act-1",
+     "id": "sine/1",
      "bars": [
       0,
       16
      ],
      "loop": 0,
      "stages": [
-      "met ends",
-      "square",
+      "foyer",
+      "top",
       "stripes",
       "boxes",
       "cross"
@@ -188,7 +188,46 @@
          "chains": [],
          "masks": []
         }
-       }
+       },
+       "stage": "foyer"
+      },
+      {
+       "id": "lmwlybct9oor",
+       "name": "top",
+       "region": {
+        "map": "...........\n.#########.\n..#.....#..\n...#...#...\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "add",
+         "base": 0.550000008195639,
+         "chains": [],
+         "masks": [
+          {
+           "source": "pulse",
+           "depth": 1,
+           "threshold": 0,
+           "width": 0.75,
+           "curve": 0.3,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          },
+          {
+           "source": "distance",
+           "depth": 0.5,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        }
+       },
+       "stage": "foyer"
       },
       {
        "id": "lmwlv4cz6pu1",
@@ -205,83 +244,7 @@
          "masks": []
         }
        },
-       "stage": "met ends"
-      },
-      {
-       "id": "lmwlybct9oor",
-       "name": "top",
-       "region": {
-        "map": "...........\n..#######..\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.550000008195639,
-         "chains": [],
-         "masks": [
-          {
-           "source": "pulse",
-           "depth": 1,
-           "threshold": 0,
-           "width": 0.75,
-           "curve": -0.1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       },
-       "stage": "met ends"
-      },
-      {
-       "id": "lmwmh0dqkhah",
-       "name": "top/left",
-       "region": {
-        "map": "...........\n.#.........\n..#........\n...#.......\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "add",
-         "base": 0,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:glow",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          },
-          {
-           "source": "distance",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": true,
-           "on": true,
-           "delay": 0
-          },
-          {
-           "source": "b-kick",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       },
-       "stage": "met ends"
+       "stage": "foyer"
       },
       {
        "id": "lmwmc9gmm6ej",
@@ -298,7 +261,7 @@
          "masks": []
         }
        },
-       "stage": "met ends"
+       "stage": "foyer"
       },
       {
        "id": "lmwmh5ehy372",
@@ -315,7 +278,7 @@
          "masks": []
         }
        },
-       "stage": "met ends"
+       "stage": "foyer"
       },
       {
        "id": "lmwmces6t9qs",
@@ -350,7 +313,7 @@
          "masks": []
         }
        },
-       "stage": "met ends"
+       "stage": "foyer"
       },
       {
        "id": "lmwmh62ax9o3",
@@ -385,7 +348,7 @@
          "masks": []
         }
        },
-       "stage": "met ends"
+       "stage": "foyer"
       },
       {
        "id": "lmwmcets0juy",
@@ -402,24 +365,7 @@
          "masks": []
         }
        },
-       "stage": "met ends"
-      },
-      {
-       "id": "lmwmh6cirx9e",
-       "name": "top right",
-       "region": {
-        "map": "...........\n.........#.\n........#..\n.......#...\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0,
-         "chains": [],
-         "masks": []
-        }
-       },
-       "stage": "met ends"
+       "stage": "foyer"
       },
       {
        "id": "l2",
@@ -428,122 +374,11 @@
        "kind": "cells",
        "params": {
         "brightness": {
-         "op": "set",
-         "base": 0.9,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:glow",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       },
-       "stage": "square"
-      },
-      {
-       "id": "l3",
-       "name": "square inside",
-       "region": {
-        "rect": [
-         2,
-         4,
-         5,
-         7
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0,
-         "chains": [],
-         "masks": [
-          {
-           "source": "hotspot:square",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       },
-       "stage": "square"
-      },
-      {
-       "id": "l4",
-       "name": "square edge",
-       "region": {
-        "rect": [
-         2,
-         4,
-         5,
-         7
-        ],
-        "perimeter": true
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.9,
-         "chains": [],
-         "masks": [
-          {
-           "source": "hotspot:square",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       },
-       "stage": "square"
-      },
-      {
-       "id": "l5",
-       "name": "inverse square",
-       "region": {
-        "rect": [
-         7,
-         2,
-         9,
-         5
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 1,
+         "op": "add",
+         "base": -0.0500000007450581,
          "chains": [
           {
            "source": "pulse",
-           "depth": -1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ],
-         "masks": [
-          {
-           "source": "hotspot:square-2",
            "depth": 1,
            "threshold": 0,
            "width": 1,
@@ -551,11 +386,22 @@
            "invert": false,
            "on": true,
            "delay": 0
+          },
+          {
+           "source": "distance",
+           "depth": 0.8,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
+           "on": true,
+           "delay": 0
           }
-         ]
+         ],
+         "masks": []
         }
        },
-       "stage": "square"
+       "stage": "top"
       },
       {
        "id": "l6",
@@ -1373,6 +1219,40 @@
         }
        },
        "stage": "cross"
+      },
+      {
+       "id": "lmwmvbtgyt08",
+       "name": "fill",
+       "region": {
+        "map": "...........\n......####.\n......####.\n......####.\n......####.\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "add",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "top"
+      },
+      {
+       "id": "lmwmvit0vfv5",
+       "name": "outline",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n.####......\n.#..#......\n.#..#......\n.####......\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "add",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "top"
       }
      ],
      "hotspots": [
@@ -1394,7 +1274,7 @@
          "unlock": "glow"
         }
        ],
-       "stage": "met ends"
+       "stage": "foyer"
       },
       {
        "id": "hmw4rooy7v5i",
@@ -1408,10 +1288,10 @@
        "on": "tap",
        "then": [
         {
-         "stage": "square"
+         "stage": "top"
         }
        ],
-       "stage": "met ends"
+       "stage": "foyer"
       },
       {
        "id": "hmw5ia2bz7hc",
@@ -1422,7 +1302,7 @@
        "needs": [],
        "on": "tap",
        "then": [],
-       "stage": "met ends"
+       "stage": "foyer"
       },
       {
        "id": "hmwmcjqognib",
@@ -1433,7 +1313,7 @@
        "needs": [],
        "on": "tap",
        "then": [],
-       "stage": "met ends"
+       "stage": "foyer"
       },
       {
        "id": "hmwmckrxcayc",
@@ -1444,56 +1324,24 @@
        "needs": [],
        "on": "tap",
        "then": [],
-       "stage": "met ends"
+       "stage": "foyer"
+      },
+      {
+       "id": "hmwmvdc3ij5e",
+       "name": "hotspot",
+       "region": {
+        "map": "...........\n......####.\n......####.\n......####.\n......####.\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "unlock": "lines"
+        }
+       ],
+       "stage": "top"
       }
      ]
-    },
-    {
-     "id": "sine/1",
-     "bars": [
-      16,
-      32
-     ],
-     "loop": 16,
-     "stages": [],
-     "layers": [
-      {
-       "id": "lmwmeplob95t",
-       "name": "field",
-       "region": {},
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.150000002235174,
-         "chains": [
-          {
-           "source": "distance",
-           "depth": 2.3,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": true,
-           "on": true,
-           "delay": 0
-          },
-          {
-           "source": "pulse",
-           "depth": 16.3,
-           "threshold": 0,
-           "width": 0.45,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ],
-         "masks": []
-        }
-       }
-      }
-     ],
-     "hotspots": []
     }
    ]
   },
