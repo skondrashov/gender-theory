@@ -11,8 +11,10 @@ use {
 
 mod audio;
 mod model;
+mod names;
 mod progress;
 mod scenes;
+mod words;
 // mod notes;
 
 /// The editor page: a command (JSON) for the next update. See `Model::handle`.
@@ -31,6 +33,18 @@ pub fn state() -> String {
 #[wasm_bindgen]
 pub fn spectrum() -> Vec<u8> {
 	model::spectrum_copy()
+}
+
+/// The editor page: new random names for every exit, from now on (kept with the progress).
+#[wasm_bindgen]
+pub fn reset_names() {
+	names::reset();
+}
+
+/// The editor page: the k-th exit name of room `room` (the album's scenes counted in order).
+#[wasm_bindgen]
+pub fn exit_name(room: usize, k: usize) -> String {
+	names::exit(room, k).to_string()
 }
 
 /// The editor page: what kinds of layer there are and their params (JSON).

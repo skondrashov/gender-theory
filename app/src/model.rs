@@ -133,6 +133,7 @@ impl Model {
 	) -> Self {
 		if reset {
 			progress::clear();
+			crate::names::clear();
 		}
 		let saved = if editor { None } else { progress::load() };
 		let mut unlocks = saved.as_ref().map_or(NONE, |(_, unlocks)| *unlocks);

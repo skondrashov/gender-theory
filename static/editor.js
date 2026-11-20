@@ -4,7 +4,7 @@
 //
 // The album's shape is documented in app/src/scenes/data.rs.
 
-import init, { main_web, editor as send, state as readState, spectrum as readSpectrum, catalogue as readCatalogue } from './app/gender.js';
+import init, { main_web, editor as send, state as readState, spectrum as readSpectrum, catalogue as readCatalogue, reset_names as resetNames, exit_name as exitName } from './app/gender.js';
 
 const W = 11, H = 11;  // the grid (app/src/model.rs: CANVAS_WIDTH): odd, a centre dot
 const STAGE = 500;
@@ -98,6 +98,7 @@ async function boot() {
   $('#undo').onclick = undo;
   $('#redo').onclick = redo;
   $('#save').onclick = save;
+  $('#names').onclick = () => { resetNames(); commit({ silent: true, inspector: true }); };
   $('#autosave').checked = autosave;
   $('#autosave').onchange = (e) => {
     autosave = e.target.checked;
@@ -1027,6 +1028,15 @@ function fieldParams(field) {
     }));
 }
 
+// Rooms are the album's scenes in order (the engine counts them the same way).
+const roomIndex = () => album.tracks.flatMap((t) => t.scenes).indexOf(scene());
+// "name N" → the room's N-th random word, shown beside the field.
+function exitHint(h) {
+  const m = /^\s*name\s+(\d+)\s*$/i.exec(h.name || '');
+  if (!m || +m[1] < 1) return el('span', { class: 'doc' }, '"name 1" … "name 4" for one of the room\'s random words');
+  return el('span', { class: 'doc' }, '→ ' + exitName(roomIndex(), +m[1] - 1));
+}
+
 function hotspotInspector(h) {
   h.needs ??= []; h.then ??= [];
   const on = typeof h.on === 'string' ? h.on : 'drag';
@@ -1057,7 +1067,8 @@ function hotspotInspector(h) {
   };
   renderActions();
   return [
-    row('name', textInput(h, 'name')),
+    row('name', textInput(h, 'name', { commit: { inspector: true } }), exitHint(h)),
+    row('show name', checkInput(h, 'label', 'drawn in its rectangle, in the lattice font, while it shows — a word needs its letters + 1 dots across')),
     row('id', el('span', { class: 'mono' }, h.id), el('span', { class: 'doc' }, 'layers refer to it by this')),
     barsRow(h),
     stageRow(h),

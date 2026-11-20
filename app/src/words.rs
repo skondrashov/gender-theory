@@ -1,3 +1,6 @@
+#![allow(non_upper_case_globals, dead_code)]
+//! The words: the title's pairs, and ~1,400 plain nouns the exits are named from (`names.rs`).
+
 pub const paired_words: &[&[&'static str]] = &[
 	&["for", "against"],
 	&["porcelain", "piss"],
@@ -36,7 +39,7 @@ pub const paired_words: &[&[&'static str]] = &[
 	&["yesterday", "today", "tomorrow", "tonight"],
 ];
 
-pub const random_words: &[&[&'static str]] = &[
+pub const random_words: &[&'static str] = &[
 	"ability",
 	"abroad",
 	"abuse",

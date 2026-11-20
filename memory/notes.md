@@ -448,3 +448,28 @@ capitals three; descenders reach the box's bottom dot row at 1.5.
 - The editor got a `string` param type (`multiline` → a textarea).
 - Open: `random_words`/`paired_words` as a source for `text` (a word that changes per visit),
   words as hotspots, the hint text "met ends" redrawn in the font.
+
+## Named exits (2026-11-19)
+
+Owner: "i want every room to have up to 3 (maybe 4 for the occasional list of 4 i have?)
+exits, each of which gets a name from the list of words, which is randomized at the beginning
+of every game but persists through saves and transitions, and i'd like the preview to have a
+button to reset names. but so in the editor i would give hotspots 'name 1' 'name 2' 'name 3'
+if i wanted a random one, or i could write my own".
+
+- `words.rs` is compiled in at last (`random_words` fixed to a flat `&[&str]`; the file had
+  it typed as a list of lists and had never been built). `names.rs`: seed in localStorage
+  `gender-theory/names` (made on first use from `Math.random`), one Fisher–Yates shuffle
+  (xorshift64*) per seed, `exit(room, k)` = `random_words[order[room × 4 + k]]`, so no two
+  exits share a word; `reset()` new seed, `clear()` with `?reset`; `resolve(name, room)`
+  turns "name N" into the word. Rooms = the album's data scenes in install order (so
+  inserting a scene shifts later rooms' words — fine, they're random; the seed is what
+  persists). wasm exports `reset_names()` and `exit_name(room, k)` for the editor.
+- A hotspot's `label: true` (editor: "show name") lays its resolved name out at install
+  with `TextLayout` (centred, the font's default proportions) in the hotspot's rectangle and
+  `render()` draws it after the layers while `model.hint_visible(tag)` (needs met, not
+  spent, right stage) — brightness 0.9, grey. Placement was my default, not yet the owner's
+  call: the alternative is a fixed label strip (the bottom row) for the exit being touched.
+  A word needs letters + 1 dots across, so small doors wrap or cut long words.
+- Editor: "reset names" in the top bar (new seed, then the album is re-pushed so layouts
+  rebuild), the resolved word shown beside a "name N" field, a "show name" checkbox.

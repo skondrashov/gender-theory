@@ -1,6 +1,11 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* The editor page: what kinds of layer there are and their params (JSON).
+* @returns {string}
+*/
+export function catalogue(): string;
+/**
 * The editor page: a command (JSON) for the next update. See `Model::handle`.
 * @param {string} command
 */
@@ -16,16 +21,22 @@ export function spectrum(): Uint8Array;
 */
 export function state(): string;
 /**
+* The editor page: the k-th exit name of room `room` (the album's scenes counted in order).
+* @param {number} room
+* @param {number} k
+* @returns {string}
+*/
+export function exit_name(room: number, k: number): string;
+/**
 * `album` is the contents of `static/album.json` (the page fetches it).
 * @param {string} album
 * @returns {Promise<void>}
 */
 export function main_web(album: string): Promise<void>;
 /**
-* The editor page: what kinds of layer there are and their params (JSON).
-* @returns {string}
+* The editor page: new random names for every exit, from now on (kept with the progress).
 */
-export function catalogue(): string;
+export function reset_names(): void;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
@@ -33,7 +44,9 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly catalogue: (a: number) => void;
   readonly editor: (a: number, b: number) => void;
+  readonly exit_name: (a: number, b: number, c: number) => void;
   readonly main_web: (a: number, b: number) => number;
+  readonly reset_names: () => void;
   readonly spectrum: (a: number) => void;
   readonly state: (a: number) => void;
   readonly wgpu_render_pass_begin_pipeline_statistics_query: (a: number, b: number, c: number) => void;
@@ -84,8 +97,8 @@ export interface InitOutput {
   readonly __wbindgen_export_0: (a: number, b: number) => number;
   readonly __wbindgen_export_1: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_export_2: WebAssembly.Table;
-  readonly __wbindgen_export_3: (a: number, b: number) => void;
-  readonly __wbindgen_export_4: (a: number, b: number, c: number) => void;
+  readonly __wbindgen_export_3: (a: number, b: number, c: number) => void;
+  readonly __wbindgen_export_4: (a: number, b: number) => void;
   readonly __wbindgen_export_5: (a: number, b: number, c: number) => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_export_6: (a: number) => void;

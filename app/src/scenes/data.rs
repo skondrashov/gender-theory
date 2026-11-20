@@ -28,6 +28,7 @@
 //! what they mean. Keep the two together.
 
 use super::font;
+use crate::names;
 use {
 	crate::{
 		model::{Model, CANVAS_HEIGHT, CANVAS_WIDTH},
@@ -241,6 +242,9 @@ pub struct HotspotData {
 	pub on: OnData,
 	pub then: Vec<ActionData>,
 	pub stage: Option<String>,
+	/// Draw its name in its rectangle, in the lattice font, while it shows: "name N" is the
+	/// room's N-th random word (`names.rs`), anything else is shown as written.
+	pub label: bool,
 }
 
 impl Default for HotspotData {
@@ -248,6 +252,7 @@ impl Default for HotspotData {
 		HotspotData {
 			id: String::new(),
 			name: String::new(),
+			label: false,
 			bars: None,
 			region: Region::default(),
 			rect: None,
@@ -1243,6 +1248,20 @@ impl TextLayout {
 	}
 }
 
+/// One letter: its strokes, in grid points, scaled into the box whose bottom-left dot is at
+/// (x, y) — `width`/`height` of the box about its middle — drawn with `stroke()`, so in the
+/// piece's weight, and morphing like any mark.
+fn glyph(draw: &Draw, model: &Model, x: f32, y: f32, unit: f32, cell: &TextCell, width: f32, height: f32, color: Rgb) {
+	let px = |g: f32| x + (0.5 + (g / font::COLS - 0.5) * width) * unit;
+	let py = |g: f32| y + ((1.0 - height) / 2.0 + g / font::ROWS * height) * unit;
+	for s in cell.strokes {
+		let (x1, y1) = (px(s[0] as f32 + cell.shift), py(s[1] as f32));
+		let (x2, y2) = (px(s[2] as f32 + cell.shift), py(s[3] as f32));
+		let (dx, dy) = (x2 - x1, y2 - y1);
+		stroke(draw, model, x1, y1, dy.atan2(dx), (dx * dx + dy * dy).sqrt(), color);
+	}
+}
+
 /// The region of a snake layer as separate (4-connected) pieces, each its cells in
 /// serpentine order — a whole rectangle is one piece, so it threads as it always did; every
 /// other column, or each blob of a map, is its own snake (owner, 2026-11-18: "each region
@@ -1308,6 +1327,8 @@ struct DataScene {
 	layers: &'static [LayerRt],
 	/// Hotspot id → its tag in this scene.
 	tags: Vec<(String, u8)>,
+	/// Hotspots with `label`: tag → the name laid out in the hotspot's rectangle.
+	labels: Vec<(u8, TextLayout)>,
 	/// The scene's bars, for layers without their own.
 	bars: [usize; 2],
 }
@@ -1371,6 +1392,9 @@ pub fn install(json: &str) -> Result<usize, String> {
 			let stages: Vec<&'static str> = scene.stages.iter().map(|s| leak_str(s)).collect();
 			let mut hotspots = vec![];
 			let mut tags = vec![];
+			let mut labels = vec![];
+			// Rooms are the album's scenes in order: this one's number, for its exits' names.
+			let room = scenes.len();
 			for hotspot in &scene.hotspots {
 				let tag = hotspots.len() as u8;
 				tags.push((hotspot.id.clone(), tag));
@@ -1384,6 +1408,14 @@ pub fn install(json: &str) -> Result<usize, String> {
 				});
 				let inside: &'static (dyn Fn(usize, usize) -> bool + Sync) =
 					leak(move |i: usize, j: usize| region.contains(i, j));
+				if hotspot.label {
+					let text = Text {
+						text: names::resolve(&hotspot.name, room),
+						align: "center".into(),
+						..Default::default()
+					};
+					labels.push((tag, TextLayout::new(region, &text)));
+				}
 				let needs = Unlocks::of(
 					&hotspot
 						.needs
@@ -1426,6 +1458,7 @@ pub fn install(json: &str) -> Result<usize, String> {
 			let data: &'static DataScene = leak(DataScene {
 				layers,
 				tags,
+				labels,
 				bars: [bars.start, bars.end],
 			});
 			let render: &'static dyn Fn(&Draw, &Model, usize, usize, f32, [f32; 8]) =
@@ -1698,14 +1731,7 @@ fn render(
 					continue;
 				}
 				let color = paint(model, brightness, text.color.value(&signals));
-				let px = |g: f32| x + (0.5 + (g / font::COLS - 0.5) * text.width) * unit;
-				let py = |g: f32| y + ((1.0 - text.height) / 2.0 + g / font::ROWS * text.height) * unit;
-				for s in cell.strokes {
-					let (x1, y1) = (px(s[0] as f32 + cell.shift), py(s[1] as f32));
-					let (x2, y2) = (px(s[2] as f32 + cell.shift), py(s[3] as f32));
-					let (dx, dy) = (x2 - x1, y2 - y1);
-					stroke(draw, model, x1, y1, dy.atan2(dx), (dx * dx + dy * dy).sqrt(), color);
-				}
+				glyph(draw, model, x, y, unit, cell, text.width, text.height, color);
 			}
 			Kind::Orbits(orbits) => {
 				let near = (orbits.near_rate + orbits.vary * raw) * time + raw * TAU;
@@ -1737,6 +1763,14 @@ fn render(
 				);
 			}
 			Kind::Walk(_) => {}
+		}
+	}
+	// The exits' names: a labelled hotspot's name in its rectangle, while the hotspot shows.
+	for (tag, layout) in &scene.labels {
+		if let Some(cell) = layout.cells.get(&(i, j)) {
+			if model.hint_visible(*tag) {
+				glyph(draw, model, x, y, unit, cell, font::WIDTH, font::HEIGHT, paint(model, 0.9, 0.0));
+			}
 		}
 	}
 	if !covered {
