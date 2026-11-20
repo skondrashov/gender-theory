@@ -568,10 +568,10 @@ pub const CATALOGUE: &str = r##"{
       }
     },
     "bars": {
-      "doc": "A grid of dots where every dot owns one segment. Extend: every other dot along the bottom grows a line up to the next dot, which grows to the next, and so on off the top; in the other columns a line comes down from the top dot the same way. Rotate: every segment turns a quarter turn on its own dot — the way that points it right in even rows and left in odd ones — so the columns' segments tile into full horizontal lines, each dot turning its own way. Retreat: the rows retreat in the reverse of the growing, even rows into their left dot, odd rows into their right (the dots turn, which nobody sees). Then the same the other way round — even columns down, odd up, even rows left, odd right. Each part takes `per` beats of the track — a bar each by default, so a half-cycle is 3 bars and the whole 6. Not a cells layer: rows don't reach it.",
+      "doc": "A grid of dots where every dot owns one segment. Extend: every other dot along the bottom grows a line up to the next dot, which grows to the next, and so on off the top; in the other columns a line comes down from the top dot the same way. Retreat: in reverse, into the dots they came from. Then extend from the other end of every line, and retreat into that — the columns bounce. Four parts of `per` beats each — a bar each by default, a cycle of 4 bars. With the angle unlock, every segment turns a quarter turn on its own dot over the first beat of each retreat, each its own way (a pinwheel: even rows end up pointing right, odd rows left), and the retreat runs as rows while it turns; the rows grow back from the other side, turn again the same way, and retreat as columns — every line comes from the other side each time round, so the pattern repeats every two cycles. Lines gates the segments, length their motion (without it every segment is a full pitch), angle the turn. Not a cells layer: rows don't reach it otherwise.",
       "params": {
-        "per": {"type": "number", "default": 4, "step": 1, "doc": "beats each part lasts, on the track's beats: 4 is a bar each — extend, rotate, retreat, a half-cycle in 3 bars, the whole in 6. 0: `progress` drives it instead"},
-        "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "with `per` 0: 0..1 through the six parts"},
+        "per": {"type": "number", "default": 4, "step": 1, "doc": "beats each part lasts, on the track's beats: 4 is a bar each — extend, retreat, extend, retreat, a cycle in 4 bars; the turn takes one beat of a retreat. 0: `progress` drives it instead"},
+        "progress": {"type": "param", "default": {"base": 0, "chains": [{"source": "span", "depth": 1, "threshold": 0, "width": 1, "curve": 1, "invert": false, "on": true}]}, "step": 0.05, "doc": "with `per` 0: 0..1 through two cycles (eight parts)"},
         "brightness": {"type": "param", "default": 0.9, "step": 0.05, "doc": "the lines'; sidechains act once glow is unlocked"},
         "dots": {"type": "param", "default": 0.6, "step": 0.05, "doc": "the grid's dots, 0 to leave them to the layers below"},
         "color": {"type": "param", "default": 0, "step": 0.1}
@@ -1018,15 +1018,17 @@ impl Default for Hole {
 	}
 }
 
-/// Columns of segments growing dot to dot from alternating ends, every segment pivoting a
-/// quarter turn on its own dot into rows, which retreat (owner, 2026-11-18: "every other dot
+/// Columns of segments growing dot to dot from alternating ends and retreating, bouncing
+/// between the ends; with the angle unlock every segment pivots a quarter turn on its own
+/// dot as a retreat begins, so the retreat runs as rows (owner, 2026-11-18: "every other dot
 /// on the bottom grows a line upward, and when it touches the next dot, that dot grows to
 /// the next dot etc. … all of the line segments … rotate in such a way that they form
-/// alternating lines horizontally, and then the lines retreat in the reverse animation").
+/// alternating lines horizontally, and then the lines retreat in the reverse animation";
+/// 2026-11-20: the bounce, the turn over one beat with the unlock, cycles of 4 bars).
 #[derive(Deserialize)]
 #[serde(default)]
 struct Bars {
-	/// Beats a part lasts (extend, rotate, retreat), on the track's beats; 0 for
+	/// Beats a part lasts (extend, retreat, extend, retreat), on the track's beats; 0 for
 	/// `progress`.
 	per: f32,
 	progress: Param,
@@ -1734,24 +1736,25 @@ fn render(
 				}
 			}
 			Kind::Bars(bars) => {
-				// Every dot owns one segment, a dot's pitch long. Four phases to a cycle:
-				// grow — even columns climb from the bottom dot, each dot's segment growing to the
-				//   next once the line reaches it; odd columns descend from the top the same way;
-				//   the last dot's segment runs off the grid;
-				// turn — every segment pivots a quarter turn on its own dot, the way that lands it
-				//   pointing right in even rows and left in odd ones — so the columns' segments tile
-				//   into full horizontal lines, each dot turning its own way, a pinwheel;
-				// retreat — the rows retreat in the reverse of the growing, even rows back into
-				//   their left dot, odd rows into their right (the dots turn, which nobody sees).
-				// Then the same three backwards with even and odd swapped: the rows grow again,
-				// each from the other end of its line (even from the right, odd from the left),
-				// every segment turns back the other way, the columns retreat into the far ends
-				// (even up into the top, odd down into the bottom) — so the next columns come from
-				// the other end too (owner, 2026-11-20: "the lines switch direction and also
-				// switch odd/even so it's like it's coming from the other side in each line").
-				// Both halves meet on an empty grid. Six parts, each `per` beats of the track (4:
-				// a bar each, on the bar lines; the cycle 6 bars), or a sixth of `progress` when
-				// `per` is 0.
+				// Every dot owns one segment, a dot's pitch long, pointing up in even columns
+				// and down in odd ones. Four parts to a cycle, each `per` beats (a bar):
+				// extend — even columns climb from the bottom dot, each dot's segment growing to
+				//   the next once the line reaches it, the last one off the grid; odd columns
+				//   come down from the top the same way;
+				// retreat — in reverse, back into the dots they came from;
+				// extend again, from the other end of every line; retreat into that.
+				// So the columns bounce (owner, 2026-11-20: "the bars just bounce back and forth
+				// vertically"). With the angle unlock every segment turns a quarter turn on its
+				// own dot over the first beat of each retreat, each its own way — a pinwheel, the
+				// way that points even rows right and odd rows left — and the retreat runs as
+				// rows while it turns ("just have them all turn 90 degrees over like one beat in
+				// the same direction they're doing now and start the next extend/retract
+				// animation instantly"); the rows then grow back from the other side, turn again
+				// the same way, and retreat as columns into the ends they first grew from. The
+				// next cycle's columns come from the other end, so every line comes from the
+				// other side each time round: the pattern repeats every two cycles.
+				// Lines gates the segments (they grow out of their dots with it), length their
+				// motion (without it every segment is a full pitch), angle the turn.
 				let color = bars.color.value(&signals);
 				let dots = bars.dots.value_gated(&signals, glow) + hot_brightness;
 				if dots > 0.001 {
@@ -1760,32 +1763,53 @@ fn render(
 				let last = CANVAS_HEIGHT - 1;
 				let count = CANVAS_HEIGHT as f32; // segments along a line, the last off the grid
 				let t = if bars.per > 0.0 {
-					(signals.bars * 4.0 / bars.per).rem_euclid(6.0)
+					(signals.bars * 4.0 / bars.per).rem_euclid(8.0)
 				} else {
-					bars.progress.value(&signals).rem_euclid(1.0) * 6.0
+					bars.progress.value(&signals).rem_euclid(1.0) * 8.0
 				};
-				// forward for three parts, then the same three run backwards, parities swapped
-				let (s, flipped) = if t < 3.0 { (t, false) } else { (6.0 - t, true) };
-				let phase = (s.floor() as usize).min(2);
-				let f = s - phase as f32;
-				let (col_even, row_even) = ((i % 2 == 0) != flipped, (j % 2 == 0) != flipped);
+				let cycle = (t / 4.0).floor() as usize;
+				let part = (t.floor() as usize) % 4;
+				let f = t - t.floor();
+				let lines = model.reveal(Unlock::Lines);
+				let length = model.reveal(Unlock::Length);
+				let turning = model.reveal(Unlock::Angle);
+				let angled = turning > 0.0;
+				let (col_even, row_even) = (i % 2 == 0, j % 2 == 0);
 				let up = std::f32::consts::FRAC_PI_2;
-				let from = if col_even { up } else { -up }; // the column's way
-				let to = if row_even { 0.0 } else { std::f32::consts::PI }; // the row's way
-				// a quarter turn from the one to the other, the short way (they are at right angles)
-				let turn = if (col_even && row_even) || (!col_even && !row_even) { -up } else { up };
-				let (angle, fill) = match phase {
-					0 => {
-						let n = if col_even { j } else { last - j } as f32;
-						(from, (f * count - n).clamp(0.0, 1.0))
-					}
-					1 => (from + turn * f, 1.0),
-					_ => {
-						let n = if row_even { i } else { last - i } as f32;
-						(to, ((1.0 - f) * count - n).clamp(0.0, 1.0))
-					}
+				// the way this cell's segment points as a column — the other way every other
+				// cycle once the segments turn, so the columns come from the other end
+				let mut vertical = if col_even { up } else { -up };
+				if angled && cycle == 1 {
+					vertical = -vertical;
+				}
+				// the pinwheel: which way this segment turns, so the columns tile into rows
+				let sense = if col_even == row_even { -up } else { up };
+				// the quarter turn over the first beat of a retreat
+				let beat = if bars.per > 0.0 { bars.per } else { 4.0 };
+				let quick = (f * beat).min(1.0) * turning;
+				// the angle drawn; the way whose root the line is counted from; growing or not
+				let (angle, pointing, grow) = match (part, angled) {
+					(0, _) => (vertical, vertical, true),
+					(1, false) => (vertical, vertical, false),
+					(1, true) => (vertical + sense * quick, vertical + sense, false),
+					(2, false) => (-vertical, -vertical, true),
+					(2, true) => (vertical - sense, vertical - sense, true),
+					(_, false) => (-vertical, -vertical, false),
+					(_, true) => (vertical - sense + sense * quick, vertical, false),
 				};
-				if fill <= 0.0 {
+				// segments between the line's root and this dot
+				let (cx, cy) = (pointing.cos(), pointing.sin());
+				let n = if cy.abs() > cx.abs() {
+					if cy > 0.0 { j } else { last - j }
+				} else if cx > 0.0 {
+					i
+				} else {
+					last - i
+				} as f32;
+				let moving = if grow { f * count - n } else { (1.0 - f) * count - n }.clamp(0.0, 1.0);
+				// without length every segment is a full pitch; the motion eases in with it
+				let fill = (1.0 + (moving - 1.0) * length) * lines;
+				if fill <= 0.001 {
 					continue;
 				}
 				let brightness = bars.brightness.value_gated(&signals, glow) + hot_brightness;

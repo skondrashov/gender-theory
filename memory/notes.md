@@ -515,3 +515,27 @@ if i wanted a random one, or i could write my own".
   `flipped = true`): rows regrow from the other end of each line, turn back, columns retreat
   into the far ends; the next cycle's columns then come from the other end too. The halves
   meet on an empty grid, so no seam either way.
+
+## bars, third time (2026-11-20)
+
+Owner: "the scene is actually — there's a vertical line missing and the bars just bounce back
+and forth vertically …, and then outlining it unlocks angle, which adds a turn animation …
+instead of having a turn separate from everything else, just have them all turn 90 degrees
+over like one beat in the same direction they're doing now and start the next extend/retract
+animation instantly. so then it can be cycles of 4 bars"; "line length also has to be
+unlocked for those parts of the animation to work".
+
+- Four parts of `per` beats: extend, retreat, extend from the other end, retreat. Without
+  angle the columns just bounce. With angle (`model.reveal(Unlock::Angle)`): over the first
+  beat of each retreat every segment turns `sense` (−90° if col parity == row parity, else
+  +90°: the pinwheel, rows tiling) while the retreat already runs along the turned way; the
+  next extend is from the other side of that line (pointing `vertical − sense`), the next
+  turn is the same sense again and lands vertical; `vertical` flips every other cycle so
+  the columns too come from the other end — period 8 bars. The fill is counted from the
+  root of `pointing` (the way the segment points: up → from the bottom, etc.), which keeps
+  every retreat the reverse of a growth (tips move smoothly).
+- Gates, in the bars kind itself since rows don't reach it: segment length × reveal(Lines);
+  fill = 1 + (moving − 1) × reveal(Length) — without length every segment is a full pitch,
+  the motion eases in; the turn × reveal(Angle). The retreat *order* switches from
+  vertical to horizontal the moment angle is unlocked (one discrete change, at the
+  gesture); the turn itself eases in over the reveal.
