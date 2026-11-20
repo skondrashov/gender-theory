@@ -1315,6 +1315,40 @@
          "chains": []
         }
        }
+      },
+      {
+       "id": "lmwodk5l9mzx",
+       "name": "layer",
+       "region": {
+        "rect": [
+         2,
+         8,
+         8,
+         10
+        ]
+       },
+       "kind": "text",
+       "params": {
+        "text": "words",
+        "align": "left",
+        "lead": 1,
+        "width": 1.5,
+        "height": 1.5,
+        "center": true,
+        "reveal": {
+         "base": 1,
+         "chains": []
+        },
+        "brightness": {
+         "base": 1,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        }
+       },
+       "stage": "foyer"
       }
      ],
      "hotspots": [
