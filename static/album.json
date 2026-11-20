@@ -1372,6 +1372,23 @@
         "dots": true
        },
        "stage": "left"
+      },
+      {
+       "id": "lmwpjw3knhrs",
+       "name": "layer",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n.####......\n.####......\n.####......\n.####......\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 0.25000000372529,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "left"
       }
      ],
      "hotspots": [
@@ -1485,24 +1502,32 @@
       },
       {
        "id": "hmwog8c3584e",
-       "name": "hotspot",
+       "name": "horizontal",
        "region": {
         "map": "...........\n...........\n.#####.....\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
        },
        "needs": [],
-       "on": "tap",
-       "then": [],
+       "on": "outline",
+       "then": [
+        {
+         "stage": "foyer"
+        }
+       ],
        "stage": "left"
       },
       {
        "id": "hmwog8hpw879",
-       "name": "hotspot",
+       "name": "vertical",
        "region": {
         "map": "...........\n...........\n...........\n...........\n........#..\n........#..\n........#..\n........#..\n........#..\n...........\n..........."
        },
        "needs": [],
-       "on": "tap",
-       "then": [],
+       "on": "outline",
+       "then": [
+        {
+         "unlock": "angle"
+        }
+       ],
        "stage": "left"
       }
      ]
