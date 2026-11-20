@@ -1743,12 +1743,15 @@ fn render(
 				//   into full horizontal lines, each dot turning its own way, a pinwheel;
 				// retreat — the rows retreat in the reverse of the growing, even rows back into
 				//   their left dot, odd rows into their right (the dots turn, which nobody sees).
-				// Then the same three backwards: the rows grow again out of the dots they went
-				// into, every segment turns back the other way, the columns retreat into the dots
-				// they grew from (owner, 2026-11-19: "extend from the same side it just retracted
-				// to … in opposite directions of what it just did"). Six parts, each `per` beats
-				// of the track (4: a bar each, on the bar lines; the cycle 6 bars), or a sixth of
-				// `progress` when `per` is 0.
+				// Then the same three backwards with even and odd swapped: the rows grow again,
+				// each from the other end of its line (even from the right, odd from the left),
+				// every segment turns back the other way, the columns retreat into the far ends
+				// (even up into the top, odd down into the bottom) — so the next columns come from
+				// the other end too (owner, 2026-11-20: "the lines switch direction and also
+				// switch odd/even so it's like it's coming from the other side in each line").
+				// Both halves meet on an empty grid. Six parts, each `per` beats of the track (4:
+				// a bar each, on the bar lines; the cycle 6 bars), or a sixth of `progress` when
+				// `per` is 0.
 				let color = bars.color.value(&signals);
 				let dots = bars.dots.value_gated(&signals, glow) + hot_brightness;
 				if dots > 0.001 {
@@ -1761,11 +1764,11 @@ fn render(
 				} else {
 					bars.progress.value(&signals).rem_euclid(1.0) * 6.0
 				};
-				// forward for three parts, then the same three run backwards
-				let s = if t < 3.0 { t } else { 6.0 - t };
+				// forward for three parts, then the same three run backwards, parities swapped
+				let (s, flipped) = if t < 3.0 { (t, false) } else { (6.0 - t, true) };
 				let phase = (s.floor() as usize).min(2);
 				let f = s - phase as f32;
-				let (col_even, row_even) = (i % 2 == 0, j % 2 == 0);
+				let (col_even, row_even) = ((i % 2 == 0) != flipped, (j % 2 == 0) != flipped);
 				let up = std::f32::consts::FRAC_PI_2;
 				let from = if col_even { up } else { -up }; // the column's way
 				let to = if row_even { 0.0 } else { std::f32::consts::PI }; // the row's way

@@ -509,3 +509,9 @@ if i wanted a random one, or i could write my own".
   than popping at 45° — rings stay; `cut_marks` dims by multiplying the mark's color; for
   the cells rows, `lines` is scaled by the same factor from the angle row. `any` cuts all
   as before. Stored on `LayerRt.direction` at install.
+- Owner (2026-11-20): "i probably described it wrong before, but i want the lines to switch
+  direction and also switch odd/even so it's like it's coming from the other side in each
+  line". bars now: second half = first half backwards *and* parity-swapped (`s = 6 − t`,
+  `flipped = true`): rows regrow from the other end of each line, turn back, columns retreat
+  into the far ends; the next cycle's columns then come from the other end too. The halves
+  meet on an empty grid, so no seam either way.
