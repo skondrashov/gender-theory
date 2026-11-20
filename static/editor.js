@@ -1038,12 +1038,18 @@ function fieldParams(field) {
 // Rooms are the album's scenes in order (the engine counts them the same way).
 const roomIndex = () => album.tracks.flatMap((t) => t.scenes).indexOf(scene());
 // What a hotspot's name says: "name N" is the room's N-th random word, anything else itself.
+// A hotspot that sends you to a stage is named after it.
+const stageOf = (h) => (h.then || []).find((a) => a.stage)?.stage;
 function resolvedName(h) {
+  const stage = stageOf(h);
+  if (stage) return stage;
   const m = /^\s*name\s+(\d+)\s*$/i.exec(h.name || '');
   return m && +m[1] >= 1 ? exitName(roomIndex(), +m[1] - 1) : (h.name || '').trim();
 }
-// Beside the name field: the word a "name N" stands for.
+// Beside the name field: what a text layer with this hotspot says.
 function exitHint(h) {
+  const stage = stageOf(h);
+  if (stage) return el('span', { class: 'doc' }, '→ ' + stage + ' — named after the stage it sends you to');
   const m = /^\s*name\s+(\d+)\s*$/i.exec(h.name || '');
   if (!m || +m[1] < 1) return el('span', { class: 'doc' }, '"name 1" … "name 4" for one of the room\'s random words; a text layer with this hotspot says it');
   return el('span', { class: 'doc' }, '→ ' + exitName(roomIndex(), +m[1] - 1));

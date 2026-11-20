@@ -539,3 +539,7 @@ unlocked for those parts of the animation to work".
   the motion eases in; the turn × reveal(Angle). The retreat *order* switches from
   vertical to horizontal the moment angle is unlocked (one discrete change, at the
   gesture); the turn itself eases in over the reveal.
+- Owner (2026-11-20): "the hotspots should be named after the stage they send you to, if
+  they send you to a stage". `label_of(hotspot, room)` in data.rs: a `stage` action names
+  it, else `names::resolve`. The editor's hint beside the name says so; the name field is
+  then just a label for the lists.

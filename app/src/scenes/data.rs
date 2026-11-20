@@ -1294,6 +1294,17 @@ impl TextLayout {
 /// One letter: its strokes, in grid points, scaled into the box whose bottom-left dot is at
 /// (x, y) — `width`/`height` of the box about its middle — drawn with `stroke()`, so in the
 /// piece's weight, and morphing like any mark.
+/// What a hotspot is called: after the stage it sends you to, if it sends you to one
+/// (owner, 2026-11-20); otherwise its name, "name N" being one of the room's random words.
+fn label_of(hotspot: &HotspotData, room: usize) -> String {
+	for action in &hotspot.then {
+		if let ActionData::Stage(stage) = action {
+			return stage.clone();
+		}
+	}
+	names::resolve(&hotspot.name, room)
+}
+
 fn glyph(draw: &Draw, model: &Model, x: f32, y: f32, unit: f32, cell: &TextCell, width: f32, height: f32, color: Rgb) {
 	let px = |g: f32| x + (0.5 + (g / font::COLS - 0.5) * width) * unit;
 	let py = |g: f32| y + ((1.0 - height) / 2.0 + g / font::ROWS * height) * unit;
@@ -1458,7 +1469,7 @@ pub fn install(json: &str) -> Result<usize, String> {
 							.then(|| scene.hotspots.iter().position(|h| h.id == text.hotspot))
 							.flatten();
 						let content = match hotspot {
-							Some(k) => names::resolve(&scene.hotspots[k].name, room),
+							Some(k) => label_of(&scene.hotspots[k], room),
 							None => text.text.clone(),
 						};
 						(Some(TextLayout::new(&layer.region, text, &content)), hotspot.map(|k| k as u8), None)
