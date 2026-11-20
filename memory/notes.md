@@ -465,11 +465,17 @@ if i wanted a random one, or i could write my own".
   turns "name N" into the word. Rooms = the album's data scenes in install order (so
   inserting a scene shifts later rooms' words — fine, they're random; the seed is what
   persists). wasm exports `reset_names()` and `exit_name(room, k)` for the editor.
-- A hotspot's `label: true` (editor: "show name") lays its resolved name out at install
-  with `TextLayout` (centred, the font's default proportions) in the hotspot's rectangle and
-  `render()` draws it after the layers while `model.hint_visible(tag)` (needs met, not
-  spent, right stage) — brightness 0.9, grey. Placement was my default, not yet the owner's
-  call: the alternative is a fixed label strip (the bottom row) for the exit being touched.
-  A word needs letters + 1 dots across, so small doors wrap or cut long words.
+- The name is said by a **text layer** with `hotspot: <id>` (owner: "tie a text to a
+  hotspot instead of the setting being in the hotspot? that way i can place the text where i
+  want" — it was `label: true` on the hotspot for an hour, drawn in its rectangle). At install
+  the layer's content is `names::resolve(hotspot.name, room)` and `LayerRt.hotspot` is the
+  hotspot's tag; `render()` skips the layer unless `model.hint_visible(tag)` (needs met, not
+  spent, right stage). Every other text param applies (region, align, size, reveal,
+  brightness, color), so a name can fade in with a sidechain or type itself out. An id that
+  matches no hotspot falls back to `text`. A word needs letters + 1 dots across.
 - Editor: "reset names" in the top bar (new seed, then the album is re-pushed so layouts
-  rebuild), the resolved word shown beside a "name N" field, a "show name" checkbox.
+  rebuild), the resolved word shown beside a "name N" field and beside a text layer's
+  `hotspot` picker (one of the scene's hotspots, or —).
+- Migration 2026-11-19: the four labelled hotspots in `sine/1` became text layers named
+  "name: top/left/fill/outline" (the owner's empty foyer text layer was wired to "top";
+  the others got the hotspot's own region, centred) — placeholders for the owner to move.

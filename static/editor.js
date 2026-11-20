@@ -963,6 +963,13 @@ function paramRow(params, name, spec) {
   if (spec.type === 'bool') return row(name, checkInput(params, name, spec.doc || ''));
   if (spec.type === 'select') return row(name, selectInput(params, name, spec.options), spec.doc ? el('span', { class: 'doc' }, spec.doc) : null);
   if (spec.type === 'string') return row(name, spec.multiline ? textArea(params, name) : textInput(params, name), spec.doc ? el('span', { class: 'doc' }, spec.doc) : null);
+  if (spec.type === 'hotspot') {
+    // one of the scene's hotspots, or none; the name it would say beside it
+    const hotspots = scene()?.hotspots || [];
+    const h = hotspots.find((h) => h.id === params[name]);
+    return row(name, selectInput(params, name, [{ value: '', label: '—' }, ...hotspots.map((h) => ({ value: h.id, label: h.name || h.id }))], { commit: { inspector: true } }),
+      el('span', { class: 'doc' }, h ? '→ ' + resolvedName(h) + ' — while it shows' : spec.doc || ''));
+  }
   return row(name, el('span', { class: 'doc' }, 'unknown param type ' + spec.type));
 }
 
@@ -1030,10 +1037,15 @@ function fieldParams(field) {
 
 // Rooms are the album's scenes in order (the engine counts them the same way).
 const roomIndex = () => album.tracks.flatMap((t) => t.scenes).indexOf(scene());
-// "name N" → the room's N-th random word, shown beside the field.
+// What a hotspot's name says: "name N" is the room's N-th random word, anything else itself.
+function resolvedName(h) {
+  const m = /^\s*name\s+(\d+)\s*$/i.exec(h.name || '');
+  return m && +m[1] >= 1 ? exitName(roomIndex(), +m[1] - 1) : (h.name || '').trim();
+}
+// Beside the name field: the word a "name N" stands for.
 function exitHint(h) {
   const m = /^\s*name\s+(\d+)\s*$/i.exec(h.name || '');
-  if (!m || +m[1] < 1) return el('span', { class: 'doc' }, '"name 1" … "name 4" for one of the room\'s random words');
+  if (!m || +m[1] < 1) return el('span', { class: 'doc' }, '"name 1" … "name 4" for one of the room\'s random words; a text layer with this hotspot says it');
   return el('span', { class: 'doc' }, '→ ' + exitName(roomIndex(), +m[1] - 1));
 }
 
@@ -1068,7 +1080,6 @@ function hotspotInspector(h) {
   renderActions();
   return [
     row('name', textInput(h, 'name', { commit: { inspector: true } }), exitHint(h)),
-    row('show name', checkInput(h, 'label', 'drawn in its rectangle, in the lattice font, while it shows — a word needs its letters + 1 dots across')),
     row('id', el('span', { class: 'mono' }, h.id), el('span', { class: 'doc' }, 'layers refer to it by this')),
     barsRow(h),
     stageRow(h),

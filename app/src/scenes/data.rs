@@ -242,9 +242,6 @@ pub struct HotspotData {
 	pub on: OnData,
 	pub then: Vec<ActionData>,
 	pub stage: Option<String>,
-	/// Draw its name in its rectangle, in the lattice font, while it shows: "name N" is the
-	/// room's N-th random word (`names.rs`), anything else is shown as written.
-	pub label: bool,
 }
 
 impl Default for HotspotData {
@@ -252,7 +249,6 @@ impl Default for HotspotData {
 		HotspotData {
 			id: String::new(),
 			name: String::new(),
-			label: false,
 			bars: None,
 			region: Region::default(),
 			rect: None,
@@ -585,6 +581,7 @@ pub const CATALOGUE: &str = r##"{
       "doc": "Words, in the owner's lattice font: one letter per box between four dots, drawn as strokes in the piece's line weight. The text fills the region's rectangle from its top-left box, wrapping at the rectangle's width (a box short of the dots: eleven dots hold ten letters a line); a line break in the text starts a new line. Capitals and small letters are different glyphs; a case not drawn borrows the other. Not a cells layer: rows don't reach it — brightness and color are its own.",
       "params": {
         "text": {"type": "string", "multiline": true, "default": "words", "doc": "what it says"},
+        "hotspot": {"type": "hotspot", "default": "", "doc": "or say a hotspot's name instead, while that hotspot shows — its exit's name, placed wherever this layer is; name 1 … name 4 is the room's random word"},
         "align": {"type": "select", "options": ["left", "center", "right"], "default": "left"},
         "lead": {"type": "number", "default": 1, "step": 1, "doc": "rows per line"},
         "width": {"type": "number", "default": 1.5, "step": 0.1, "doc": "how much of a box the letter grid spans across (the letters use the middle of it)"},
@@ -958,6 +955,9 @@ impl Cells {
 #[serde(default)]
 struct Text {
 	text: String,
+	/// A hotspot's id: say its name instead of `text` — "name N" the room's random word
+	/// (`names.rs`) — while that hotspot shows. The exits' names, placed where the owner wants.
+	hotspot: String,
 	align: String,
 	lead: usize,
 	width: f32,
@@ -972,6 +972,7 @@ impl Default for Text {
 	fn default() -> Self {
 		Text {
 			text: "words".into(),
+			hotspot: String::new(),
 			align: "left".into(),
 			lead: 1,
 			width: font::WIDTH,
@@ -1177,6 +1178,8 @@ struct LayerRt {
 	snake: Option<SnakePaths>,
 	/// A text layer's letters, placed.
 	text: Option<TextLayout>,
+	/// A text layer saying a hotspot's name: that hotspot's tag — shown while it shows.
+	hotspot: Option<u8>,
 }
 
 /// A text layer laid out: which box (by its bottom-left dot) holds which glyph. The region's
@@ -1198,7 +1201,7 @@ struct TextCell {
 }
 
 impl TextLayout {
-	fn new(region: &Region, text: &Text) -> Self {
+	fn new(region: &Region, text: &Text, content: &str) -> Self {
 		let mut out = TextLayout { cells: HashMap::new(), count: 0 };
 		let b = region.bounds();
 		let (cols, rows) = ((b.i1 - b.i0).saturating_sub(1), (b.j1 - b.j0).saturating_sub(1));
@@ -1206,7 +1209,7 @@ impl TextLayout {
 			return out;
 		}
 		let mut lines: Vec<Vec<char>> = vec![];
-		for para in text.text.split('\n') {
+		for para in content.split('\n') {
 			let mut line: Vec<char> = vec![];
 			for word in para.split(' ').filter(|w| !w.is_empty()) {
 				let w: Vec<char> = word.chars().collect();
@@ -1327,8 +1330,6 @@ struct DataScene {
 	layers: &'static [LayerRt],
 	/// Hotspot id → its tag in this scene.
 	tags: Vec<(String, u8)>,
-	/// Hotspots with `label`: tag → the name laid out in the hotspot's rectangle.
-	labels: Vec<(u8, TextLayout)>,
 	/// The scene's bars, for layers without their own.
 	bars: [usize; 2],
 }
@@ -1371,6 +1372,8 @@ pub fn install(json: &str) -> Result<usize, String> {
 				let name = name.as_deref()?;
 				scene.stages.iter().position(|stage| stage == name)
 			};
+			// Rooms are the album's scenes in order: this one's number, for its exits' names.
+			let room = scenes.len();
 			let mut layers = vec![];
 			for layer in scene.layers {
 				let kind = parse_kind(&layer.kind, &layer.params)
@@ -1380,11 +1383,21 @@ pub fn install(json: &str) -> Result<usize, String> {
 					Kind::Snake(snake) => Some(SnakePaths::new(&layer.region, snake)),
 					_ => None,
 				};
-				let text = match &kind {
-					Kind::Text(text) => Some(TextLayout::new(&layer.region, text)),
-					_ => None,
+				let (text, hotspot) = match &kind {
+					Kind::Text(text) => {
+						// Saying a hotspot's name: its tag is its place in the list.
+						let hotspot = (!text.hotspot.is_empty())
+							.then(|| scene.hotspots.iter().position(|h| h.id == text.hotspot))
+							.flatten();
+						let content = match hotspot {
+							Some(k) => names::resolve(&scene.hotspots[k].name, room),
+							None => text.text.clone(),
+						};
+						(Some(TextLayout::new(&layer.region, text, &content)), hotspot.map(|k| k as u8))
+					}
+					_ => (None, None),
 				};
-				layers.push(LayerRt { layer, kind, stage, snake, text });
+				layers.push(LayerRt { layer, kind, stage, snake, text, hotspot });
 			}
 			let layers: &'static [LayerRt] = Vec::leak(layers);
 			let bars = scene.bars[0]..scene.bars[1].max(scene.bars[0] + 1);
@@ -1392,9 +1405,6 @@ pub fn install(json: &str) -> Result<usize, String> {
 			let stages: Vec<&'static str> = scene.stages.iter().map(|s| leak_str(s)).collect();
 			let mut hotspots = vec![];
 			let mut tags = vec![];
-			let mut labels = vec![];
-			// Rooms are the album's scenes in order: this one's number, for its exits' names.
-			let room = scenes.len();
 			for hotspot in &scene.hotspots {
 				let tag = hotspots.len() as u8;
 				tags.push((hotspot.id.clone(), tag));
@@ -1408,14 +1418,6 @@ pub fn install(json: &str) -> Result<usize, String> {
 				});
 				let inside: &'static (dyn Fn(usize, usize) -> bool + Sync) =
 					leak(move |i: usize, j: usize| region.contains(i, j));
-				if hotspot.label {
-					let text = Text {
-						text: names::resolve(&hotspot.name, room),
-						align: "center".into(),
-						..Default::default()
-					};
-					labels.push((tag, TextLayout::new(region, &text)));
-				}
 				let needs = Unlocks::of(
 					&hotspot
 						.needs
@@ -1458,7 +1460,6 @@ pub fn install(json: &str) -> Result<usize, String> {
 			let data: &'static DataScene = leak(DataScene {
 				layers,
 				tags,
-				labels,
 				bars: [bars.start, bars.end],
 			});
 			let render: &'static dyn Fn(&Draw, &Model, usize, usize, f32, [f32; 8]) =
@@ -1721,6 +1722,10 @@ fn render(
 				// The box whose bottom-left dot this is holds a letter: its strokes, in grid
 				// points, scaled into the box (`width`/`height` of it, about its middle).
 				let Some(layout) = &rt.text else { continue };
+				// A hotspot's name shows while the hotspot does (needs met, not spent, its stage).
+				if rt.hotspot.is_some_and(|tag| !model.hint_visible(tag)) {
+					continue;
+				}
 				let Some(cell) = layout.cells.get(&(i, j)) else { continue };
 				let shown = (text.reveal.value(&signals).clamp(0.0, 1.0) * layout.count as f32).ceil() as usize;
 				if cell.index >= shown {
@@ -1763,14 +1768,6 @@ fn render(
 				);
 			}
 			Kind::Walk(_) => {}
-		}
-	}
-	// The exits' names: a labelled hotspot's name in its rectangle, while the hotspot shows.
-	for (tag, layout) in &scene.labels {
-		if let Some(cell) = layout.cells.get(&(i, j)) {
-			if model.hint_visible(*tag) {
-				glyph(draw, model, x, y, unit, cell, font::WIDTH, font::HEIGHT, paint(model, 0.9, 0.0));
-			}
 		}
 	}
 	if !covered {
