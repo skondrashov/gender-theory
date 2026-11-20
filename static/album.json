@@ -1350,6 +1350,28 @@
         }
        },
        "stage": "foyer"
+      },
+      {
+       "id": "lmwogoy683cz",
+       "name": "hole: hotspot",
+       "region": {},
+       "kind": "hole",
+       "params": {
+        "hotspot": "hmwog8c3584e",
+        "dots": true
+       },
+       "stage": "left"
+      },
+      {
+       "id": "lmwogoy6a5m9",
+       "name": "hole: hotspot",
+       "region": {},
+       "kind": "hole",
+       "params": {
+        "hotspot": "hmwog8hpw879",
+        "dots": true
+       },
+       "stage": "left"
       }
      ],
      "hotspots": [

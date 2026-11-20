@@ -218,6 +218,27 @@ impl Model {
 		self.marks.borrow_mut().push(mark);
 	}
 
+	/// How many marks are recorded so far: a cell's render notes this at its start so a
+	/// `hole` layer can take back what the layers before it drew there.
+	pub fn marks_len(&self) -> usize {
+		self.marks.borrow().len()
+	}
+
+	/// Drop the marks recorded since `from` — all of them, or only the lines and rings,
+	/// leaving the dots (lines of no length).
+	pub fn cut_marks(&self, from: usize, keep_dots: bool) {
+		let mut marks = self.marks.borrow_mut();
+		if !keep_dots {
+			marks.truncate(from);
+			return;
+		}
+		let kept: Vec<Mark> = marks
+			.drain(from..)
+			.filter(|m| matches!(m.shape, Shape::Line { length, .. } if length <= 0.0))
+			.collect();
+		marks.extend(kept);
+	}
+
 	fn take_marks(&self) -> Vec<Mark> {
 		std::mem::take(&mut *self.marks.borrow_mut())
 	}

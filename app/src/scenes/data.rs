@@ -592,6 +592,13 @@ pub const CATALOGUE: &str = r##"{
         "color": {"type": "param", "default": 0, "step": 0.1}
       }
     },
+    "hole": {
+      "doc": "A hole: in its region, nothing the layers before it drew shows — their lines and rings go (scenery too: bars, snakes, letters), the dots stay unless told otherwise; a layer after it draws there as usual. Tied to a hotspot it is that hotspot's cells, while the hotspot shows: lines passing over a door vanish there. Not a cells layer.",
+      "params": {
+        "hotspot": {"type": "hotspot", "default": "", "doc": "cut that hotspot's cells instead of this layer's region, while it shows"},
+        "dots": {"type": "bool", "default": true, "doc": "leave the dots"}
+      }
+    },
     "orbits": {
       "doc": "A point orbits each cell and a line runs out to it; a second, invisible point orbits further out the other way, and `pull` drags the tip of the line toward it. Not a cells layer.",
       "params": {
@@ -985,6 +992,26 @@ impl Default for Text {
 	}
 }
 
+/// A hole: in its region nothing the layers before it drew shows — their lines and rings go,
+/// the dots stay unless `dots` is off. Tied to a hotspot, it is the hotspot's cells, while
+/// the hotspot shows (owner, 2026-11-19: "i want the lines to be invisible as they pass over
+/// those hotspots").
+#[derive(Deserialize)]
+#[serde(default)]
+struct Hole {
+	hotspot: String,
+	dots: bool,
+}
+
+impl Default for Hole {
+	fn default() -> Self {
+		Hole {
+			hotspot: String::new(),
+			dots: true,
+		}
+	}
+}
+
 /// Columns of segments growing dot to dot from alternating ends, every segment pivoting a
 /// quarter turn on its own dot into rows, which retreat (owner, 2026-11-18: "every other dot
 /// on the bottom grows a line upward, and when it touches the next dot, that dot grows to
@@ -1119,6 +1146,7 @@ enum Kind {
 	Text(Text),
 	Orbits(Orbits),
 	Walk(Walk),
+	Hole(Hole),
 }
 
 fn parse_kind(kind: &str, params: &Value) -> Result<Kind, String> {
@@ -1131,6 +1159,7 @@ fn parse_kind(kind: &str, params: &Value) -> Result<Kind, String> {
 		"cells" => Kind::Cells(serde_json::from_value(params).map_err(bad)?),
 		"snake" => Kind::Snake(serde_json::from_value(params).map_err(bad)?),
 		"bars" => Kind::Bars(serde_json::from_value(params).map_err(bad)?),
+		"hole" => Kind::Hole(serde_json::from_value(params).map_err(bad)?),
 		"text" => Kind::Text(serde_json::from_value(params).map_err(bad)?),
 		"orbits" => Kind::Orbits(serde_json::from_value(params).map_err(bad)?),
 		"walk" => Kind::Walk(serde_json::from_value(params).map_err(bad)?),
@@ -1178,7 +1207,8 @@ struct LayerRt {
 	snake: Option<SnakePaths>,
 	/// A text layer's letters, placed.
 	text: Option<TextLayout>,
-	/// A text layer saying a hotspot's name: that hotspot's tag — shown while it shows.
+	/// A text layer saying a hotspot's name, or a hole where a hotspot is: that hotspot's
+	/// tag — there while it shows.
 	hotspot: Option<u8>,
 }
 
@@ -1383,7 +1413,25 @@ pub fn install(json: &str) -> Result<usize, String> {
 					Kind::Snake(snake) => Some(SnakePaths::new(&layer.region, snake)),
 					_ => None,
 				};
+				let mut layer = layer;
 				let (text, hotspot) = match &kind {
+					Kind::Hole(hole) => {
+						let hotspot = (!hole.hotspot.is_empty())
+							.then(|| scene.hotspots.iter().position(|h| h.id == hole.hotspot))
+							.flatten();
+						if let Some(k) = hotspot {
+							let h = &scene.hotspots[k];
+							layer.region = if h.region.is_unset() {
+								Region {
+									rect: h.rect,
+									..Default::default()
+								}
+							} else {
+								h.region.clone()
+							};
+						}
+						(None, hotspot.map(|k| k as u8))
+					}
 					Kind::Text(text) => {
 						// Saying a hotspot's name: its tag is its place in the list.
 						let hotspot = (!text.hotspot.is_empty())
@@ -1493,6 +1541,7 @@ fn render(
 ) {
 	let bar = model.bar();
 	let unit = model.scaling;
+	let first_mark = model.marks_len();
 	let (x, y) = scale_coordinates(model, i, j);
 	let raw = model.noisemap.get_value(i, j) as f32;
 	let [whole, _half, quarter, _eighth, _sixteenth, bass, mid, treble] = modifiers;
@@ -1676,10 +1725,12 @@ fn render(
 				//   into full horizontal lines, each dot turning its own way, a pinwheel;
 				// retreat — the rows retreat in the reverse of the growing, even rows back into
 				//   their left dot, odd rows into their right (the dots turn, which nobody sees).
-				// Then the same the other way round — even columns down, odd up; even rows left,
-				// odd right — six parts in all, each `per` beats of the track (4: a bar each, on
-				// the bar lines; a half-cycle 3 bars, the cycle 6), or a sixth of `progress` when
-				// `per` is 0.
+				// Then the same three backwards: the rows grow again out of the dots they went
+				// into, every segment turns back the other way, the columns retreat into the dots
+				// they grew from (owner, 2026-11-19: "extend from the same side it just retracted
+				// to … in opposite directions of what it just did"). Six parts, each `per` beats
+				// of the track (4: a bar each, on the bar lines; the cycle 6 bars), or a sixth of
+				// `progress` when `per` is 0.
 				let color = bars.color.value(&signals);
 				let dots = bars.dots.value_gated(&signals, glow) + hot_brightness;
 				if dots > 0.001 {
@@ -1692,10 +1743,11 @@ fn render(
 				} else {
 					bars.progress.value(&signals).rem_euclid(1.0) * 6.0
 				};
-				let part = (t.floor() as usize).min(5);
-				let f = t - part as f32;
-				let (flipped, phase) = (part >= 3, part % 3);
-				let (col_even, row_even) = ((i % 2 == 0) != flipped, (j % 2 == 0) != flipped);
+				// forward for three parts, then the same three run backwards
+				let s = if t < 3.0 { t } else { 6.0 - t };
+				let phase = (s.floor() as usize).min(2);
+				let f = s - phase as f32;
+				let (col_even, row_even) = (i % 2 == 0, j % 2 == 0);
 				let up = std::f32::consts::FRAC_PI_2;
 				let from = if col_even { up } else { -up }; // the column's way
 				let to = if row_even { 0.0 } else { std::f32::consts::PI }; // the row's way
@@ -1768,6 +1820,20 @@ fn render(
 				);
 			}
 			Kind::Walk(_) => {}
+			Kind::Hole(hole) => {
+				if rt.hotspot.is_some_and(|tag| !model.hint_visible(tag)) {
+					continue;
+				}
+				// What the layers before it drew here goes: the scenery marks recorded so far
+				// this cell, and the cells rows' line and ring (a later cells layer can set them
+				// again).
+				model.cut_marks(first_mark, hole.dots);
+				cell[1] = 0.0;
+				cell[5] = 0.0;
+				if !hole.dots {
+					cell[0] = 0.0;
+				}
+			}
 		}
 	}
 	if !covered {

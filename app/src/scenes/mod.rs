@@ -293,7 +293,9 @@ impl Action {
 		match self {
 			Action::Go(_) | Action::GoVia(_, _) | Action::Stage(_) => false,
 			Action::Unlock(unlock) => unlocks.has(*unlock),
-			Action::All(list) => list.iter().all(|action| action.spent(unlocks)),
+			// A hotspot with nothing to do yet (the owner places them before deciding) is not
+			// spent: its hint, name and hole still show.
+			Action::All(list) => !list.is_empty() && list.iter().all(|action| action.spent(unlocks)),
 		}
 	}
 }

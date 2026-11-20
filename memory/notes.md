@@ -479,3 +479,25 @@ if i wanted a random one, or i could write my own".
 - Migration 2026-11-19: the four labelled hotspots in `sine/1` became text layers named
   "name: top/left/fill/outline" (the owner's empty foyer text layer was wired to "top";
   the others got the hotspot's own region, centred) — placeholders for the owner to move.
+
+## Holes, and the bars palindrome (2026-11-19)
+
+- Owner: "i marked hotspots in the 'left' stage, and i want the lines to be invisible as they
+  pass over those hotspots (not sure how to add that as layers)". The `hole` kind: a cell's
+  `render()` notes `model.marks_len()` at its start, and a hole layer calls
+  `Model::cut_marks(first_mark, keep_dots)` — the scenery marks the earlier layers recorded
+  for this cell go (lines and rings; dots = zero-length lines stay unless `dots` is off) —
+  and zeroes the cells rows' lines and rings (brightness too without dots), since a cells
+  layer's own mark is only drawn after the kinds loop. Later layers draw over it. With
+  `hotspot` set the layer's region is replaced at install by that hotspot's region and the
+  hole is there only while the hotspot shows (`LayerRt.hotspot`, like a text layer saying
+  its name). A segment owned by a dot outside the hole still reaches the hole's edge dot —
+  the lines touch the hole; that's the look, not a bug.
+- Added two hole layers to `sine/1` stage left for the owner's two hotspots there.
+- bars: "extend from the same side it just retracted to after the extend, rotate, retract
+  loop, but in opposite directions of what it just did (no pause still)" — that is the first
+  three parts played backwards: `s = t` for t < 3, `6 − t` after; the parity flip is gone.
+  Rows grow again out of the dots they retreated into, the pinwheel turns back, the columns
+  retreat into their origin dots, and t = 6 meets t = 0 without a seam.
+- `Action::All(&[])` (a hotspot with no action yet) used to count as spent, so such a
+  hotspot never showed — its name and hole with it. Now an empty action is not spent.
