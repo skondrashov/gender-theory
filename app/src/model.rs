@@ -224,17 +224,27 @@ impl Model {
 		self.marks.borrow().len()
 	}
 
-	/// Drop the marks recorded since `from` — all of them, or only the lines and rings,
-	/// leaving the dots (lines of no length).
-	pub fn cut_marks(&self, from: usize, keep_dots: bool) {
+	/// Drop the marks recorded since `from`: the dots (lines of no length) unless
+	/// `keep_dots`; with no `direction` every line and ring; with one, the lines running
+	/// that way (radians) — a line across it stays, one in between dims as it aligns — and
+	/// rings stay.
+	pub fn cut_marks(&self, from: usize, keep_dots: bool, direction: Option<f32>) {
 		let mut marks = self.marks.borrow_mut();
-		if !keep_dots {
-			marks.truncate(from);
-			return;
-		}
 		let kept: Vec<Mark> = marks
 			.drain(from..)
-			.filter(|m| matches!(m.shape, Shape::Line { length, .. } if length <= 0.0))
+			.filter_map(|mut m| match (m.shape, direction) {
+				(Shape::Line { length, .. }, _) if length <= 0.0 => keep_dots.then_some(m),
+				(_, None) => None,
+				(Shape::Ring { .. }, Some(_)) => Some(m),
+				(Shape::Line { angle, .. }, Some(dir)) => {
+					let f = 1.0 - (angle - dir).cos().powi(2);
+					if f < 0.01 {
+						return None;
+					}
+					m.color = nannou::prelude::rgb(m.color.red * f, m.color.green * f, m.color.blue * f);
+					Some(m)
+				}
+			})
 			.collect();
 		marks.extend(kept);
 	}

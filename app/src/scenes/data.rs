@@ -596,7 +596,8 @@ pub const CATALOGUE: &str = r##"{
       "doc": "A hole: in its region, nothing the layers before it drew shows — their lines and rings go (scenery too: bars, snakes, letters), the dots stay unless told otherwise; a layer after it draws there as usual. Tied to a hotspot it is that hotspot's cells, while the hotspot shows: lines passing over a door vanish there. Not a cells layer.",
       "params": {
         "hotspot": {"type": "hotspot", "default": "", "doc": "cut that hotspot's cells instead of this layer's region, while it shows"},
-        "dots": {"type": "bool", "default": true, "doc": "leave the dots"}
+        "dots": {"type": "bool", "default": true, "doc": "leave the dots"},
+        "direction": {"type": "select", "options": ["auto", "horizontal", "vertical", "any"], "default": "auto", "doc": "which lines it cuts: the ones running along it — auto reads the shape: a wide hole cuts horizontal lines, a tall one vertical, a square one everything; a line turning through dims as it comes to lie along the hole"}
       }
     },
     "orbits": {
@@ -1001,6 +1002,10 @@ impl Default for Text {
 struct Hole {
 	hotspot: String,
 	dots: bool,
+	/// Which lines it cuts: `auto` reads the shape — a wide hole the horizontal lines, a tall
+	/// one the vertical, a square one all — or `horizontal`, `vertical`, `any` (owner: "there
+	/// shouldn't be vertical holes in the horizontal bars and vice versa").
+	direction: String,
 }
 
 impl Default for Hole {
@@ -1008,6 +1013,7 @@ impl Default for Hole {
 		Hole {
 			hotspot: String::new(),
 			dots: true,
+			direction: "auto".into(),
 		}
 	}
 }
@@ -1210,6 +1216,8 @@ struct LayerRt {
 	/// A text layer saying a hotspot's name, or a hole where a hotspot is: that hotspot's
 	/// tag — there while it shows.
 	hotspot: Option<u8>,
+	/// A hole's direction: the way (radians) of the lines it cuts; None, all of them.
+	direction: Option<f32>,
 }
 
 /// A text layer laid out: which box (by its bottom-left dot) holds which glyph. The region's
@@ -1414,7 +1422,7 @@ pub fn install(json: &str) -> Result<usize, String> {
 					_ => None,
 				};
 				let mut layer = layer;
-				let (text, hotspot) = match &kind {
+				let (text, hotspot, direction) = match &kind {
 					Kind::Hole(hole) => {
 						let hotspot = (!hole.hotspot.is_empty())
 							.then(|| scene.hotspots.iter().position(|h| h.id == hole.hotspot))
@@ -1430,7 +1438,17 @@ pub fn install(json: &str) -> Result<usize, String> {
 								h.region.clone()
 							};
 						}
-						(None, hotspot.map(|k| k as u8))
+						let b = layer.region.bounds();
+						let (w, h) = (b.i1.saturating_sub(b.i0), b.j1.saturating_sub(b.j0));
+						let direction = match hole.direction.as_str() {
+							"horizontal" => Some(0.0),
+							"vertical" => Some(std::f32::consts::FRAC_PI_2),
+							"any" => None,
+							_ if w > h => Some(0.0),
+							_ if h > w => Some(std::f32::consts::FRAC_PI_2),
+							_ => None,
+						};
+						(None, hotspot.map(|k| k as u8), direction)
 					}
 					Kind::Text(text) => {
 						// Saying a hotspot's name: its tag is its place in the list.
@@ -1441,11 +1459,11 @@ pub fn install(json: &str) -> Result<usize, String> {
 							Some(k) => names::resolve(&scene.hotspots[k].name, room),
 							None => text.text.clone(),
 						};
-						(Some(TextLayout::new(&layer.region, text, &content)), hotspot.map(|k| k as u8))
+						(Some(TextLayout::new(&layer.region, text, &content)), hotspot.map(|k| k as u8), None)
 					}
-					_ => (None, None),
+					_ => (None, None, None),
 				};
-				layers.push(LayerRt { layer, kind, stage, snake, text, hotspot });
+				layers.push(LayerRt { layer, kind, stage, snake, text, hotspot, direction });
 			}
 			let layers: &'static [LayerRt] = Vec::leak(layers);
 			let bars = scene.bars[0]..scene.bars[1].max(scene.bars[0] + 1);
@@ -1827,9 +1845,15 @@ fn render(
 				// What the layers before it drew here goes: the scenery marks recorded so far
 				// this cell, and the cells rows' line and ring (a later cells layer can set them
 				// again).
-				model.cut_marks(first_mark, hole.dots);
-				cell[1] = 0.0;
-				cell[5] = 0.0;
+				model.cut_marks(first_mark, hole.dots, rt.direction);
+				match rt.direction {
+					None => {
+						cell[1] = 0.0;
+						cell[5] = 0.0;
+					}
+					// the cells' line too, by how far it lies along the hole
+					Some(dir) => cell[1] *= 1.0 - (cell[3].to_radians() - dir).cos().powi(2),
+				}
 				if !hole.dots {
 					cell[0] = 0.0;
 				}

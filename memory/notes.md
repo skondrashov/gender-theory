@@ -501,3 +501,11 @@ if i wanted a random one, or i could write my own".
   retreat into their origin dots, and t = 6 meets t = 0 without a seam.
 - `Action::All(&[])` (a hotspot with no action yet) used to count as spent, so such a
   hotspot never showed — its name and hole with it. Now an empty action is not spent.
+- Owner (2026-11-20): "there shouldn't be vertical holes in the horizontal bars and vice
+  versa … the holes should only be there when the animation is going in the direction of
+  the hole". A hole has a `direction` (auto from its bounds: wider → horizontal, taller →
+  vertical, square → any; or set). Directional: a line is scaled by 1 − cos²(angle − dir)
+  — along the hole it goes, across it it stays, the pinwheel's turn dims it smoothly rather
+  than popping at 45° — rings stay; `cut_marks` dims by multiplying the mark's color; for
+  the cells rows, `lines` is scaled by the same factor from the angle row. `any` cuts all
+  as before. Stored on `LayerRt.direction` at install.
