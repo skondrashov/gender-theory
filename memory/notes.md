@@ -414,3 +414,37 @@ onto their neighbours), which leaves a contiguous blank band around the box.
   `SCALING` to `min(w, h) / 20` and handle `resized` when the owner wants phone-first.
 - Free-form path matching for "draw" gestures beyond `Outline`.
 - Per-song unique unlocks; more colors as more unlocks.
+
+## The lattice font and the `text` kind (2026-11-19)
+
+Asked what `words.rs` hinted at, the owner wanted letters: "letters will have to live in the space
+between cells, so the dots are the vertices of the area that a letter is in. pixelated but sleek
+… block letters might be too aggressive but it can't be like helvetica", then "smaller letters,
+like an entire letter fits between its 4 vertices, cause otherwise we just can't write shit".
+They drew the alphabet themselves on a connect-the-dots page (the artifact "Lattice Letters":
+one cell, a grid of points inside it, click two points for a stroke, both cases, live previews
+on the eleven-grid at a 33 px and a 72 px cell, the table as JSON). Decisions along the way:
+a centre column was needed for m t v w and the i ("center all of them around that gridline"),
+so the grid went 5 → 9 across; a and e were two units tall and "too big", so 7 → 13 rows and
+they were redrawn at the x-height with a crossbar; 2 px looked best on desktop but the owner
+chose **3 px at 150 %** ("make it 3px but just literally make the letters bigger") — the
+piece's weight, letters spanning 1.5 of the box's grid (they only use the middle: ~0.375 box
+wide, x-height 2/12 × 1.5 = a quarter box; one grid unit is 8 px on a phone, which is where
+the lowercase first became legible). Lowercase is small (x-height two units of twelve),
+capitals three; descenders reach the box's bottom dot row at 1.5.
+
+- `tools/font.json` is the source (the page's table, verbatim, plus w/h 1.5 and stroke 3);
+  `tools/font.py` writes `app/src/scenes/font.rs` (COLS/ROWS/WIDTH/HEIGHT/CENTER, GLYPHS sorted
+  by char, `glyph(c)` with the other case as fallback, `shift()` for centring). Rerun it after
+  editing the JSON; the page can load a pasted table ("load what's pasted below").
+- `Kind::Text` in data.rs: `TextLayout::new` at install lays the text into the region's
+  rectangle — boxes are one fewer than dots each way (11 dots → 10 letters a line), the first
+  line's boxes have their bottom-left dot at `j1 − 2`, lines go down `lead` rows, words wrap,
+  a word longer than the line is cut, a newline breaks; `align` left/center/right; `center`
+  shifts each glyph to its box's middle; `reveal` 0..1 shows the first ceil(reveal × n)
+  letters. The render arm draws each stroke with `stroke()` from the box's bottom-left dot
+  (x, y) — px = 0.5 + (g/COLS − 0.5)·width, py = (1 − height)/2 + g/ROWS·height, in units
+  of the cell — so the piece's 3 px weight and round caps apply, and morphs work.
+- The editor got a `string` param type (`multiline` → a textarea).
+- Open: `random_words`/`paired_words` as a source for `text` (a word that changes per visit),
+  words as hotspots, the hint text "met ends" redrawn in the font.

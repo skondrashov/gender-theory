@@ -692,6 +692,13 @@ function textInput(obj, key, opts = {}) {
   });
 }
 
+function textArea(obj, key, opts = {}) {
+  return el('textarea', {
+    rows: 3, spellcheck: 'false',
+    onchange: (e) => { snapshotForUndo(); obj[key] = e.target.value; commit({ silent: true, ...opts.commit }); },
+  }, obj[key] ?? '');
+}
+
 function selectInput(obj, key, options, opts = {}) {
   const s = el('select', { onchange: (e) => { snapshotForUndo(); obj[key] = e.target.value; commit({ silent: true, ...opts.commit }); if (opts.then) opts.then(); } },
     ...options.map((o) => el('option', { value: typeof o === 'string' ? o : o.value }, typeof o === 'string' ? o : o.label)));
@@ -954,6 +961,7 @@ function paramRow(params, name, spec) {
   if (spec.type === 'number') return row(name, numberInput(params, name, { step: spec.step ?? 0.1 }), spec.doc ? el('span', { class: 'doc' }, spec.doc) : null);
   if (spec.type === 'bool') return row(name, checkInput(params, name, spec.doc || ''));
   if (spec.type === 'select') return row(name, selectInput(params, name, spec.options), spec.doc ? el('span', { class: 'doc' }, spec.doc) : null);
+  if (spec.type === 'string') return row(name, spec.multiline ? textArea(params, name) : textInput(params, name), spec.doc ? el('span', { class: 'doc' }, spec.doc) : null);
   return row(name, el('span', { class: 'doc' }, 'unknown param type ' + spec.type));
 }
 

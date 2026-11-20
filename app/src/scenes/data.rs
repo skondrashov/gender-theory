@@ -27,6 +27,7 @@
 //! `catalogue()` tells the editor what rows, kinds and params exist; the structs here are
 //! what they mean. Keep the two together.
 
+use super::font;
 use {
 	crate::{
 		model::{Model, CANVAS_HEIGHT, CANVAS_WIDTH},
@@ -575,6 +576,20 @@ pub const CATALOGUE: &str = r##"{
         "color": {"type": "param", "default": 0, "step": 0.1}
       }
     },
+    "text": {
+      "doc": "Words, in the owner's lattice font: one letter per box between four dots, drawn as strokes in the piece's line weight. The text fills the region's rectangle from its top-left box, wrapping at the rectangle's width (a box short of the dots: eleven dots hold ten letters a line); a line break in the text starts a new line. Capitals and small letters are different glyphs; a case not drawn borrows the other. Not a cells layer: rows don't reach it — brightness and color are its own.",
+      "params": {
+        "text": {"type": "string", "multiline": true, "default": "words", "doc": "what it says"},
+        "align": {"type": "select", "options": ["left", "center", "right"], "default": "left"},
+        "lead": {"type": "number", "default": 1, "step": 1, "doc": "rows per line"},
+        "width": {"type": "number", "default": 1.5, "step": 0.1, "doc": "how much of a box the letter grid spans across (the letters use the middle of it)"},
+        "height": {"type": "number", "default": 1.5, "step": 0.1, "doc": "and down"},
+        "center": {"type": "bool", "default": true, "doc": "each letter shifted to the middle of its box"},
+        "reveal": {"type": "param", "default": 1, "step": 0.05, "doc": "0..1: how much of the text is there, letter by letter — sidechain it to span for a typewriter"},
+        "brightness": {"type": "param", "default": 0.9, "step": 0.05, "doc": "sidechains act once glow is unlocked"},
+        "color": {"type": "param", "default": 0, "step": 0.1}
+      }
+    },
     "orbits": {
       "doc": "A point orbits each cell and a line runs out to it; a second, invisible point orbits further out the other way, and `pull` drags the tip of the line toward it. Not a cells layer.",
       "params": {
@@ -932,6 +947,38 @@ impl Cells {
 
 // ---- the other kinds ----
 
+/// Words in the lattice font (`font.rs`, the owner's, drawn connect-the-dots): a letter per
+/// box between four dots, laid out at install (`TextLayout`).
+#[derive(Deserialize)]
+#[serde(default)]
+struct Text {
+	text: String,
+	align: String,
+	lead: usize,
+	width: f32,
+	height: f32,
+	center: bool,
+	reveal: Param,
+	brightness: Param,
+	color: Param,
+}
+
+impl Default for Text {
+	fn default() -> Self {
+		Text {
+			text: "words".into(),
+			align: "left".into(),
+			lead: 1,
+			width: font::WIDTH,
+			height: font::HEIGHT,
+			center: font::CENTER,
+			reveal: Param::new(1.0),
+			brightness: Param::new(0.9),
+			color: Param::new(0.0),
+		}
+	}
+}
+
 /// Columns of segments growing dot to dot from alternating ends, every segment pivoting a
 /// quarter turn on its own dot into rows, which retreat (owner, 2026-11-18: "every other dot
 /// on the bottom grows a line upward, and when it touches the next dot, that dot grows to
@@ -1063,6 +1110,7 @@ enum Kind {
 	Cells(Cells),
 	Snake(Snake),
 	Bars(Bars),
+	Text(Text),
 	Orbits(Orbits),
 	Walk(Walk),
 }
@@ -1077,6 +1125,7 @@ fn parse_kind(kind: &str, params: &Value) -> Result<Kind, String> {
 		"cells" => Kind::Cells(serde_json::from_value(params).map_err(bad)?),
 		"snake" => Kind::Snake(serde_json::from_value(params).map_err(bad)?),
 		"bars" => Kind::Bars(serde_json::from_value(params).map_err(bad)?),
+		"text" => Kind::Text(serde_json::from_value(params).map_err(bad)?),
 		"orbits" => Kind::Orbits(serde_json::from_value(params).map_err(bad)?),
 		"walk" => Kind::Walk(serde_json::from_value(params).map_err(bad)?),
 		other => return Err(format!("no such kind: {other}")),
@@ -1121,6 +1170,77 @@ struct LayerRt {
 	stage: Option<usize>,
 	/// A snake layer's region cut into its pieces.
 	snake: Option<SnakePaths>,
+	/// A text layer's letters, placed.
+	text: Option<TextLayout>,
+}
+
+/// A text layer laid out: which box (by its bottom-left dot) holds which glyph. The region's
+/// rectangle of dots has one box fewer across and down than dots; lines start at the top-left
+/// box and go down `lead` rows; words wrap at the width, a word too long is cut; a line break
+/// in the text is one.
+struct TextLayout {
+	cells: HashMap<(usize, usize), TextCell>,
+	/// Letters placed (spaces don't count), for `reveal`.
+	count: usize,
+}
+
+struct TextCell {
+	/// Its place in the text, for `reveal`.
+	index: usize,
+	strokes: &'static [[u8; 4]],
+	/// Grid points to move it across, for `center`.
+	shift: f32,
+}
+
+impl TextLayout {
+	fn new(region: &Region, text: &Text) -> Self {
+		let mut out = TextLayout { cells: HashMap::new(), count: 0 };
+		let b = region.bounds();
+		let (cols, rows) = ((b.i1 - b.i0).saturating_sub(1), (b.j1 - b.j0).saturating_sub(1));
+		if cols == 0 || rows == 0 {
+			return out;
+		}
+		let mut lines: Vec<Vec<char>> = vec![];
+		for para in text.text.split('\n') {
+			let mut line: Vec<char> = vec![];
+			for word in para.split(' ').filter(|w| !w.is_empty()) {
+				let w: Vec<char> = word.chars().collect();
+				if !line.is_empty() && line.len() + 1 + w.len() > cols && w.len() <= cols {
+					lines.push(std::mem::take(&mut line));
+				}
+				if !line.is_empty() {
+					line.push(' ');
+				}
+				for &c in &w {
+					if line.len() >= cols {
+						lines.push(std::mem::take(&mut line));
+					}
+					line.push(c);
+				}
+			}
+			lines.push(line);
+		}
+		let lead = text.lead.max(1);
+		for (n, line) in lines.iter().enumerate() {
+			let row = n * lead;
+			if row >= rows {
+				break;
+			}
+			let j = b.j1 - 2 - row;
+			let offset = match text.align.as_str() {
+				"center" => (cols - line.len()) / 2,
+				"right" => cols - line.len(),
+				_ => 0,
+			};
+			for (k, &c) in line.iter().enumerate() {
+				let Some(strokes) = font::glyph(c) else { continue };
+				let shift = if text.center { font::shift(strokes) } else { 0.0 };
+				out.cells.insert((b.i0 + offset + k, j), TextCell { index: out.count, strokes, shift });
+				out.count += 1;
+			}
+		}
+		out
+	}
 }
 
 /// The region of a snake layer as separate (4-connected) pieces, each its cells in
@@ -1239,7 +1359,11 @@ pub fn install(json: &str) -> Result<usize, String> {
 					Kind::Snake(snake) => Some(SnakePaths::new(&layer.region, snake)),
 					_ => None,
 				};
-				layers.push(LayerRt { layer, kind, stage, snake });
+				let text = match &kind {
+					Kind::Text(text) => Some(TextLayout::new(&layer.region, text)),
+					_ => None,
+				};
+				layers.push(LayerRt { layer, kind, stage, snake, text });
 			}
 			let layers: &'static [LayerRt] = Vec::leak(layers);
 			let bars = scene.bars[0]..scene.bars[1].max(scene.bars[0] + 1);
@@ -1559,6 +1683,29 @@ fn render(
 				}
 				let brightness = bars.brightness.value_gated(&signals, glow) + hot_brightness;
 				stroke(draw, model, x, y, angle, fill * unit, paint(model, brightness, color));
+			}
+			Kind::Text(text) => {
+				// The box whose bottom-left dot this is holds a letter: its strokes, in grid
+				// points, scaled into the box (`width`/`height` of it, about its middle).
+				let Some(layout) = &rt.text else { continue };
+				let Some(cell) = layout.cells.get(&(i, j)) else { continue };
+				let shown = (text.reveal.value(&signals).clamp(0.0, 1.0) * layout.count as f32).ceil() as usize;
+				if cell.index >= shown {
+					continue;
+				}
+				let brightness = text.brightness.value_gated(&signals, glow) + hot_brightness;
+				if brightness <= 0.001 {
+					continue;
+				}
+				let color = paint(model, brightness, text.color.value(&signals));
+				let px = |g: f32| x + (0.5 + (g / font::COLS - 0.5) * text.width) * unit;
+				let py = |g: f32| y + ((1.0 - text.height) / 2.0 + g / font::ROWS * text.height) * unit;
+				for s in cell.strokes {
+					let (x1, y1) = (px(s[0] as f32 + cell.shift), py(s[1] as f32));
+					let (x2, y2) = (px(s[2] as f32 + cell.shift), py(s[3] as f32));
+					let (dx, dy) = (x2 - x1, y2 - y1);
+					stroke(draw, model, x1, y1, dy.atan2(dx), (dx * dx + dy * dy).sqrt(), color);
+				}
 			}
 			Kind::Orbits(orbits) => {
 				let near = (orbits.near_rate + orbits.vary * raw) * time + raw * TAU;
