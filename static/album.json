@@ -192,18 +192,84 @@
        "stage": "foyer"
       },
       {
+       "id": "lmwogasuykwg",
+       "name": "layer",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n........#..\n........#..\n........#..\n........#..\n........#..\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 0,
+         "chains": [],
+         "masks": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "angle": {
+         "op": "set",
+         "base": 90,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "left"
+      },
+      {
+       "id": "lf1d8694fbars",
+       "name": "turning bars",
+       "stage": "left",
+       "region": {},
+       "kind": "bars",
+       "params": {
+        "progress": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "bar",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
+        "brightness": {
+         "base": 0.9,
+         "chains": []
+        },
+        "dots": {
+         "base": 0,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        },
+        "per": 4
+       }
+      },
+      {
        "id": "lmwmxnjg7a8q",
        "name": "glow pulse",
        "region": {},
        "kind": "cells",
        "params": {
         "brightness": {
-         "op": "multiply",
+         "op": "add",
          "base": 0,
          "chains": [
           {
            "source": "pulse",
-           "depth": 1,
+           "depth": 8.1,
            "threshold": 0,
            "width": 1,
            "curve": 1,
@@ -220,7 +286,7 @@
            "width": 1,
            "curve": 1,
            "invert": true,
-           "on": true,
+           "on": false,
            "delay": 0
           }
          ]
@@ -1281,42 +1347,6 @@
        "stage": "top"
       },
       {
-       "id": "lf1d8694fbars",
-       "name": "turning bars",
-       "stage": "left",
-       "region": {},
-       "kind": "bars",
-       "params": {
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "bar",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
-        "brightness": {
-         "base": 0.9,
-         "chains": []
-        },
-        "dots": {
-         "base": 1,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       }
-      },
-      {
        "id": "lmwodk5l9mzx",
        "name": "layer",
        "region": {
@@ -1329,7 +1359,7 @@
        },
        "kind": "text",
        "params": {
-        "text": "words",
+        "text": "",
         "align": "left",
         "lead": 1,
         "width": 1.5,
@@ -1387,7 +1417,8 @@
          "stage": "top"
         }
        ],
-       "stage": "foyer"
+       "stage": "foyer",
+       "label": true
       },
       {
        "id": "hmw5ia2bz7hc",
@@ -1402,7 +1433,8 @@
          "stage": "left"
         }
        ],
-       "stage": "foyer"
+       "stage": "foyer",
+       "label": true
       },
       {
        "id": "hmwmcjqognib",
@@ -1439,7 +1471,8 @@
          "unlock": "lines"
         }
        ],
-       "stage": "top"
+       "stage": "top",
+       "label": true
       },
       {
        "id": "hmwmvo920pll",
@@ -1454,7 +1487,30 @@
          "stage": "foyer"
         }
        ],
-       "stage": "top"
+       "stage": "top",
+       "label": true
+      },
+      {
+       "id": "hmwog8c3584e",
+       "name": "hotspot",
+       "region": {
+        "map": "...........\n...........\n.#####.....\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "needs": [],
+       "on": "tap",
+       "then": [],
+       "stage": "left"
+      },
+      {
+       "id": "hmwog8hpw879",
+       "name": "hotspot",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n........#..\n........#..\n........#..\n........#..\n........#..\n...........\n..........."
+       },
+       "needs": [],
+       "on": "tap",
+       "then": [],
+       "stage": "left"
       }
      ]
     }
