@@ -654,3 +654,13 @@ from each other"); it is the ripple (× distance). Renamed `ripple` — `#[serde
 "delay")]` in Rust, `migrate()` in the editor on load (walks every object with `source` +
 `delay`), so album.json converts on the owner's next save without a disk rewrite (a rewrite
 would 409 their open tab). A uniform shift is `offset` (beats, fractional).
+
+## The wasm must be versioned with the glue (2026-11-21)
+
+After a deploy the owner's browser paired the new `gender.js` (busted `?v=`) with the old
+`gender_bg.wasm` it had cached (`/app/` expires 1h; the glue fetches the wasm by a fixed URL):
+`LinkError … __wbindgen_closure_wrapper… function import requires a callable`, blank page,
+fine in incognito. `index.html` now has `const glue = './app/gender.js?v=dev'` and inits with
+`new URL(glue.replace('gender.js', 'gender_bg.wasm'))` — ops rewrites that line's `?v=`.
+The editor already used `?v=${Date.now()}` for the wasm. Also: a headless profile reused
+across a deploy shows the same stale pairing — use a fresh `--user-data-dir` per run.
