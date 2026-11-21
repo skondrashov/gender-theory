@@ -53,8 +53,8 @@
   {
    "id": "bmwqlupb8pye",
    "name": "band",
-   "lo": 100,
-   "hi": 400,
+   "lo": 3843,
+   "hi": 5068,
    "attack": 0.01,
    "release": 0.15,
    "gain": 1,
@@ -300,16 +300,6 @@
          "chains": [
           {
            "source": "pulse",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": false,
-           "delay": 0
-          },
-          {
-           "source": "b-bass",
            "depth": 1,
            "threshold": 0,
            "width": 1,
