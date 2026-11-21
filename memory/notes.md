@@ -623,3 +623,13 @@ layer to a hotspot 4. be centered horizontally in the available space". Supersed
   engine (`push`, seeks) — `livePath` for the waveform fetch. Tab-only: after a reload the
   path 404s and the status says to pick it again. The **bpm** field in the top bar edits any
   track's tempo (new; there was no way to).
+
+## every / offset on a chain (2026-11-21)
+
+Owner: "if i want something to happen every 2 beats? or 3?". `Sidechain.every` (default 1) and
+`offset` (0): `Signals::get_timed` — for beat / bar / beat.phase / bar.phase, a cycle of n
+beats (bars) from the downbeat, running across bars (`bars × 4` for beats), `offset` in; the
+hit falls over one beat as before (`hit(phase × max(n, 1))`), the phases run over the cycle;
+`delay` still shifts in cycles. Other sources ignore both. The editor's chain meter mirrors it
+(`chainLevel`). Fields' parameters go through `level()` too, so a field's phase can be on a
+3-beat cycle. Pulse untouched (it is the bar's shape).

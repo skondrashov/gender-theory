@@ -353,6 +353,12 @@ pub struct Sidechain {
 	/// distance (0 centre .. 1 corner), in cycles of the source. For beat, bar, pulse, span,
 	/// transition — the sources that are a phase. A ripple.
 	pub delay: f32,
+	/// For beat, bar and their phases: a cycle is `every` beats (bars), counted from the
+	/// downbeat and on across bars — 2 every other beat, 3 a three against the four, 0.5
+	/// twice a beat — and `offset` says which of them (every 2, offset 1: the off-beats).
+	/// Owner, 2026-11-21: "if i want something to happen every 2 beats? or 3?".
+	pub every: f32,
+	pub offset: f32,
 	/// With `source` "position": the field this is, a function of where the cell is
 	/// (`fields::FIELDS`), with parameters that are params of their own.
 	pub field: Option<fields::Field>,
@@ -374,6 +380,8 @@ impl Default for Sidechain {
 			invert: false,
 			on: true,
 			delay: 0.0,
+			every: 1.0,
+			offset: 0.0,
 			field: None,
 			add: false,
 		}
@@ -555,7 +563,25 @@ impl Signals<'_> {
 					field.eval(self, gate, depth + 1)
 				}
 			}
-			_ => self.get_delayed(&chain.source, chain.delay * self.distance),
+			_ => self.get_timed(&chain.source, chain.delay * self.distance, chain.every, chain.offset),
+		}
+	}
+
+	/// `get_delayed`, with the beat and bar sources on a cycle of `every` beats (bars) from
+	/// the downbeat, `offset` of them in: the hit falls away over one beat (bar) as always
+	/// and stays down until the next; the phases run 0..1 over the whole cycle.
+	pub fn get_timed(&self, source: &str, shift: f32, every: f32, offset: f32) -> f32 {
+		if (every - 1.0).abs() < 1e-6 && offset.abs() < 1e-6 {
+			return self.get_delayed(source, shift);
+		}
+		let n = every.max(1e-3);
+		let cycle = |pos: f32| ((pos - offset).rem_euclid(n) / n - shift).rem_euclid(1.0);
+		match source {
+			"beat" => hit(cycle(self.bars * 4.0) * n.max(1.0), 2.5),
+			"bar" => hit(cycle(self.bars) * n.max(1.0), 1.5),
+			"beat.phase" => cycle(self.bars * 4.0),
+			"bar.phase" => cycle(self.bars),
+			_ => self.get_delayed(source, shift),
 		}
 	}
 

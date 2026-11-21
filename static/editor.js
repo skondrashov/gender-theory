@@ -406,6 +406,17 @@ const unlocked = (name) => (st.unlocks || []).includes(name);
 // A pattern or a state, which acts whatever is unlocked — as data.rs's Signals::fixed.
 const fixedSource = (source) => ['noise', 'distance', 'bearing', 'around', 'position'].includes(source) || source.startsWith('hotspot:') || source.startsWith('unlock:');
 
+// A chain's source as it reads it: beat and bar (and their phases) on the chain's `every`
+// cycle, `offset` in — as data.rs's Signals::get_timed, from the playing bar.
+function chainLevel(c) {
+  const every = c.every ?? 1, offset = c.offset ?? 0;
+  if ((every === 1 && offset === 0) || typeof st.bar !== 'number' || !['beat', 'bar', 'beat.phase', 'bar.phase'].includes(c.source)) return sourceLevel(c.source);
+  const n = Math.max(every, 1e-3), hit = (p, f) => Math.pow(1 - clamp(p, 0, 1), f);
+  const pos = c.source.startsWith('beat') ? st.bar * 4 : st.bar;
+  const phase = (((pos - offset) % n) + n) % n / n;
+  return c.source === 'beat' ? hit(phase * Math.max(n, 1), 2.5) : c.source === 'bar' ? hit(phase * Math.max(n, 1), 1.5) : phase;
+}
+
 function updateMeters() {
   updateReadouts();
   for (const m of document.querySelectorAll('.meter[data-source]')) {
@@ -415,7 +426,7 @@ function updateMeters() {
   for (const m of document.querySelectorAll('.meter[data-chain]')) {
     const chain = chainRefs[m.dataset.chain];
     if (!chain) continue;
-    const v = shape(chain, sourceLevel(chain.source));
+    const v = shape(chain, chainLevel(chain));
     m.firstChild.style.width = (clamp(v, 0, 1) * 100) + '%';
     m.title = (chain.depth * v).toFixed(3);
   }
@@ -1117,7 +1128,7 @@ function chainRow(list, c, k, rerender, probePart = null, isMask = false) {
     ...(scene()?.hotspots || []).map((h) => ({ value: 'hotspot:' + h.id, label: 'hotspot · ' + (h.name || h.id) })),
     ...UNLOCKS.map((u) => ({ value: 'unlock:' + u, label: 'unlock · ' + u })),
   ];
-  const num = (key, step) => el('input', { type: 'number', value: c[key], step, onchange: (e) => { snapshotForUndo(); c[key] = +e.target.value; commit({ silent: true }); } });
+  const num = (key, step) => el('input', { type: 'number', value: c[key] ?? (key === 'every' ? 1 : 0), step, onchange: (e) => { snapshotForUndo(); c[key] = +e.target.value; commit({ silent: true }); } });
   // the source: a plain one, or a position field (then its parameters follow, each a param of its own)
   const field = c.source === 'position' && c.field ? c.field : null;
   const families = [...new Set(cat.fields.map((f) => f.family))];
@@ -1146,6 +1157,8 @@ function chainRow(list, c, k, rerender, probePart = null, isMask = false) {
     el('span', { class: 'lbl' }, 'width'), num('width', 0.05),
     el('span', { class: 'lbl', title: 'the source arrives later the farther the cell is from the centre: this × its distance (0..1), in cycles — beat, bar, pulse, span, transition' }, 'delay'), num('delay', 0.1),
     el('span', { class: 'lbl' }, 'curve'), num('curve', 0.1),
+    el('span', { class: 'lbl', title: 'beat and bar (and their phases) on a cycle of this many beats (bars), counted from the downbeat and on across bars: 2 every other beat, 3 a three against the four, 0.5 twice a beat; the phase runs 0..1 over the cycle' }, 'every'), num('every', 1),
+    el('span', { class: 'lbl', title: 'which of them: every 2, offset 1 is the off-beats' }, 'offset'), num('offset', 1),
     el('label', {}, el('input', { type: 'checkbox', ...(c.invert ? { checked: '' } : {}), onchange: (e) => { snapshotForUndo(); c.invert = e.target.checked; commit({ silent: true }); } }), 'invert'),
     el('button', { class: 'link danger', onclick: () => { snapshotForUndo(); list.splice(k, 1); commit({ silent: true }); rerender(); } }, '×')), fieldBox);
 }
