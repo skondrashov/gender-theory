@@ -78,7 +78,7 @@ function fitScene(s, oldBars) {
 
 async function boot() {
   // The app reads its flags from this page's URL: it must know it's in the editor.
-  if (!/[?&]editor/.test(location.search)) { location.replace(`editor.html?editor=${STAGE}`); return; }
+  if (!/[?&]editor/.test(location.search)) { location.replace(`${location.pathname}?editor=${STAGE}`); return; } // the same path: /editor.html here, /editor on the site
   const text = await (await fetch('album.json', { cache: 'no-store' })).text();
   base = fingerprint(text);
   album = JSON.parse(text);
