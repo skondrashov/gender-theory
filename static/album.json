@@ -225,7 +225,7 @@
        "id": "lmwmwo72pig6",
        "name": "left",
        "region": {
-        "map": "...........\n.#.........\n.##........\n.#.#.......\n.#..#......\n.#..#......\n.#..#......\n.#.#.......\n.##........\n.#.........\n..........."
+        "map": "...........\n.#.........\n.##........\n.#.#.......\n.#.........\n.#.........\n.#.........\n.#.#.......\n.##........\n.#.........\n..........."
        },
        "kind": "cells",
        "params": {
@@ -290,7 +290,7 @@
        "id": "lmwlybct9oor",
        "name": "top",
        "region": {
-        "map": "...........\n.#########.\n..#.....#..\n...#...#...\n....###....\n...........\n...........\n...........\n...........\n...........\n..........."
+        "map": "...........\n.#########.\n..#.....#..\n...#...#...\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
        },
        "kind": "cells",
        "params": {
@@ -367,7 +367,7 @@
        "id": "lmwmces6t9qs",
        "name": "bottom",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n....###....\n...#...#...\n..#.....#..\n.#########.\n..........."
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...#...#...\n..#.....#..\n.#########.\n..........."
        },
        "kind": "cells",
        "params": {
@@ -407,7 +407,7 @@
         },
         "angle": {
          "op": "set",
-         "base": 225,
+         "base": 45,
          "chains": [],
          "masks": []
         },
@@ -425,7 +425,7 @@
         }
        },
        "stage": "foyer",
-       "muted": true
+       "muted": false
       },
       {
        "id": "lmwqllqe0x3x",
@@ -471,13 +471,48 @@
        "id": "lmwmcets0juy",
        "name": "right",
        "region": {
-        "map": "...........\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n..........."
+        "map": "...........\n...........\n...........\n...........\n.......###.\n.......#.#.\n.......###.\n...........\n...........\n...........\n..........."
        },
        "kind": "cells",
        "params": {
         "brightness": {
          "op": "add",
-         "base": 0,
+         "base": 1,
+         "chains": [],
+         "masks": [
+          {
+           "source": "unlock:lines",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "angle": {
+         "op": "set",
+         "base": {
+          "map": "...........\n...........\n...........\n...........\n.......→→↓.\n.......↑.↓.\n.......↑←←.\n...........\n...........\n...........\n...........",
+          "legend": {
+           "→": 0,
+           "↗": 45,
+           "↑": 90,
+           "↖": 135,
+           "←": 180,
+           "↙": 225,
+           "↓": 270,
+           "↘": 315
+          }
+         },
          "chains": [],
          "masks": []
         }
@@ -615,466 +650,6 @@
         }
        },
        "stage": "left"
-      },
-      {
-       "id": "l15",
-       "name": "cross row",
-       "region": {
-        "rect": [
-         0,
-         6,
-         11,
-         7
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.95,
-         "chains": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 1.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          },
-          {
-           "source": "beat",
-           "depth": 0.6,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "angle": {
-         "op": "set",
-         "base": 0,
-         "chains": []
-        }
-       },
-       "stage": "right"
-      },
-      {
-       "id": "l16",
-       "name": "cross column",
-       "region": {
-        "rect": [
-         6,
-         0,
-         7,
-         11
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.95,
-         "chains": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 1.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          },
-          {
-           "source": "beat",
-           "depth": 0.6,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "angle": {
-         "op": "set",
-         "base": 90,
-         "chains": []
-        }
-       },
-       "stage": "right"
-      },
-      {
-       "id": "l12-cross",
-       "name": "checker lines",
-       "region": {
-        "checker": 0
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.7,
-         "chains": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 1.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          },
-          {
-           "source": "beat",
-           "depth": 0.6,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "angle": {
-         "op": "set",
-         "base": 0,
-         "chains": [
-          {
-           "source": "noise",
-           "depth": 90,
-           "threshold": 0.5,
-           "width": 0.001,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       },
-       "stage": "right"
-      },
-      {
-       "id": "l13-cross",
-       "name": "checker dots",
-       "region": {
-        "checker": 1
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.5,
-         "chains": []
-        }
-       },
-       "stage": "right"
-      },
-      {
-       "id": "l14-cross",
-       "name": "the box",
-       "region": {
-        "rect": [
-         7,
-         2,
-         10,
-         5
-        ],
-        "perimeter": true
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 0.95,
-         "chains": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": []
-        },
-        "length": {
-         "op": "set",
-         "base": 0.3,
-         "chains": [
-          {
-           "source": "bass",
-           "depth": 1.4,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          },
-          {
-           "source": "beat",
-           "depth": 0.6,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "angle": {
-         "op": "set",
-         "base": 0,
-         "chains": [
-          {
-           "source": "around",
-           "depth": 360,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       },
-       "stage": "right"
-      },
-      {
-       "id": "lmwlx1f8vowq",
-       "name": "snake retreat",
-       "region": {
-        "rect": [
-         0,
-         0,
-         11,
-         11
-        ]
-       },
-       "kind": "snake",
-       "params": {
-        "mode": "retreat",
-        "axis": "rows",
-        "alternate": true,
-        "reverse": false,
-        "heads": 1,
-        "spin": 0,
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "span",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "dots": {
-         "base": 0.45,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        },
-        "brightness": {
-         "base": 0.9,
-         "chains": []
-        }
-       },
-       "stage": "right"
-      },
-      {
-       "id": "lmwlx1h34gan",
-       "name": "snake retreat",
-       "region": {
-        "rect": [
-         0,
-         0,
-         11,
-         11
-        ]
-       },
-       "kind": "snake",
-       "params": {
-        "mode": "retreat",
-        "axis": "rows",
-        "alternate": true,
-        "reverse": false,
-        "heads": 1,
-        "spin": 0,
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "span",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "dots": {
-         "base": 0.45,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        },
-        "brightness": {
-         "base": 0.9,
-         "chains": []
-        }
-       },
-       "stage": "right"
-      },
-      {
-       "id": "lmwlx205alg3",
-       "name": "snake retreat",
-       "region": {
-        "rect": [
-         0,
-         0,
-         11,
-         11
-        ]
-       },
-       "kind": "snake",
-       "params": {
-        "mode": "retreat",
-        "axis": "rows",
-        "alternate": true,
-        "reverse": false,
-        "heads": 1,
-        "spin": 0,
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "span",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        },
-        "dots": {
-         "base": 0.45,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        },
-        "brightness": {
-         "base": 0.9,
-         "chains": []
-        }
-       },
-       "stage": "right"
-      },
-      {
-       "id": "l10-cross",
-       "name": "inverse region",
-       "region": {
-        "rect": [
-         0,
-         6,
-         6,
-         11
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "multiply",
-         "base": 1,
-         "chains": [
-          {
-           "source": "pulse",
-           "depth": -1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        }
-       },
-       "stage": "right"
-      },
-      {
-       "id": "l11-cross",
-       "name": "hidden box",
-       "region": {
-        "rect": [
-         2,
-         7,
-         4,
-         9
-        ]
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "multiply",
-         "base": 0.35,
-         "chains": [
-          {
-           "source": "pulse",
-           "depth": 0.3,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true
-          }
-         ]
-        }
-       },
-       "stage": "right"
       },
       {
        "id": "lmwmvbtgyt08",
@@ -1346,6 +921,183 @@
        },
        "stage": "bottom",
        "muted": true
+      },
+      {
+       "id": "lmwqnqvmuyn3",
+       "name": "scattered lines",
+       "region": {
+        "map": "###########\n###########\n###########\n###########\n###########\n###########\n###########\n###########\n###########\n###########\n###########"
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "add",
+         "base": 0.5,
+         "chains": [],
+         "masks": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0,
+         "chains": [],
+         "masks": [
+          {
+           "source": "noise",
+           "depth": 2.2,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "angle": {
+         "op": "set",
+         "base": 360,
+         "chains": [],
+         "masks": [
+          {
+           "source": "noise",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        }
+       },
+       "stage": "right"
+      },
+      {
+       "id": "lmwqnyzwnwpu",
+       "name": "vertices",
+       "region": {
+        "map": "###########\n###########\n###########\n###########\n###########\n###########\n###########\n###########\n###########\n###########\n###########"
+       },
+       "kind": "cells",
+       "params": {
+        "length": {
+         "op": "set",
+         "base": {
+          "map": "aaaaaaaaaaa\naaaaaaaaaaa\naaaaaaaaaaa\naaaaaaaaaaa\naaaaaaaaaaa\naaaaaaaaaaa\naaaaaabbbba\naaaaaabaaba\naaaaaabaaba\naaaaaabbbba\naaaaaaaaaaa",
+          "legend": {
+           "a": 3,
+           "b": 1
+          }
+         },
+         "chains": [],
+         "masks": [
+          {
+           "source": "noise",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "right"
+      },
+      {
+       "id": "lmwqo14s64p0",
+       "name": "vertices",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n......#..#.\n...........\n...........\n......#..#.\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "angle": {
+         "op": "set",
+         "base": {
+          "map": "...........\n...........\n...........\n...........\n...........\n...........\n......→..↓.\n...........\n...........\n......↑..←.\n...........",
+          "legend": {
+           "→": 0,
+           "↗": 45,
+           "↑": 90,
+           "↖": 135,
+           "←": 180,
+           "↙": 225,
+           "↓": 270,
+           "↘": 315
+          }
+         },
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "right"
+      },
+      {
+       "id": "lmwqo5ejqakc",
+       "name": "box",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n......#..#.\n...........\n...........\n......#..#.\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "length": {
+         "op": "set",
+         "base": 3,
+         "chains": [],
+         "masks": []
+        },
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": [
+          {
+           "source": "span",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
+        }
+       },
+       "stage": "right"
+      },
+      {
+       "id": "lmwqo9ugg95n",
+       "name": "pulse",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "right"
       }
      ],
      "hotspots": [
@@ -1422,11 +1174,15 @@
        "id": "hmwmckrxcayc",
        "name": "right",
        "region": {
-        "map": "...........\n...........\n.........#.\n........##.\n.......###.\n.......###.\n.......###.\n........##.\n.........#.\n...........\n..........."
+        "map": "...........\n...........\n...........\n...........\n.......###.\n.......###.\n.......###.\n...........\n...........\n...........\n..........."
        },
        "needs": [],
        "on": "tap",
-       "then": [],
+       "then": [
+        {
+         "stage": "right"
+        }
+       ],
        "stage": "foyer"
       },
       {
@@ -1507,21 +1263,6 @@
        "stage": "bottom"
       },
       {
-       "id": "hmwpsxphx14m",
-       "name": "hotspot",
-       "region": {
-        "map": "...........\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n..........."
-       },
-       "needs": [],
-       "on": "outline",
-       "then": [
-        {
-         "stage": "right"
-        }
-       ],
-       "stage": "foyer"
-      },
-      {
        "id": "hmwptsxdnjjg",
        "name": "hotspot",
        "region": {
@@ -1550,6 +1291,17 @@
         }
        ],
        "stage": "left"
+      },
+      {
+       "id": "hmwqo9iysf5b",
+       "name": "hotspot",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n......####.\n......####.\n......####.\n......####.\n..........."
+       },
+       "needs": [],
+       "on": "tap",
+       "then": [],
+       "stage": "right"
       }
      ]
     },
