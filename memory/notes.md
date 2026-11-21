@@ -583,3 +583,26 @@ everywhere the docs counted twelve.
   the index is 12" and the page stayed on the old album — a panic in install leaves the game
   dead, so always run a headless frame before committing a build), the destructure in the
   cells drawing, `ROW_*` consts, the editor's `UNLOCKS`, and the counts in AGENTS/SPEC.
+
+## Stage names are random words (2026-11-21)
+
+Owner: "it's the stages that i want to have random names, all of them actually … make all
+hotspots that lead to stages: 1. show their name after the destination stage has been visited
+once 2. use a random name that's fixed for the duration of that save file 3. … linking a text
+layer to a hotspot 4. be centered horizontally in the available space". Supersedes the
+2026-11-20 "named after the stage" note.
+
+- `names::stage(room, s)` = word `len − 1 − (room × 16 + s)` of the same shuffle — from the
+  far end, so the exits' words (from the start) never collide. Same seed, same resets.
+- `progress.rs` saves `scene unlocks [id bits]…`: `Visited = HashMap<scene id, u64>`, a bit
+  per stage. `Model::note_visited()` runs every update after the landing/seek block (and in
+  `new`), so every way the stage gets set counts — landing, the editor's stage picker, a seek.
+  Nothing is saved in `?editor` mode, but the in-memory bits still make viewed stages' names
+  show in the editor. Old saves without the third field load fine (no stages visited).
+- `LayerRt.to_stage`: a text layer saying a stage hotspot's name skips drawing until
+  `model.stage_visited(stage)` (checked on the *viewed* scene, so morph previews are right).
+  `TextLayout::new(…, centred)` ignores `align` for those and shifts by half a box
+  (`font::COLS / (2 × width)` grid points) when the spare boxes are odd — the only true
+  centring in the text kind; plain `align: center` still rounds down to a box.
+- Editor UI unchanged (owner: "no need to change anything in the ui"); only the hint beside a
+  stage hotspot's name now shows the word (`stage_name` export) and says when it shows.

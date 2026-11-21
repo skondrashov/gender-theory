@@ -47,6 +47,12 @@ pub fn exit_name(room: usize, k: usize) -> String {
 	names::exit(room, k).to_string()
 }
 
+/// The editor page: the name of stage `stage` of room `room`.
+#[wasm_bindgen]
+pub fn stage_name(room: usize, stage: usize) -> String {
+	names::stage(room, stage).to_string()
+}
+
 /// The editor page: what kinds of layer there are and their params (JSON).
 #[wasm_bindgen]
 pub fn catalogue() -> String {

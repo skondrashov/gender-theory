@@ -647,7 +647,7 @@ pub const CATALOGUE: &str = r##"{
       "doc": "Words, in the owner's lattice font: one letter per box between four dots, drawn as strokes in the piece's line weight. The text fills the region's rectangle from its top-left box, wrapping at the rectangle's width (a box short of the dots: eleven dots hold ten letters a line); a line break in the text starts a new line. Capitals and small letters are different glyphs; a case not drawn borrows the other. Not a cells layer: rows don't reach it — brightness and color are its own.",
       "params": {
         "text": {"type": "string", "multiline": true, "default": "words", "doc": "what it says"},
-        "hotspot": {"type": "hotspot", "default": "", "doc": "or say a hotspot's name instead, while that hotspot shows — its exit's name, placed wherever this layer is; name 1 … name 4 is the room's random word"},
+        "hotspot": {"type": "hotspot", "default": "", "doc": "or say a hotspot's name instead, while that hotspot shows, placed wherever this layer is — an exit's name (name 1 … name 4 is one of the room's random words); a hotspot that sends you to a stage says that stage's random word, centred across this layer, once you have been to the stage"},
         "align": {"type": "select", "options": ["left", "center", "right"], "default": "left"},
         "lead": {"type": "number", "default": 1, "step": 1, "doc": "rows per line"},
         "width": {"type": "number", "default": 1.5, "step": 0.1, "doc": "how much of a box the letter grid spans across (the letters use the middle of it)"},
@@ -1306,6 +1306,9 @@ struct LayerRt {
 	/// A text layer saying a hotspot's name, or a hole where a hotspot is: that hotspot's
 	/// tag — there while it shows.
 	hotspot: Option<u8>,
+	/// A text layer saying a stage hotspot's name: that stage — the name shows once the
+	/// player has been there (`model.stage_visited`).
+	to_stage: Option<usize>,
 	/// A hole's direction: the way (radians) of the lines it cuts; None, all of them.
 	direction: Option<f32>,
 }
@@ -1324,12 +1327,15 @@ struct TextCell {
 	/// Its place in the text, for `reveal`.
 	index: usize,
 	strokes: &'static [[u8; 4]],
-	/// Grid points to move it across, for `center`.
+	/// Grid points to move it across, for `center` — and half a box when a line is
+	/// centred across an odd number of spare boxes.
 	shift: f32,
 }
 
 impl TextLayout {
-	fn new(region: &Region, text: &Text, content: &str) -> Self {
+	/// `centred`: the lines sit in the middle of the width whatever `align` says, to the
+	/// half box (a stage's name, owner 2026-11-21: "centered horizontally in the available space").
+	fn new(region: &Region, text: &Text, content: &str, centred: bool) -> Self {
 		let mut out = TextLayout { cells: HashMap::new(), count: 0 };
 		let b = region.bounds();
 		let (cols, rows) = ((b.i1 - b.i0).saturating_sub(1), (b.j1 - b.j0).saturating_sub(1));
@@ -1363,14 +1369,19 @@ impl TextLayout {
 				break;
 			}
 			let j = b.j1 - 2 - row;
+			let spare = cols.saturating_sub(line.len());
 			let offset = match text.align.as_str() {
-				"center" => (cols - line.len()) / 2,
-				"right" => cols - line.len(),
+				_ if centred => spare / 2,
+				"center" => spare / 2,
+				"right" => spare,
 				_ => 0,
 			};
+			// Half a box to the right, in grid points: the glyph grid's `COLS` points span
+			// `width` boxes (see `glyph()`).
+			let half = if centred && spare % 2 == 1 { font::COLS / (2.0 * text.width.max(0.1)) } else { 0.0 };
 			for (k, &c) in line.iter().enumerate() {
 				let Some(strokes) = font::glyph(c) else { continue };
-				let shift = if text.center { font::shift(strokes) } else { 0.0 };
+				let shift = half + if text.center { font::shift(strokes) } else { 0.0 };
 				out.cells.insert((b.i0 + offset + k, j), TextCell { index: out.count, strokes, shift });
 				out.count += 1;
 			}
@@ -1382,15 +1393,28 @@ impl TextLayout {
 /// One letter: its strokes, in grid points, scaled into the box whose bottom-left dot is at
 /// (x, y) — `width`/`height` of the box about its middle — drawn with `stroke()`, so in the
 /// piece's weight, and morphing like any mark.
-/// What a hotspot is called: after the stage it sends you to, if it sends you to one
-/// (owner, 2026-11-20); otherwise its name, "name N" being one of the room's random words.
-fn label_of(hotspot: &HotspotData, room: usize) -> String {
+/// What a hotspot is called: a random word of the game for the stage it sends you to, if it
+/// sends you to one (owner, 2026-11-21: "it's the stages that i want to have random names,
+/// all of them"; a stage the scene doesn't have: its name as written); otherwise its name,
+/// "name N" being one of the room's random words.
+fn label_of(hotspot: &HotspotData, stages: &[String], room: usize) -> String {
 	for action in &hotspot.then {
 		if let ActionData::Stage(stage) = action {
-			return stage.clone();
+			return match stages.iter().position(|s| s == stage) {
+				Some(index) => names::stage(room, index).to_string(),
+				None => stage.clone(),
+			};
 		}
 	}
 	names::resolve(&hotspot.name, room)
+}
+
+/// The stage a hotspot sends you to, if one the scene has.
+fn stage_of(hotspot: &HotspotData, stages: &[String]) -> Option<usize> {
+	hotspot.then.iter().find_map(|action| match action {
+		ActionData::Stage(stage) => stages.iter().position(|s| s == stage),
+		_ => None,
+	})
 }
 
 fn glyph(draw: &Draw, model: &Model, x: f32, y: f32, unit: f32, cell: &TextCell, width: f32, height: f32, color: Rgb) {
@@ -1523,7 +1547,7 @@ pub fn install(json: &str) -> Result<usize, String> {
 					_ => None,
 				};
 				let mut layer = layer;
-				let (text, hotspot, direction) = match &kind {
+				let (text, hotspot, direction, to_stage) = match &kind {
 					Kind::Hole(hole) => {
 						let hotspot = (!hole.hotspot.is_empty())
 							.then(|| scene.hotspots.iter().position(|h| h.id == hole.hotspot))
@@ -1549,22 +1573,25 @@ pub fn install(json: &str) -> Result<usize, String> {
 							_ if h > w => Some(std::f32::consts::FRAC_PI_2),
 							_ => None,
 						};
-						(None, hotspot.map(|k| k as u8), direction)
+						(None, hotspot.map(|k| k as u8), direction, None)
 					}
 					Kind::Text(text) => {
-						// Saying a hotspot's name: its tag is its place in the list.
+						// Saying a hotspot's name: its tag is its place in the list. A stage
+						// hotspot's name is centred, and waits for the stage to be visited.
 						let hotspot = (!text.hotspot.is_empty())
 							.then(|| scene.hotspots.iter().position(|h| h.id == text.hotspot))
 							.flatten();
+						let to_stage = hotspot.and_then(|k| stage_of(&scene.hotspots[k], &scene.stages));
 						let content = match hotspot {
-							Some(k) => label_of(&scene.hotspots[k], room),
+							Some(k) => label_of(&scene.hotspots[k], &scene.stages, room),
 							None => text.text.clone(),
 						};
-						(Some(TextLayout::new(&layer.region, text, &content)), hotspot.map(|k| k as u8), None)
+						let layout = TextLayout::new(&layer.region, text, &content, to_stage.is_some());
+						(Some(layout), hotspot.map(|k| k as u8), None, to_stage)
 					}
-					_ => (None, None, None),
+					_ => (None, None, None, None),
 				};
-				layers.push(LayerRt { layer, kind, stage, snake, text, hotspot, direction });
+				layers.push(LayerRt { layer, kind, stage, snake, text, hotspot, direction, to_stage });
 			}
 			let layers: &'static [LayerRt] = Vec::leak(layers);
 			let bars = scene.bars[0]..scene.bars[1].max(scene.bars[0] + 1);
@@ -1922,8 +1949,12 @@ fn render(
 				// The box whose bottom-left dot this is holds a letter: its strokes, in grid
 				// points, scaled into the box (`width`/`height` of it, about its middle).
 				let Some(layout) = &rt.text else { continue };
-				// A hotspot's name shows while the hotspot does (needs met, not spent, its stage).
+				// A hotspot's name shows while the hotspot does (needs met, not spent, its stage)
+				// — a stage's name once the player has been to the stage.
 				if rt.hotspot.is_some_and(|tag| !model.hint_visible(tag)) {
+					continue;
+				}
+				if rt.to_stage.is_some_and(|stage| !model.stage_visited(stage)) {
 					continue;
 				}
 				let Some(cell) = layout.cells.get(&(i, j)) else { continue };

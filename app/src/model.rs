@@ -89,6 +89,9 @@ pub struct Model {
 	scene: &'static Scene,
 	/// Which of the scene's stages the player is in.
 	stage: usize,
+	/// The stages the player has been in, a bit each, by scene id (saved): a hotspot that
+	/// sends you to a stage shows its name once you have been there.
+	visited: progress::Visited,
 	unlocks: Unlocks,
 	/// When each unlock was granted (app time), for easing it in. `-inf` = always had it.
 	revealed: [f32; Unlock::COUNT],
@@ -136,7 +139,8 @@ impl Model {
 			crate::names::clear();
 		}
 		let saved = if editor { None } else { progress::load() };
-		let mut unlocks = saved.as_ref().map_or(NONE, |(_, unlocks)| *unlocks);
+		let mut unlocks = saved.as_ref().map_or(NONE, |(_, unlocks, _)| *unlocks);
+		let visited = saved.as_ref().map(|(_, _, visited)| visited.clone()).unwrap_or_default();
 		for name in unlock.as_deref().unwrap_or_default().split('+') {
 			if let Some(unlock) = Unlock::ALL.iter().find(|unlock| unlock.name() == name) {
 				unlocks = unlocks.with(*unlock);
@@ -145,7 +149,7 @@ impl Model {
 		let first = *scenes::all().first().expect("no scenes");
 		let scene = start
 			.as_deref()
-			.or(saved.as_ref().map(|(scene, _)| scene.as_str()))
+			.or(saved.as_ref().map(|(scene, _, _)| scene.as_str()))
 			.and_then(scenes::find)
 			.unwrap_or(first);
 		for reference in scenes::dangling() {
@@ -170,6 +174,7 @@ impl Model {
 			bands: HashMap::new(),
 			scene,
 			stage: 0,
+			visited,
 			unlocks,
 			revealed: [f32::NEG_INFINITY; Unlock::COUNT],
 			time: 0.0,
@@ -188,7 +193,26 @@ impl Model {
 			preview_stage: Cell::new(None),
 		};
 		model.preload();
+		model.note_visited();
 		model
+	}
+
+	/// Has the player been in stage `stage` of the viewed scene? (A hotspot that sends you
+	/// to a stage shows its name once you have.)
+	pub fn stage_visited(&self, stage: usize) -> bool {
+		self.visited.get(self.viewed().id).is_some_and(|bits| bits & (1u64 << stage.min(63)) != 0)
+	}
+
+	/// The stage we are in has been visited; saved when that is news.
+	fn note_visited(&mut self) {
+		let bits = self.visited.entry(self.scene.id.to_string()).or_default();
+		let bit = 1u64 << self.stage.min(63);
+		if *bits & bit == 0 {
+			*bits |= bit;
+			if !self.editor {
+				progress::save(self.scene.id, self.unlocks, &self.visited);
+			}
+		}
 	}
 
 	pub fn current_scene(&self) -> &'static Scene {
@@ -544,7 +568,7 @@ impl Model {
 		}
 		self.unlocks = unlocks;
 		if !self.editor {
-			progress::save(self.scene.id, self.unlocks);
+			progress::save(self.scene.id, self.unlocks, &self.visited);
 		}
 		self.preload();
 	}
@@ -618,7 +642,7 @@ impl Model {
 		self.trail.clear();
 		self.trace = None;
 		if !self.editor {
-			progress::save(scene.id, self.unlocks);
+			progress::save(scene.id, self.unlocks, &self.visited);
 		}
 		self.preload();
 	}
@@ -772,6 +796,9 @@ pub fn update(app: &App, model: &mut Model, update: Update) {
 			model.seek = None;
 		}
 	}
+
+	// Wherever the stage was set this frame (landing, the editor, a seek): we have been here.
+	model.note_visited();
 
 	if model.started {
 		if !model.editor {

@@ -1,7 +1,9 @@
-//! The exits' names: `words::random_words` shuffled once per game. The shuffle's seed is kept
-//! in localStorage beside the progress, so names hold through saves, transitions and reloads
-//! until they're reset (the editor's "reset names", or the game's `?reset`). Room `r`'s
-//! exit `k` is word `r × 4 + k` of the shuffle, so no two exits share a word.
+//! The exits' and the stages' names: `words::random_words` shuffled once per game. The
+//! shuffle's seed is kept in localStorage beside the progress, so names hold through saves,
+//! transitions and reloads until they're reset (the editor's "reset names", or the game's
+//! `?reset`). Room `r`'s exit `k` is word `r × 4 + k` of the shuffle, counted from its start;
+//! room `r`'s stage `s` is word `r × 16 + s` counted from its end — so no two share a word
+//! (owner, 2026-11-21: "it's the stages that i want to have random names, all of them").
 
 use {
 	crate::words::random_words,
@@ -11,6 +13,8 @@ use {
 const KEY: &str = "gender-theory/names";
 /// Exits a room may name: "name 1" … "name 4".
 pub const PER_ROOM: usize = 4;
+/// Stages a room may name, from the other end of the shuffle.
+pub const STAGES_PER_ROOM: usize = 16;
 
 thread_local! {
 	static SEED: Cell<Option<u64>> = Cell::new(None);
@@ -67,8 +71,8 @@ pub fn clear() {
 	SEED.with(|s| s.set(None));
 }
 
-/// The k-th exit name of room `room` (rooms are the album's scenes, in order).
-pub fn exit(room: usize, k: usize) -> &'static str {
+/// Word `n` of this game's shuffle.
+fn word(n: usize) -> &'static str {
 	let seed = seed();
 	ORDER.with(|order| {
 		let mut order = order.borrow_mut();
@@ -76,8 +80,18 @@ pub fn exit(room: usize, k: usize) -> &'static str {
 			*order = Some((seed, shuffle(seed, random_words.len())));
 		}
 		let (_, order) = order.as_ref().unwrap();
-		random_words[order[(room * PER_ROOM + k) % order.len()] as usize]
+		random_words[order[n % order.len()] as usize]
 	})
+}
+
+/// The k-th exit name of room `room` (rooms are the album's scenes, in order).
+pub fn exit(room: usize, k: usize) -> &'static str {
+	word(room * PER_ROOM + k)
+}
+
+/// The name of stage `stage` of room `room`: from the far end of the shuffle, clear of the exits.
+pub fn stage(room: usize, stage: usize) -> &'static str {
+	word(random_words.len() - 1 - (room * STAGES_PER_ROOM + stage) % random_words.len())
 }
 
 /// A hotspot's name as shown: "name N" is the room's N-th word; anything else is itself.

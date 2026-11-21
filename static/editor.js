@@ -4,7 +4,7 @@
 //
 // The album's shape is documented in app/src/scenes/data.rs.
 
-import init, { main_web, editor as send, state as readState, spectrum as readSpectrum, catalogue as readCatalogue, reset_names as resetNames, exit_name as exitName } from './app/gender.js';
+import init, { main_web, editor as send, state as readState, spectrum as readSpectrum, catalogue as readCatalogue, reset_names as resetNames, exit_name as exitName, stage_name as stageName } from './app/gender.js';
 
 const W = 11, H = 11;  // the grid (app/src/model.rs: CANVAS_WIDTH): odd, a centre dot
 const STAGE = 500;
@@ -1038,7 +1038,8 @@ function fieldParams(field) {
 // Rooms are the album's scenes in order (the engine counts them the same way).
 const roomIndex = () => album.tracks.flatMap((t) => t.scenes).indexOf(scene());
 // What a hotspot's name says: "name N" is the room's N-th random word, anything else itself.
-// A hotspot that sends you to a stage is named after it.
+// A hotspot that sends you to a stage says that stage's random word (shown in the game once
+// the stage has been visited); the editor's lists call it by the stage.
 const stageOf = (h) => (h.then || []).find((a) => a.stage)?.stage;
 function resolvedName(h) {
   const stage = stageOf(h);
@@ -1049,7 +1050,11 @@ function resolvedName(h) {
 // Beside the name field: what a text layer with this hotspot says.
 function exitHint(h) {
   const stage = stageOf(h);
-  if (stage) return el('span', { class: 'doc' }, '→ ' + stage + ' — named after the stage it sends you to');
+  if (stage) {
+    const index = (scene()?.stages || []).indexOf(stage);
+    const word = index >= 0 ? stageName(roomIndex(), index) : stage;
+    return el('span', { class: 'doc' }, `→ ${word} — the random word for the stage it sends you to (${stage}), shown once the stage has been visited, centred across the layer that says it`);
+  }
   const m = /^\s*name\s+(\d+)\s*$/i.exec(h.name || '');
   if (!m || +m[1] < 1) return el('span', { class: 'doc' }, '"name 1" … "name 4" for one of the room\'s random words; a text layer with this hotspot says it');
   return el('span', { class: 'doc' }, '→ ' + exitName(roomIndex(), +m[1] - 1));
