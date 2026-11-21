@@ -205,7 +205,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -217,37 +217,47 @@
        "name": "turning bars",
        "stage": "bottom",
        "region": {},
-       "kind": "bars",
+       "kind": "cells",
        "params": {
-        "progress": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "bar",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        },
         "brightness": {
+         "op": "set",
          "base": 1,
-         "chains": []
-        },
-        "dots": {
-         "base": 0,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        },
-        "per": 4
+         "chains": [],
+         "masks": []
+        }
        },
+       "muted": false
+      },
+      {
+       "id": "lmwogoy683cz",
+       "name": "hole: hotspot",
+       "region": {
+        "map": "...........\n...........\n.#####.....\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "kind": "hole",
+       "params": {
+        "hotspot": "hmwog8c3584e",
+        "dots": true,
+        "direction": "any"
+       },
+       "stage": "bottom"
+      },
+      {
+       "id": "lmwpjw3knhrs",
+       "name": "layer",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n....###....\n....###....\n....###....\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "dots": {
+         "op": "multiply",
+         "base": 0,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "bottom",
        "muted": false
       },
       {
@@ -287,9 +297,9 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0,
            "offset": 1,
-           "every": 1
+           "every": 1,
+           "ripple": 0
           }
          ],
          "masks": [
@@ -301,7 +311,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -364,7 +374,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "alternate": false
@@ -393,8 +403,8 @@
            "curve": 0.1,
            "invert": false,
            "on": true,
-           "delay": 0,
-           "every": 2
+           "every": 4,
+           "ripple": 1
           }
          ],
          "masks": [
@@ -406,7 +416,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -493,7 +503,7 @@
            "curve": 1,
            "invert": true,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": []
@@ -522,7 +532,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -534,7 +544,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -559,7 +569,7 @@
            "curve": 0.1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -571,7 +581,7 @@
            "curve": 1,
            "invert": true,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -806,18 +816,6 @@
        "muted": true
       },
       {
-       "id": "lmwogoy683cz",
-       "name": "hole: hotspot",
-       "region": {},
-       "kind": "hole",
-       "params": {
-        "hotspot": "hmwog8c3584e",
-        "dots": true,
-        "direction": "auto"
-       },
-       "stage": "bottom"
-      },
-      {
        "id": "lmwogoy6a5m9",
        "name": "hole: hotspot",
        "region": {},
@@ -827,50 +825,7 @@
         "dots": true,
         "direction": "auto"
        },
-       "stage": "bottom"
-      },
-      {
-       "id": "lmwpjw3knhrs",
-       "name": "layer",
-       "region": {},
-       "kind": "cells",
-       "params": {
-        "angle": {
-         "op": "add",
-         "base": {
-          "map": "→→→→→→→→→→→\n←←←←←←←←←←←\n→→→→→→→→→→→\n←←←←←←←←←←←\n→→→→→→→→→→→\n←←←←←←←←←←←\n→→→→→→→→→→→\n←←←←←←←←←←←\n→→→→→→→→→→→\n←←←←←←←←←←←\n→→→→→→→→→→→",
-          "legend": {
-           "→": 0,
-           "←": 180
-          }
-         },
-         "chains": [],
-         "masks": []
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
-        },
-        "brightness": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
-        },
-        "length": {
-         "op": "set",
-         "base": 0.7,
-         "chains": [],
-         "masks": []
-        }
-       },
        "stage": "bottom",
-       "bars": [
-        0,
-        16
-       ],
        "muted": true
       },
       {
@@ -902,7 +857,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -955,7 +910,7 @@
            "curve": 0.2,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -972,7 +927,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -1005,7 +960,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -1017,7 +972,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -1135,7 +1090,7 @@
            "curve": 1,
            "invert": true,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -1475,7 +1430,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 11.46,
@@ -1556,7 +1511,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -1583,7 +1538,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -1599,7 +1554,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -1611,7 +1566,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -1628,7 +1583,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -1728,7 +1683,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 14.32,
@@ -1809,7 +1764,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -1836,7 +1791,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -1852,7 +1807,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -1864,7 +1819,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -1881,7 +1836,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -2010,7 +1965,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -2027,7 +1982,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -2054,7 +2009,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -2070,7 +2025,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -2082,7 +2037,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -2182,7 +2137,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 20.05,
@@ -2263,7 +2218,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -2290,7 +2245,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -2306,7 +2261,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -2318,7 +2273,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -2335,7 +2290,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -2435,7 +2390,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 8.59,
@@ -2516,7 +2471,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -2543,7 +2498,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -2559,7 +2514,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -2571,7 +2526,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -2588,7 +2543,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -2695,7 +2650,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 11.46,
@@ -2776,7 +2731,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -2803,7 +2758,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -2819,7 +2774,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -2831,7 +2786,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -2848,7 +2803,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -2948,7 +2903,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 14.32,
@@ -3029,7 +2984,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -3056,7 +3011,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -3072,7 +3027,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -3084,7 +3039,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -3101,7 +3056,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -3201,7 +3156,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 17.19,
@@ -3282,7 +3237,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -3309,7 +3264,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -3325,7 +3280,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -3337,7 +3292,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -3354,7 +3309,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -3454,7 +3409,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 20.05,
@@ -3535,7 +3490,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -3562,7 +3517,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -3578,7 +3533,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -3590,7 +3545,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -3607,7 +3562,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -3707,7 +3662,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 8.59,
@@ -3788,7 +3743,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -3815,7 +3770,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -3831,7 +3786,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -3843,7 +3798,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -3860,7 +3815,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -3960,7 +3915,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 11.46,
@@ -4041,7 +3996,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -4068,7 +4023,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -4084,7 +4039,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -4096,7 +4051,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -4113,7 +4068,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -4213,7 +4168,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 14.32,
@@ -4294,7 +4249,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -4321,7 +4276,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -4337,7 +4292,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -4349,7 +4304,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -4366,7 +4321,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -4473,7 +4428,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 17.19,
@@ -4554,7 +4509,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -4581,7 +4536,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -4597,7 +4552,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -4609,7 +4564,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -4626,7 +4581,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -4726,7 +4681,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 20.05,
@@ -4807,7 +4762,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -4834,7 +4789,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -4850,7 +4805,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -4862,7 +4817,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -4879,7 +4834,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -4979,7 +4934,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 8.59,
@@ -5060,7 +5015,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -5087,7 +5042,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -5103,7 +5058,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -5115,7 +5070,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -5132,7 +5087,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -5232,7 +5187,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 11.46,
@@ -5313,7 +5268,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -5340,7 +5295,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -5356,7 +5311,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -5368,7 +5323,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -5385,7 +5340,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -5485,7 +5440,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 14.32,
@@ -5566,7 +5521,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -5593,7 +5548,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -5609,7 +5564,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -5621,7 +5576,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -5638,7 +5593,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -5738,7 +5693,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 17.19,
@@ -5819,7 +5774,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -5846,7 +5801,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -5862,7 +5817,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -5874,7 +5829,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -5891,7 +5846,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -5991,7 +5946,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 20.05,
@@ -6072,7 +6027,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -6099,7 +6054,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -6115,7 +6070,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -6127,7 +6082,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -6144,7 +6099,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
@@ -6244,7 +6199,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "spin": 8.59,
@@ -6325,7 +6280,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -6352,7 +6307,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -6368,7 +6323,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ],
          "masks": [
@@ -6380,7 +6335,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         },
@@ -6397,7 +6352,7 @@
            "curve": 1,
            "invert": false,
            "on": true,
-           "delay": 0
+           "ripple": 0
           }
          ]
         }
