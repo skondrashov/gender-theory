@@ -18,7 +18,9 @@
 //! a ring round it, described by twelve **rows** — one per unlock (`ROWS`): brightness;
 //! lines, length, angle, bend; rings, radius, fill, morph, flatness, rotation; color. A
 //! cells layer carries the rows it wants to change and, for each, how: set it, add to it
-//! or multiply it, over what the layers before it left. Nothing: a dark dot. A row's
+//! or multiply it, over what the layers before it left. Nothing: a dark dot. A row's base
+//! is one number or **painted** — a `Grid`: a map of glyphs with a legend, a value per
+//! cell, the unpainted cells left alone — so one layer holds a pattern. A row's
 //! sidechains add to it; its masks say how much of its change lands — on distance, bearing
 //! and around a pattern, on `hotspot:<id>` / `unlock:<name>` a state of the game (a hint
 //! shows while its hotspot does), on the music, motion — which comes in with the row's
@@ -278,11 +280,60 @@ pub enum ActionData {
 
 // ---- params and sidechains ----
 
-/// A number that can move: `base` plus every sidechain that is on.
+/// A number that can move: `base` plus every sidechain that is on. The base can be
+/// **painted** — a `grid`: one value per cell — so one layer carries a pattern (owner,
+/// 2026-11-20: "edit complicated line patterns without having to make 4 or more layers for
+/// different line orientations"); `base` is then what a cell off the grid's map gets, and
+/// a row skips the cells its grid leaves unpainted.
 #[derive(Clone, Default, Debug)]
 pub struct Param {
 	pub base: f32,
 	pub chains: Vec<Sidechain>,
+	pub grid: Option<Grid>,
+}
+
+/// A base painted cell by cell: `map` is a region-style map (11 rows of 11 glyphs, top row
+/// first, `.` unpainted) and `legend` what each glyph is worth, so a pattern reads in the
+/// file (`→↑←↓` for angles, say). A cell whose glyph is not in the legend is unpainted.
+#[derive(Deserialize, Clone, Default, Debug)]
+#[serde(default)]
+pub struct Grid {
+	pub map: String,
+	pub legend: HashMap<String, f32>,
+}
+
+impl Grid {
+	pub fn at(&self, i: usize, j: usize) -> Option<f32> {
+		let c = at(&self.map, i, j);
+		if c == '.' {
+			return None;
+		}
+		let mut buf = [0u8; 4];
+		self.legend.get(c.encode_utf8(&mut buf) as &str).copied()
+	}
+}
+
+/// A base in the file: a number, or a painted grid.
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum BaseJson {
+	Number(f32),
+	Grid(Grid),
+}
+
+impl Default for BaseJson {
+	fn default() -> Self {
+		BaseJson::Number(0.0)
+	}
+}
+
+impl BaseJson {
+	fn split(self) -> (f32, Option<Grid>) {
+		match self {
+			BaseJson::Number(v) => (v, None),
+			BaseJson::Grid(g) => (0.0, Some(g)),
+		}
+	}
 }
 
 /// One source driving a param: the source's level (0..1) goes through a threshold and a
@@ -349,7 +400,7 @@ enum ParamJson {
 	Number(f32),
 	Full {
 		#[serde(default)]
-		base: f32,
+		base: BaseJson,
 		#[serde(default)]
 		chains: Vec<Sidechain>,
 	},
@@ -358,15 +409,30 @@ enum ParamJson {
 impl<'de> Deserialize<'de> for Param {
 	fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
 		Ok(match ParamJson::deserialize(d)? {
-			ParamJson::Number(base) => Param { base, chains: vec![] },
-			ParamJson::Full { base, chains } => Param { base, chains },
+			ParamJson::Number(base) => Param::new(base),
+			ParamJson::Full { base, chains } => {
+				let (base, grid) = base.split();
+				Param { base, chains, grid }
+			}
 		})
 	}
 }
 
 impl Param {
 	pub fn new(base: f32) -> Param {
-		Param { base, chains: vec![] }
+		Param { base, chains: vec![], grid: None }
+	}
+
+	/// The base at a cell: the painted value if the base is a grid and the cell is painted,
+	/// else `base`.
+	pub fn base_at(&self, i: usize, j: usize) -> f32 {
+		self.grid.as_ref().and_then(|g| g.at(i, j)).unwrap_or(self.base)
+	}
+
+	/// Whether the param says anything at this cell: always, unless its base is a grid
+	/// that leaves the cell unpainted — a row then leaves the cell as it was.
+	pub fn painted(&self, i: usize, j: usize) -> bool {
+		self.grid.as_ref().map_or(true, |g| g.at(i, j).is_some())
 	}
 
 	pub fn value(&self, signals: &Signals) -> f32 {
@@ -383,7 +449,7 @@ impl Param {
 
 	/// `value_gated` at `depth` fields deep (a field's parameters are params; three deep is enough).
 	pub fn value_at(&self, signals: &Signals, gate: f32, depth: u8) -> f32 {
-		self.base + self.parts(signals, gate, depth).iter().sum::<f32>()
+		self.base_at(signals.i, signals.j) + self.parts(signals, gate, depth).iter().sum::<f32>()
 	}
 
 	/// What each sidechain adds right now (0 for one that is off): the probe's breakdown.
@@ -668,8 +734,8 @@ pub enum Op {
 	Multiply,
 }
 
-/// One row of a cells layer: `op` the cell's value with `param` (a base plus sidechains),
-/// by as much as its `masks` let land — each a source shaped like a sidechain, 1 letting
+/// One row of a cells layer: `op` the cell's value with `param` (a base — one number, or
+/// painted cell by cell — plus sidechains), by as much as its `masks` let land — each a source shaped like a sidechain, 1 letting
 /// the whole change through, 0 none (× `depth`: how much of the mask applies). Masks on
 /// distance, bearing and around are the owner's masks; on `hotspot:<id>` and
 /// `unlock:<name>` they are how a layer shows only while a hotspot does (a hint) or once
@@ -693,7 +759,7 @@ enum RowJson {
 		#[serde(default)]
 		op: Op,
 		#[serde(default)]
-		base: f32,
+		base: BaseJson,
 		#[serde(default)]
 		chains: Vec<Sidechain>,
 		#[serde(default)]
@@ -722,13 +788,16 @@ impl<'de> Deserialize<'de> for Row {
 				masks,
 				spin,
 				alternate,
-			} => Row {
-				op,
-				param: Param { base, chains },
-				masks,
-				spin,
-				alternate,
-			},
+			} => {
+				let (base, grid) = base.split();
+				Row {
+					op,
+					param: Param { base, chains, grid },
+					masks,
+					spin,
+					alternate,
+				}
+			}
 		})
 	}
 }
@@ -1047,6 +1116,7 @@ impl Default for Bars {
 					source: "span".into(),
 					..Default::default()
 				}],
+				grid: None,
 			},
 			brightness: Param::new(0.9),
 			dots: Param::new(0.6),
@@ -1089,6 +1159,7 @@ impl Default for Snake {
 					source: "span".into(),
 					..Default::default()
 				}],
+				grid: None,
 			},
 			brightness: Param::new(0.9),
 			dots: Param::new(0.45),
@@ -1666,6 +1737,10 @@ fn render(
 					let Some(row) = cells.row(k) else {
 						continue;
 					};
+					// a painted base leaves the cells it doesn't paint alone
+					if !row.param.painted(i, j) {
+						continue;
+					}
 					// Where the unlock is the row's sidechain option, its motion — the sidechains
 					// and masks on the music, the spin — comes in with the unlock; where it is
 					// the row, the row is eased from its resting value once the cell is folded.

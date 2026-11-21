@@ -62,6 +62,8 @@ main { display: flex; height: 500px; flex: none; border-bottom: 1px solid var(--
 #grid { display: block; background: #000; cursor: crosshair; }
 #region-tools { padding: 4px 6px; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; font-size: 11px; color: var(--dim); overflow: auto; }
 #region-tools input[type=number] { width: 40px; }
+#region-tools input[placeholder=value] { width: 56px; }
+.painted { display: inline-flex; gap: 4px; align-items: center; }
 
 #sources { display: flex; height: 190px; flex: none; border-bottom: 1px solid var(--line); background: var(--panel); }
 #spectrum-box { width: 640px; flex: none; padding: 0 8px 4px; }

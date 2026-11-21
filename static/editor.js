@@ -353,7 +353,7 @@ function updateReadouts() {
   for (const r of document.querySelectorAll('.readout[data-probe]')) {
     const [layer, row] = r.dataset.probe.split('|');
     const p = (probe.rows || []).find((p) => p.layer === layer && p.row === row);
-    if (!p) { r.textContent = '—'; r.title = 'not on the probe cell right now (its region, stage or bars)'; continue; }
+    if (!p) { r.textContent = '—'; r.title = 'not on the probe cell right now (its region, stage or bars — or the cell is unpainted)'; continue; }
     const sym = p.op === 'add' ? '+' : p.op === 'multiply' ? '×' : '=';
     // a row that is itself an unlock sits at its resting value until the unlock is on in the preview
     const frozen = r.dataset.gate !== 'sidechains' && !unlocked(r.dataset.unlock) ? ` · needs ${r.dataset.unlock} (at ${r.dataset.gate})` : '';
@@ -917,7 +917,7 @@ function rowEditor(l, spec) {
   return el('div', { class: 'rowed' }, row(spec.name,
     option ? null : tag,
     selectInput(p, 'op', ROW_OPS),
-    numberInput(p, 'base', { step: spec.step }),
+    baseInput(l, p, spec),
     turns ? el('span', { class: 'lbl' }, 'spin') : null,
     turns ? numberInput(p, 'spin', { step: 5 }) : null,
     turns ? checkInput(p, 'alternate', 'alternate') : null,
@@ -1115,6 +1115,182 @@ function bandInspector(b) {
   ];
 }
 
+// ---- painted bases: a row's base as a map of glyphs over the cells, with a legend ----
+// Mirrors data::Grid. One layer carries a pattern of values — the owner (2026-11-20): "edit
+// complicated line patterns without having to make 4 or more layers for different line
+// orientations". `.` is unpainted: the row leaves that cell as the layers before left it.
+
+const isGrid = (p) => !!p && typeof p.base === 'object' && p.base !== null;
+const ARROWS = { 0: '→', 45: '↗', 90: '↑', 135: '↖', 180: '←', 225: '↙', 270: '↓', 315: '↘' };
+const GLYPHS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const gridIndex = (i, j) => (H - 1 - j) * W + i;
+function gridCells(map) {
+  const a = Array.from((map || '').replace(/\s+/g, ''));
+  while (a.length < W * H) a.push('.');
+  return a.slice(0, W * H);
+}
+const gridJoin = (cells) => Array.from({ length: H }, (_, r) => cells.slice(r * W, (r + 1) * W).join('')).join('\n');
+const gridAt = (g, i, j) => gridCells(g.map)[gridIndex(i, j)];
+function gridSet(g, i, j, glyph) { const cells = gridCells(g.map); cells[gridIndex(i, j)] = glyph; g.map = gridJoin(cells); }
+const isPainted = (g, c) => c !== '.' && c in g.legend;
+// The glyph a value is written as — arrows for the eight directions of an angle row, letters
+// and digits otherwise; a value not in the legend yet gets a new one.
+function glyphFor(g, value, rowName) {
+  for (const [c, v] of Object.entries(g.legend)) if (v === value) return c;
+  const turns = rowName === 'angle' || rowName === 'rotation';
+  let c = turns ? ARROWS[((value % 360) + 360) % 360] : undefined;
+  if (c === undefined || c in g.legend) c = Array.from(GLYPHS).find((x) => !(x in g.legend));
+  if (c === undefined) c = String.fromCharCode(0x2500 + Object.keys(g.legend).length);
+  g.legend[c] = value;
+  return c;
+}
+// One number → a grid: every cell of the layer's region painted that number.
+function toGrid(l, p, rowName) {
+  const g = { map: mapRows('').join('\n'), legend: {} };
+  const c = glyphFor(g, +p.base || 0, rowName);
+  const cells = gridCells(g.map);
+  for (const [i, j] of regionCells(l.region || {})) cells[gridIndex(i, j)] = c;
+  g.map = gridJoin(cells);
+  p.base = g;
+}
+// The value painted on most cells (what flattening a grid to one number gives).
+function commonest(g) {
+  const n = {};
+  for (const c of gridCells(g.map)) if (isPainted(g, c)) n[c] = (n[c] || 0) + 1;
+  const best = Object.keys(n).sort((a, b) => n[b] - n[a])[0];
+  return best === undefined ? (Object.values(g.legend)[0] ?? 0) : g.legend[best];
+}
+function pruneLegend(g) {
+  const used = new Set(gridCells(g.map));
+  for (const c of Object.keys(g.legend)) if (!used.has(c)) delete g.legend[c];
+}
+const fmt = (v) => String(+(+v).toFixed(3));
+
+// A row's base in the inspector: a number with a way to paint it, or the painted grid's summary.
+function baseInput(l, p, spec) {
+  const on = paint && paint.layer === l.id && paint.row === spec.name;
+  if (isGrid(p)) {
+    const g = p.base, n = gridCells(g.map).filter((c) => isPainted(g, c)).length, k = Object.keys(g.legend).length;
+    return el('span', { class: 'painted' },
+      el('span', { class: 'mono dim', title: 'this row\'s base is painted cell by cell on the region grid; unpainted cells are left as the layers before leave them' }, `${n} painted · ${k} value${k === 1 ? '' : 's'}`),
+      el('button', { class: 'small' + (on ? ' on' : ''), title: 'paint this row\'s base on the region grid: a value per cell', onclick: () => { paint = on ? null : { layer: l.id, row: spec.name, glyph: Object.keys(g.legend)[0] ?? '.', block: null, select: null }; renderInspector(); renderGrid(); } }, on ? 'painting' : 'paint'),
+      el('button', { class: 'link', title: 'back to one number for every cell: the value painted most', onclick: () => { snapshotForUndo(); p.base = commonest(g); if (on) paint = null; commit({ silent: true, inspector: true }); } }, 'flatten'));
+  }
+  return el('span', { class: 'painted' }, numberInput(p, 'base', { step: spec.step }),
+    el('button', { class: 'link', title: 'paint this row\'s base cell by cell instead of one number, so the pattern lives in this one layer', onclick: () => {
+      snapshotForUndo(); toGrid(l, p, spec.name);
+      paint = { layer: l.id, row: spec.name, glyph: Object.keys(p.base.legend)[0], block: null, select: null };
+      commit({ silent: true, inspector: true });
+    } }, 'paint'));
+}
+
+// Painting: which layer's row, the glyph the brush carries ('.' erases), a block picked up to
+// stamp (shift-drag selects it), and the selection drawn on the grid.
+let paint = null;
+function painting() {
+  if (!paint || sel?.type !== 'layer') return null;
+  const l = selected();
+  if (!l || l.id !== paint.layer) return null;
+  const p = l.params[paint.row];
+  if (!isGrid(p)) return null;
+  return { l, p, g: p.base };
+}
+
+// A painted cell is in the region too (a region that isn't a map becomes one, as it is).
+function paintCell({ l, g }, i, j, glyph) {
+  gridSet(g, i, j, glyph);
+  if (glyph === '.') return;
+  const r = l.region ??= {};
+  if (inRegion(r, i, j)) return;
+  if (r.map == null) {
+    r.map = regionCells(r).reduce((m, [a, b]) => mapSet(m, a, b, true), mapRows('').join('\n'));
+    delete r.rect; delete r.rows; delete r.cols; delete r.checker; delete r.perimeter;
+  }
+  r.map = mapSet(r.map, i, j, true);
+}
+
+function paintDown(pt, e, i, j) {
+  if (e.shiftKey) { grid.drag = { select: [i, j] }; paint.select = [i, j, i + 1, j + 1]; paint.block = null; renderGrid(); return; }
+  if (e.altKey || e.ctrlKey) { paint.glyph = gridAt(pt.g, i, j); paint.block = null; renderGrid(); return; }
+  snapshotForUndo();
+  if (paint.block) {
+    const { w, h, cells, anchor } = paint.block;
+    for (let dj = 0; dj < h; dj++) for (let di = 0; di < w; di++) {
+      const [a, b] = [i - anchor[0] + di, j - anchor[1] + dj];
+      if (cells[dj][di] !== '.' && a >= 0 && a < W && b >= 0 && b < H) paintCell(pt, a, b, cells[dj][di]);
+    }
+    commit({ silent: true, timeline: false, lists: false });
+    renderInspector(); // the row's count of painted cells
+    return;
+  }
+  grid.drag = { glyph: paint.glyph };
+  paintCell(pt, i, j, paint.glyph);
+  commit({ silent: true, timeline: false, lists: false });
+}
+
+function paintMove(pt, i, j) {
+  if (grid.drag.select) {
+    const [a, b] = grid.drag.select;
+    paint.select = [Math.min(a, i), Math.min(b, j), Math.max(a, i) + 1, Math.max(b, j) + 1];
+    renderGrid();
+  } else if (grid.drag.glyph != null) {
+    if (gridAt(pt.g, i, j) === grid.drag.glyph && (grid.drag.glyph === '.' || inRegion(pt.l.region || {}, i, j))) return;
+    paintCell(pt, i, j, grid.drag.glyph);
+    commit({ silent: true, timeline: false, lists: false });
+  }
+}
+
+// Shift-drag done: pick the block up, anchored where the drag began.
+function paintUp(pt) {
+  if (!grid.drag?.select || !paint.select) return;
+  const [i0, j0, i1, j1] = paint.select;
+  const cells = Array.from({ length: j1 - j0 }, (_, dj) => Array.from({ length: i1 - i0 }, (_, di) => gridAt(pt.g, i0 + di, j0 + dj)));
+  paint.block = { w: i1 - i0, h: j1 - j0, cells, anchor: [grid.drag.select[0] - i0, grid.drag.select[1] - j0] };
+}
+
+function drawPaint(g2, pt) {
+  const g = pt.g;
+  g2.font = `${Math.round(CELL * 0.6)}px ${getComputedStyle(document.body).getPropertyValue('--mono') || 'monospace'}`;
+  g2.textAlign = 'center'; g2.textBaseline = 'middle';
+  const cells = gridCells(g.map);
+  for (let i = 0; i < W; i++) for (let j = 0; j < H; j++) {
+    const c = cells[gridIndex(i, j)];
+    if (!isPainted(g, c)) continue;
+    g2.fillStyle = c === paint.glyph ? '#fff' : '#d8dde6';
+    g2.fillText(c, i * CELL + CELL / 2, (H - 1 - j) * CELL + CELL / 2 + 1);
+  }
+  if (paint.select) {
+    const [i0, j0, i1, j1] = paint.select;
+    g2.strokeStyle = paint.block ? '#ffd166' : '#ffffff'; g2.lineWidth = 1;
+    g2.setLineDash([3, 2]);
+    g2.strokeRect(i0 * CELL + 0.5, (H - j1) * CELL + 0.5, (i1 - i0) * CELL - 1, (j1 - j0) * CELL - 1);
+    g2.setLineDash([]);
+  }
+}
+
+// The palette in place of the region tools while painting.
+function paintTools(pt) {
+  const tools = $('#region-tools');
+  const { g, p } = pt;
+  const spec = rowSpec(paint.row);
+  const go = () => commit({ silent: true, lists: false, timeline: false });
+  const pick = (c) => { paint.glyph = c; paint.block = null; paint.select = null; renderGrid(); };
+  const entries = Object.entries(g.legend).sort((a, b) => a[1] - b[1]);
+  const value = el('input', { type: 'number', step: spec?.step ?? 0.1, placeholder: 'value', title: 'a new value for the palette' });
+  const add = () => { if (value.value === '') return; snapshotForUndo(); pick(glyphFor(g, +value.value, paint.row)); go(); };
+  value.onkeydown = (e) => { if (e.key === 'Enter') add(); };
+  tools.replaceChildren(
+    el('span', { class: 'mono' }, `painting ${paint.row}`),
+    ...entries.map(([c, v]) => el('button', { class: 'small mono' + (paint.glyph === c && !paint.block ? ' on' : ''), title: `paint ${fmt(v)}`, onclick: () => pick(c) }, `${c} ${fmt(v)}`)),
+    el('button', { class: 'small' + (paint.glyph === '.' && !paint.block ? ' on' : ''), title: 'unpaint: the cell is left as the layers before leave it', onclick: () => pick('.') }, '· none'),
+    value, el('button', { class: 'small', onclick: add }, '+ value'),
+    paint.block ? el('button', { class: 'small on', title: 'a block picked up (shift-drag): click a cell to stamp it there; this drops it', onclick: () => { paint.block = null; paint.select = null; renderGrid(); } }, `stamp ${paint.block.w}×${paint.block.h} ✕`) : null,
+    el('button', { class: 'link', title: 'forget the palette values no cell uses', onclick: () => { snapshotForUndo(); pruneLegend(g); if (!(paint.glyph in g.legend)) paint.glyph = '.'; go(); renderGrid(); } }, 'tidy'),
+    el('button', { class: 'small', title: 'back to the region tools', onclick: () => { paint = null; renderInspector(); renderGrid(); } }, 'done'),
+    el('span', { class: 'doc' }, 'click/drag paints the value (and puts the cell in the region) · none unpaints it (it stays in the region for the other rows) · alt-click picks a cell\'s value up · shift-drag picks a block up, then click to stamp it where the drag began · the orange cell is the probe'),
+  );
+}
+
 // ---- the grid: regions ----
 
 const grid = { drag: null };
@@ -1218,9 +1394,11 @@ function setupGrid() {
     return [i, j];
   };
   c.onmousedown = (e) => {
+    const [i, j] = cellAt(e);
+    const pt = painting();
+    if (pt) { paintDown(pt, e, i, j); return; }
     const r = regionOf();
     if (!r) return;
-    const [i, j] = cellAt(e);
     snapshotForUndo();
     if (r.map != null) {
       grid.drag = { paint: mapAt(r.map, i, j) !== '#' };
@@ -1237,6 +1415,8 @@ function setupGrid() {
     const [i, j] = cellAt(e);
     if (i !== probeCell[0] || j !== probeCell[1]) { setProbe([i, j]); renderGrid(); }
     if (!grid.drag) return;
+    const pt = painting();
+    if (pt) { paintMove(pt, i, j); return; }
     const r = regionOf();
     if (grid.drag.paint != null) {
       if ((mapAt(r.map, i, j) === '#') === grid.drag.paint) return;
@@ -1247,7 +1427,13 @@ function setupGrid() {
     }
     commit({ silent: true, timeline: false, lists: false });
   };
-  window.addEventListener('mouseup', () => { if (grid.drag) { grid.drag = null; renderInspector(); } });
+  window.addEventListener('mouseup', () => {
+    if (!grid.drag) return;
+    const pt = painting();
+    if (pt) paintUp(pt);
+    grid.drag = null;
+    renderInspector(); renderGrid();
+  });
 }
 
 function setRect(r, i0, j0, i1, j1) {
@@ -1271,6 +1457,9 @@ function renderGrid() {
   g.strokeStyle = '#ff7333'; g.lineWidth = 1.5;
   g.strokeRect(probeCell[0] * CELL + 1.5, (H - 1 - probeCell[1]) * CELL + 1.5, CELL - 3, CELL - 3);
   sendHighlight();
+  // painting a row's base: the glyphs over the cells, and the palette for tools
+  const pt = painting();
+  if (pt) { drawPaint(g, pt); paintTools(pt); return; }
   // tools
   const tools = $('#region-tools');
   if (!r) { tools.replaceChildren(el('span', {}, sel?.type === 'group' ? 'a group: its layers light up on the preview; select one to edit its region' : 'select a layer or hotspot to edit its region')); return; }

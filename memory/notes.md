@@ -543,3 +543,27 @@ unlocked for those parts of the animation to work".
   they send you to a stage". `label_of(hotspot, room)` in data.rs: a `stage` action names
   it, else `names::resolve`. The editor's hint beside the name says so; the name field is
   then just a label for the lists.
+
+## Painted bases (2026-11-20)
+
+Owner: "can i get an editor where i can click cells and edit and copy their settings … i want to
+be able to edit complicated line patterns without having to make 4 or more layers for different
+line orientations". The answer that keeps the layer design: a row's base can vary per cell.
+
+- `Param.grid: Option<Grid>` (`data.rs`): `{map, legend}` — a region-style map of glyphs,
+  `legend` glyph → value. In the file a base is a number or that object (`BaseJson`,
+  untagged), on params and rows alike. `Param::base_at(i, j)` reads the cell; `painted(i, j)`
+  is false for `.` / unknown glyphs and the cells loop skips the row there (the cell is left
+  as the layers before left it; the layer's other rows still apply). Chains and masks sit on
+  top as before, so one layer = one pattern + its motion + its gate.
+- Editor: `baseInput` (paint / painting / flatten), `paint` state, `painting()`, `paintCell`
+  (converts a non-map region to a map when painting outside it), `paintDown/Move/Up`,
+  `drawPaint`, `paintTools`. Glyphs: arrows for multiples of 45° on angle/rotation, else
+  `a-z A-Z 0-9`, then box-drawing chars. `flatten` → the commonest value. Stamp = shift-drag
+  a block, click where the drag began should land.
+- Not done yet (offered): the cell inspector — click a cell, see the stack of layers at it
+  and edit/copy across rows.
+- Test: scratchpad `cdp_grid.py` (engine frame + editor driven by real clicks with autosave
+  off and PUTs failed through `Fetch.enable` — never let a headless editor save the album).
+- Python patch scripts go through the Write tool, not a bash heredoc: a heredoc script with
+  non-ASCII (`·`, arrows) fails to match the file.
