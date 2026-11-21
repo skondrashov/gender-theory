@@ -675,7 +675,11 @@ function addScene() {
   const end = Math.max(0, ...t.scenes.map((s) => s.bars[1]));
   snapshotForUndo();
   // The base layer: every dot at brightness 1, nothing sidechained — what everything else transforms.
-  const id = `${t.id}/${t.scenes.length}`;
+  // An id no scene of the album has (deleting one and adding one must not repeat an id: go,
+  // the graph and ?scene= take the first they find).
+  const taken = new Set(album.tracks.flatMap((x) => x.scenes.map((s) => s.id)));
+  let n = t.scenes.length, id = `${t.id}/${n}`;
+  while (taken.has(id)) id = `${t.id}/${++n}`;
   t.scenes.push({ id, bars: [end, end + 16], loop: end, stages: [], layers: [baseLayer()], hotspots: [] });
   si = t.scenes.length - 1;
   sel = { type: 'scene', index: si };
