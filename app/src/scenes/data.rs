@@ -15,8 +15,8 @@
 //! transition, and the old bass/mid/treble) — through threshold, width, curve and depth.
 //!
 //! Most layers are **cells**: every cell in the region is a dot with a line out of it and
-//! a ring round it, described by twelve **rows** — one per unlock (`ROWS`): brightness;
-//! lines, length, angle, bend; rings, radius, fill, morph, flatness, rotation; color. A
+//! a ring round it, described by thirteen **rows** — one per unlock (`ROWS`): brightness,
+//! dots; lines, length, angle, bend; rings, radius, fill, morph, flatness, rotation; color. A
 //! cells layer carries the rows it wants to change and, for each, how: set it, add to it
 //! or multiply it, over what the layers before it left. Nothing: a dark dot. A row's base
 //! is one number or **painted** — a `Grid`: a map of glyphs with a legend, a value per
@@ -874,6 +874,12 @@ pub struct RowSpec {
 
 /// The rows of a cell, in order: one per unlock. The drawing order of the cell is the
 /// dot, the line out of it (× `lines`), the ring round it (× `rings`).
+/// The rows the renderer reaches into by index (the hole kind); keep with `ROWS`.
+const ROW_BRIGHTNESS: usize = 0;
+const ROW_LINES: usize = 2;
+const ROW_ANGLE: usize = 4;
+const ROW_RINGS: usize = 6;
+
 pub const ROWS: [RowSpec; Unlock::COUNT] = [
 	RowSpec {
 		name: "brightness",
@@ -883,6 +889,15 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 		gate: Gate::Sidechains,
 		step: 0.05,
 		doc: "0 dark .. 1 full, of the dot, its line and its ring. Free from the start; glow is its sidechain option — it follows the music once glow is unlocked.",
+	},
+	RowSpec {
+		name: "dots",
+		unlock: Unlock::Dots,
+		start: 1.0,
+		default: 1.0,
+		gate: Gate::Sidechains,
+		step: 0.1,
+		doc: "0 no dot .. 1 the dot (× brightness) — seen where the cell has no line, since a line covers its dot. Free from the start, so a layer or a painted base can take the dots off some cells; dots is its sidechain option — the dot follows the music once dots is unlocked.",
 	},
 	RowSpec {
 		name: "lines",
@@ -990,6 +1005,7 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 #[serde(default)]
 struct Cells {
 	brightness: Option<Row>,
+	dots: Option<Row>,
 	lines: Option<Row>,
 	length: Option<Row>,
 	angle: Option<Row>,
@@ -1008,6 +1024,7 @@ impl Cells {
 	fn row(&self, k: usize) -> Option<&Row> {
 		[
 			&self.brightness,
+			&self.dots,
 			&self.lines,
 			&self.length,
 			&self.angle,
@@ -1961,14 +1978,14 @@ fn render(
 				model.cut_marks(first_mark, hole.dots, rt.direction);
 				match rt.direction {
 					None => {
-						cell[1] = 0.0;
-						cell[5] = 0.0;
+						cell[ROW_LINES] = 0.0;
+						cell[ROW_RINGS] = 0.0;
 					}
 					// the cells' line too, by how far it lies along the hole
-					Some(dir) => cell[1] *= 1.0 - (cell[3].to_radians() - dir).cos().powi(2),
+					Some(dir) => cell[ROW_LINES] *= 1.0 - (cell[ROW_ANGLE].to_radians() - dir).cos().powi(2),
 				}
 				if !hole.dots {
-					cell[0] = 0.0;
+					cell[ROW_BRIGHTNESS] = 0.0;
 				}
 			}
 		}
@@ -1983,26 +2000,32 @@ fn render(
 			cell[k] = before + (cell[k] - before) * model.reveal(spec.unlock);
 		}
 	}
-	let [brightness, lines, length, angle, bend, rings, radius, fill, morph, flatness, rotation, color] = cell;
+	let [brightness, dots, lines, length, angle, bend, rings, radius, fill, morph, flatness, rotation, color] = cell;
 	// A black mark is nothing on a black ground — except that, drawn after the other kinds'
 	// marks, it would cover their dots (owner: "i'd like there to be dots on all the cells").
 	if brightness + hot_brightness <= 0.001 {
 		return;
 	}
+	let dot = tint((brightness * dots.clamp(0.0, 1.0) + hot_brightness).max(0.0), color);
 	let color = tint(brightness + hot_brightness, color);
-	// The dot — or the line out of it: a line of no length draws as the dot.
-	shape(
-		draw,
-		model,
-		x,
-		y,
-		Shape::Line {
-			angle: angle.to_radians(),
-			length: (length + hot_length) * lines * unit,
-			bend,
-		},
-		color,
-	);
+	// The dot — or the line out of it: a line of no length draws as the dot, at the dots
+	// row's share of the brightness; a line covers its dot, so dots only show where there
+	// is no line.
+	let line = (length + hot_length) * lines * unit;
+	if line > 0.001 || brightness * dots + hot_brightness > 0.001 {
+		shape(
+			draw,
+			model,
+			x,
+			y,
+			Shape::Line {
+				angle: angle.to_radians(),
+				length: line,
+				bend,
+			},
+			if line > 0.001 { color } else { dot },
+		);
+	}
 	if rings > 0.0 {
 		shape(
 			draw,

@@ -18,9 +18,11 @@ without glow); an unlock lets a parameter leave its default or move.
 
 **One system** (owner, 2026-11-18: "i want everything really structured so there's a
 relatively simple uniform system for the entire thing — one unlock unlocks one row"): a cell
-is twelve **rows**, one per unlock — brightness; lines, length, angle, bend; rings, radius,
-fill, morph, flatness, rotation; color. An unlock is a row, or a row's sidechain option —
-glow is brightness's, angle is angle's (owner: "an unlock basically just means either a
+is thirteen **rows**, one per unlock — brightness, dots; lines, length, angle, bend; rings,
+radius, fill, morph, flatness, rotation; color. An unlock is a row, or a row's sidechain
+option — glow is brightness's, dots is dots's (2026-11-20: "dots should just be treated like
+other unlocks for simplicity. that way i can disable dots on some cells"), angle is angle's
+(owner: "an unlock basically just means either a
 row or a sidechain option, so glow is really just the brightness sidechain option"). A
 layer is a region plus the rows it changes, each
 *set*, *added to* or *multiplied* over what the layers before it left; a cell under no layer

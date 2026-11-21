@@ -11,7 +11,7 @@ const STAGE = 500;
 const CELL = 250 / W;  // grid px per cell
 const PPB = 12;      // timeline px per bar
 const GUTTER = 72;   // timeline lane labels
-const UNLOCKS = ['glow', 'lines', 'length', 'angle', 'bend', 'rings', 'size', 'fill', 'morph', 'flatness', 'rotation', 'color'];
+const UNLOCKS = ['glow', 'dots', 'lines', 'length', 'angle', 'bend', 'rings', 'size', 'fill', 'morph', 'flatness', 'rotation', 'color'];
 const BAND_COLORS = ['#ff7333', '#ffd23f', '#3fd2a0', '#3f9fff', '#c77dff', '#ff5e8a', '#9cff57'];
 
 const $ = (s) => document.querySelector(s);

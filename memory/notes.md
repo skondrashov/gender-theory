@@ -567,3 +567,19 @@ line orientations". The answer that keeps the layer design: a row's base can var
   off and PUTs failed through `Fetch.enable` — never let a headless editor save the album).
 - Python patch scripts go through the Write tool, not a bash heredoc: a heredoc script with
   non-ASCII (`·`, arrows) fails to match the file.
+
+## dots is a row (2026-11-20)
+
+Owner: "dots should just be treated like other unlocks for simplicity. that way i can disable
+dots on some cells". `Unlock::Dots` (last in the enum — the progress bits in localStorage are
+by discriminant — second in `ALL`, after glow), row `dots` after brightness in `ROWS`:
+start 1, `Gate::Sidechains` (free from the start; the unlock is the dot's own motion). The
+dot is the line of no length, so dots only shows where there is no line: the cell's mark is
+drawn at brightness × dots when `line` is 0, at brightness otherwise, and skipped when both
+are nothing (rings still draw). The hole kind's indices are now `ROW_*` consts. Thirteen rows
+everywhere the docs counted twelve.
+- Adding a row touches: `Unlock` (enum, `COUNT`, `ALL`, `name`), `ROWS`, the `Cells` struct
+  **and its `row(k)` list** (missed the first time: `?editor` loads panicked "len is 12 but
+  the index is 12" and the page stayed on the old album — a panic in install leaves the game
+  dead, so always run a headless frame before committing a build), the destructure in the
+  cells drawing, `ROW_*` consts, the editor's `UNLOCKS`, and the counts in AGENTS/SPEC.

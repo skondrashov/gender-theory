@@ -126,14 +126,19 @@ pub enum Unlock {
 	Flatness,
 	/// Rings get to turn.
 	Rotation,
+	/// The dot itself follows the music where a layer says — the dots row's sidechain
+	/// option (owner, 2026-11-20: "dots should just be treated like other unlocks … that way
+	/// i can disable dots on some cells"). Last in the enum so saved progress bits hold.
+	Dots,
 }
 
 impl Unlock {
-	pub const COUNT: usize = 12;
+	pub const COUNT: usize = 13;
 
 	/// Display order.
 	pub const ALL: [Unlock; Unlock::COUNT] = [
 		Unlock::Glow,
+		Unlock::Dots,
 		Unlock::Lines,
 		Unlock::Length,
 		Unlock::Angle,
@@ -161,6 +166,7 @@ impl Unlock {
 			Unlock::Morph => "morph",
 			Unlock::Flatness => "flatness",
 			Unlock::Rotation => "rotation",
+			Unlock::Dots => "dots",
 		}
 	}
 }
