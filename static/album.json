@@ -981,14 +981,14 @@
       },
       {
        "id": "lmwqnyzwnwpu",
-       "name": "vertices",
+       "name": "pulse",
        "region": {
         "map": "###########\n###########\n###########\n###########\n###########\n###########\n###########\n###########\n###########\n###########\n###########"
        },
        "kind": "cells",
        "params": {
         "length": {
-         "op": "set",
+         "op": "multiply",
          "base": {
           "map": "aaaaaaaaaaa\naaaaaaaaaaa\naaaaaaaaaaa\naaaaaaaaaaa\naaaaaaaaaaa\naaaaaaaaaaa\naaaaaabbbba\naaaaaabaaba\naaaaaabaaba\naaaaaabbbba\naaaaaaaaaaa",
           "legend": {
@@ -996,11 +996,22 @@
            "b": 1
           }
          },
-         "chains": [],
+         "chains": [
+          {
+           "source": "beat",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ],
          "masks": [
           {
            "source": "noise",
-           "depth": 1,
+           "depth": -0.2,
            "threshold": 0,
            "width": 1,
            "curve": 1,
@@ -1017,6 +1028,16 @@
          "masks": []
         }
        },
+       "stage": "right"
+      },
+      {
+       "id": "lmwqo9ugg95n",
+       "name": "pulse",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {},
        "stage": "right"
       },
       {
@@ -1049,8 +1070,8 @@
        "stage": "right"
       },
       {
-       "id": "lmwqo5ejqakc",
-       "name": "box",
+       "id": "lmwqom4ybwbk",
+       "name": "vertex length",
        "region": {
         "map": "...........\n...........\n...........\n...........\n...........\n...........\n......#..#.\n...........\n...........\n......#..#.\n..........."
        },
@@ -1059,40 +1080,6 @@
         "length": {
          "op": "set",
          "base": 3,
-         "chains": [],
-         "masks": []
-        },
-        "brightness": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": [
-          {
-           "source": "span",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          }
-         ]
-        }
-       },
-       "stage": "right"
-      },
-      {
-       "id": "lmwqo9ugg95n",
-       "name": "pulse",
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 1,
          "chains": [],
          "masks": []
         }
