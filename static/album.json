@@ -13,7 +13,7 @@
   {
    "id": "b-bass",
    "name": "bass",
-   "lo": 40,
+   "lo": 45,
    "hi": 250,
    "attack": 0.01,
    "release": 0.15,
@@ -48,6 +48,16 @@
    "attack": 0.01,
    "release": 0.2,
    "gain": 2,
+   "floor": 0.1
+  },
+  {
+   "id": "bmwqlupb8pye",
+   "name": "band",
+   "lo": 100,
+   "hi": 400,
+   "attack": 0.01,
+   "release": 0.15,
+   "gain": 1,
    "floor": 0.1
   }
  ],
@@ -168,7 +178,7 @@
      "loop": 0,
      "stages": [
       "foyer",
-      "top",
+      "name 1",
       "left",
       "bottom",
       "right"
@@ -262,7 +272,13 @@
         },
         "length": {
          "op": "set",
-         "base": 1,
+         "base": {
+          "map": "...........\n.b.........\n.ab........\n.a.b.......\n.a..a......\n.a..a......\n.a..b......\n.a.b.......\n.ab........\n.a.........\n...........",
+          "legend": {
+           "a": 1,
+           "b": 1.41421356237
+          }
+         },
          "chains": [],
          "masks": []
         }
@@ -273,12 +289,12 @@
        "id": "lmwlybct9oor",
        "name": "top",
        "region": {
-        "map": "...........\n.#########.\n..#.....#..\n...#...#...\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
+        "map": "...........\n.#########.\n..#.....#..\n...#...#...\n....###....\n...........\n...........\n...........\n...........\n...........\n..........."
        },
        "kind": "cells",
        "params": {
         "brightness": {
-         "op": "set",
+         "op": "add",
          "base": 0.700000010430813,
          "chains": [
           {
@@ -288,11 +304,32 @@
            "width": 1,
            "curve": 1,
            "invert": false,
+           "on": false,
+           "delay": 0
+          },
+          {
+           "source": "b-bass",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
            "on": true,
            "delay": 0
           }
          ],
-         "masks": []
+         "masks": [
+          {
+           "source": "unlock:glow",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "delay": 0
+          }
+         ]
         }
        },
        "stage": "foyer"
@@ -332,13 +369,14 @@
          "chains": []
         },
         "per": 4
-       }
+       },
+       "muted": false
       },
       {
        "id": "lmwmces6t9qs",
        "name": "bottom",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n....###....\n...#...#...\n..#.....#..\n..########.\n..........."
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n....###....\n...#...#...\n..#.....#..\n.#########.\n..........."
        },
        "kind": "cells",
        "params": {
@@ -355,7 +393,9 @@
            "invert": false,
            "on": true,
            "delay": 0
-          },
+          }
+         ],
+         "masks": [
           {
            "source": "unlock:lines",
            "depth": 1,
@@ -366,8 +406,7 @@
            "on": true,
            "delay": 0
           }
-         ],
-         "masks": []
+         ]
         },
         "lines": {
          "op": "set",
@@ -380,18 +419,59 @@
          "base": 225,
          "chains": [],
          "masks": []
+        },
+        "length": {
+         "op": "set",
+         "base": {
+          "map": "...........\n...........\n...........\n...........\n...........\n...........\n....aab....\n...b...b...\n..b.....b..\n.baaaaaaaa.\n...........",
+          "legend": {
+           "a": 1,
+           "b": 1.41421356237
+          }
+         },
+         "chains": [],
+         "masks": []
         }
        },
        "stage": "foyer"
       },
       {
-       "id": "lmwmh62ax9o3",
-       "name": "bottom right",
+       "id": "lmwqllqe0x3x",
+       "name": "bottom angle",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n.......#...\n........#..\n.........#.\n..........."
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n....###....\n...#...#...\n..#.....#..\n.#########.\n..........."
        },
        "kind": "cells",
-       "params": {},
+       "params": {
+        "angle": {
+         "op": "add",
+         "base": {
+          "map": "...........\n...........\n...........\n...........\n...........\n...........\n....↖↖↑....\n...←...↑...\n..←.....↑..\n.←↘↘↘↘↘↘↘↘.\n...........",
+          "legend": {
+           "→": 0,
+           "↑": 90,
+           "↖": 135,
+           "←": 180,
+           "↗": 45,
+           "↘": 315
+          }
+         },
+         "chains": [],
+         "masks": []
+        },
+        "length": {
+         "op": "set",
+         "base": {
+          "map": "...........\n...........\n...........\n...........\n...........\n...........\n....aab....\n...b...b...\n..b.....b..\n.baaaaaaaa.\n...........",
+          "legend": {
+           "a": 1,
+           "b": 1.41421356237
+          }
+         },
+         "chains": [],
+         "masks": []
+        }
+       },
        "stage": "foyer"
       },
       {
@@ -463,7 +543,7 @@
          ]
         }
        },
-       "stage": "top"
+       "stage": "name 1"
       },
       {
        "id": "l12",
@@ -1018,7 +1098,7 @@
          "masks": []
         }
        },
-       "stage": "top"
+       "stage": "name 1"
       },
       {
        "id": "lmwmvit0vfv5",
@@ -1042,7 +1122,7 @@
          "spin": 0
         }
        },
-       "stage": "top"
+       "stage": "name 1"
       },
       {
        "id": "lmwmvlhs6v3m",
@@ -1066,7 +1146,7 @@
          "spin": 0
         }
        },
-       "stage": "top"
+       "stage": "name 1"
       },
       {
        "id": "lmwmvlkey63x",
@@ -1090,7 +1170,7 @@
          "spin": 0
         }
        },
-       "stage": "top"
+       "stage": "name 1"
       },
       {
        "id": "lmwmvlnb52sb",
@@ -1114,7 +1194,7 @@
          "spin": 0
         }
        },
-       "stage": "top"
+       "stage": "name 1"
       },
       {
        "id": "lmwodk5l9mzx",
@@ -1123,7 +1203,7 @@
         "rect": [
          2,
          8,
-         8,
+         9,
          10
         ]
        },
@@ -1147,9 +1227,10 @@
          "base": 0,
          "chains": []
         },
-        "hotspot": ""
+        "hotspot": "hmw4rooy7v5i"
        },
-       "stage": "foyer"
+       "stage": "foyer",
+       "muted": true
       },
       {
        "id": "lmwogoy683cz",
@@ -1158,7 +1239,8 @@
        "kind": "hole",
        "params": {
         "hotspot": "hmwog8c3584e",
-        "dots": true
+        "dots": true,
+        "direction": "auto"
        },
        "stage": "bottom"
       },
@@ -1176,19 +1258,46 @@
       {
        "id": "lmwpjw3knhrs",
        "name": "layer",
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n.####......\n.####......\n.####......\n.####......\n..........."
-       },
+       "region": {},
        "kind": "cells",
        "params": {
+        "angle": {
+         "op": "add",
+         "base": {
+          "map": "→→→→→→→→→→→\n←←←←←←←←←←←\n→→→→→→→→→→→\n←←←←←←←←←←←\n→→→→→→→→→→→\n←←←←←←←←←←←\n→→→→→→→→→→→\n←←←←←←←←←←←\n→→→→→→→→→→→\n←←←←←←←←←←←\n→→→→→→→→→→→",
+          "legend": {
+           "→": 0,
+           "←": 180
+          }
+         },
+         "chains": [],
+         "masks": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
         "brightness": {
          "op": "set",
-         "base": 0,
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "length": {
+         "op": "set",
+         "base": 0.7,
          "chains": [],
          "masks": []
         }
        },
-       "stage": "bottom"
+       "stage": "bottom",
+       "bars": [
+        0,
+        16
+       ],
+       "muted": true
       },
       {
        "id": "lmwptvld0ift",
@@ -1201,7 +1310,7 @@
         "angle": {
          "op": "set",
          "base": {
-          "map": "..↑........\n..↑........\n..↑........\n.→→↓.......\n.↑↓↓.......\n.↑→↓.......\n.↑↑↓.......\n.↑←←.......\n.↓↓↓.......\n.↓↓↓.......\n.↓↓↓.......",
+          "map": "..↑........\n..↑........\n..↑........\n.↓←←.......\n.↓↓↑.......\n.↓→↑.......\n.↓↑↑.......\n.→→↑.......\n.↓↓↓.......\n.↓↓↓.......\n.↓↓↓.......",
           "legend": {
            "→": 0,
            "↑": 90,
@@ -1226,6 +1335,24 @@
        },
        "stage": "left",
        "muted": false
+      },
+      {
+       "id": "lmwqlfomotuf",
+       "name": "layer",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "bottom",
+       "muted": true
       }
      ],
      "hotspots": [
@@ -1261,7 +1388,7 @@
        "on": "tap",
        "then": [
         {
-         "stage": "top"
+         "stage": "name 1"
         }
        ],
        "stage": "foyer",
@@ -1322,7 +1449,7 @@
          "unlock": "lines"
         }
        ],
-       "stage": "top",
+       "stage": "name 1",
        "label": true
       },
       {
@@ -1338,7 +1465,7 @@
          "stage": "foyer"
         }
        ],
-       "stage": "top",
+       "stage": "name 1",
        "label": true
       },
       {
@@ -1415,8 +1542,49 @@
         }
        ],
        "stage": "left"
+      },
+      {
+       "id": "hmwpuoo44hoe",
+       "name": "hotspot",
+       "region": {
+        "map": "...........\n...........\n...........\n.###.......\n.###.......\n.###.......\n.###.......\n.###.......\n...........\n...........\n..........."
+       },
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "stage": "foyer"
+        }
+       ],
+       "stage": "left"
       }
      ]
+    },
+    {
+     "id": "sine/1",
+     "bars": [
+      32,
+      40
+     ],
+     "loop": 32,
+     "stages": [],
+     "layers": [
+      {
+       "id": "lmwqkswgm0bt",
+       "name": "field",
+       "region": {},
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       }
+      }
+     ],
+     "hotspots": []
     }
    ]
   },
