@@ -936,14 +936,14 @@
          "chains": [],
          "masks": []
         },
-        "length": {
+        "lines": {
          "op": "set",
-         "base": 0,
+         "base": 1,
          "chains": [],
          "masks": [
           {
            "source": "noise",
-           "depth": 2.2,
+           "depth": 1,
            "threshold": 0,
            "width": 1,
            "curve": 1,
@@ -952,12 +952,6 @@
            "delay": 0
           }
          ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
         },
         "angle": {
          "op": "set",
@@ -1028,7 +1022,8 @@
          "masks": []
         }
        },
-       "stage": "right"
+       "stage": "right",
+       "muted": true
       },
       {
        "id": "lmwqo9ugg95n",
@@ -1038,7 +1033,8 @@
        },
        "kind": "cells",
        "params": {},
-       "stage": "right"
+       "stage": "right",
+       "muted": true
       },
       {
        "id": "lmwqo14s64p0",
@@ -1067,7 +1063,8 @@
          "masks": []
         }
        },
-       "stage": "right"
+       "stage": "right",
+       "muted": true
       },
       {
        "id": "lmwqom4ybwbk",
@@ -1084,7 +1081,26 @@
          "masks": []
         }
        },
-       "stage": "right"
+       "stage": "right",
+       "muted": true
+      },
+      {
+       "id": "lmwqoncu7anp",
+       "name": "layer",
+       "region": {
+        "map": "...........\n.####......\n.####......\n.####......\n.####......\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "right",
+       "muted": true
       }
      ],
      "hotspots": [
