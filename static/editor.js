@@ -896,8 +896,8 @@ function rowsEditor(l) {
     commit({ silent: true, inspector: true });
   } }, el('option', { value: '' }, '+ row'), ...missing.map((r) => el('option', { value: r.name }, r.gate === 'sidechains' ? r.name : `${r.name} · ${r.unlock}`)));
   return el('fieldset', { class: 'rows' }, el('legend', {}, 'rows ', el('span', { class: 'dim', id: 'probe-at', title: 'the readouts are for this cell (orange on the region grid): one of its own, or hover the grid to pick another' }, `at ${probeCell[0]},${probeCell[1]}`)),
-    ...have.map((r) => rowEditor(l, r)),
-    missing.length ? row('', add, el('span', { class: 'doc' }, have.length ? 'an unlock is a row, or a row\'s sidechain option (glow: brightness\'s)' : 'nothing: the cells are as the layers before leave them')) : null);
+    missing.length ? row('', add, el('span', { class: 'doc' }, have.length ? 'an unlock is a row, or a row\'s sidechain option (glow: brightness\'s)' : 'nothing: the cells are as the layers before leave them')) : null,
+    ...have.map((r) => rowEditor(l, r)));
 }
 
 const ROW_OPS = [{ value: 'set', label: 'set' }, { value: 'add', label: 'add' }, { value: 'multiply', label: 'multiply' }];
