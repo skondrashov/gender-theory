@@ -376,8 +376,9 @@ function sourceLevel(name) {
 
 function shape(chain, level) {
   let t = clamp((level - chain.threshold) / Math.max(chain.width, 1e-6), 0, 1);
+  if (!(chain.curve > 0)) return chain.invert ? 1 - t : t; // 0: a straight ramp
   t = t * t * (3 - 2 * t);
-  if (chain.curve > 0 && chain.curve !== 1) t = Math.pow(t, chain.curve);
+  if (chain.curve !== 1) t = Math.pow(t, chain.curve);
   return chain.invert ? 1 - t : t;
 }
 
@@ -491,8 +492,8 @@ function renderLists() {
     layerItems.push(item('layer', k, `${l.name || l.id} · ${l.kind}`, l.bars, (l.muted ? 'muted ' : '') + (g ? 'in-group' : ''), l.stage));
   });
   $('#layer-list').replaceChildren(...layerItems);
-  $('#preset-list').replaceChildren(...(album.presets ?? []).map((p, k) => el('li', { title: 'click to add a copy to this scene', onclick: () => insertPreset(k) },
-    el('span', {}, p.name, el('span', { class: 'stage' }, p.layer.kind)),
+  $('#preset-list').replaceChildren(...(album.presets ?? []).map((p, k) => el('li', { title: p.layers ? `a group of ${p.layers.length} layers — click to add a copy to this scene` : 'click to add a copy to this scene', onclick: () => insertPreset(k) },
+    el('span', {}, p.name, el('span', { class: 'stage' }, p.layers ? `group · ${p.layers.length}` : p.layer.kind)),
     el('span', { class: 'x', title: 'forget this preset', onclick: (e) => { e.stopPropagation(); deletePreset(k); } }, '×'))));
 }
 
@@ -653,14 +654,32 @@ function savePreset(l) {
   setStatus(`saved preset "${layer.name || l.kind}"`);
 }
 
+// A group of layers kept as one preset (`{id, name, layers}`): dropped in together, under a
+// group name the scene doesn't have yet. Portable on its own — a thing people could share.
+function saveGroupPreset(g) {
+  const layers = g.layers.map((l) => { const c = JSON.parse(JSON.stringify(l)); delete c.id; delete c.stage; delete c.bars; delete c.muted; delete c.group; return c; });
+  snapshotForUndo();
+  album.presets ??= [];
+  album.presets.push({ id: uid('p'), name: g.name, layers });
+  commit({ silent: true });
+  setStatus(`saved group "${g.name}" as a preset (${layers.length} layers)`);
+}
+
 function insertPreset(k) {
   const s = scene();
   if (!s) { setStatus('add a scene first'); return; }
   const preset = album.presets[k];
   snapshotForUndo();
   s.layers ??= [];
-  s.layers.push({ id: uid('l'), ...JSON.parse(JSON.stringify(preset.layer)), ...inFilteredStage() });
-  sel = { type: 'layer', index: s.layers.length - 1 };
+  if (preset.layers) {
+    let name = preset.name, n = 2;
+    while (s.layers.some((l) => l.group === name)) name = `${preset.name} ${n++}`;
+    for (const l of preset.layers) s.layers.push({ id: uid('l'), ...JSON.parse(JSON.stringify(l)), group: name, ...inFilteredStage() });
+    sel = { type: 'group', index: name };
+  } else {
+    s.layers.push({ id: uid('l'), ...JSON.parse(JSON.stringify(preset.layer)), ...inFilteredStage() });
+    sel = { type: 'layer', index: s.layers.length - 1 };
+  }
   commit({ silent: true, inspector: true });
 }
 
@@ -953,7 +972,8 @@ function groupInspector(g) {
       ...names.map((n) => el('option', { value: n, ...(stages.size === 1 && stages.has(n) ? { selected: '' } : {}) }, n))),
       el('span', { class: 'doc' }, 'sets it on every layer of the group')) : null,
     moveRow(),
-    row('', el('label', {}, mute, 'muted'), el('button', { class: 'small', onclick: addLayer, title: 'a new layer in this group, after its last one' }, '+ layer')),
+    row('', el('label', {}, mute, 'muted'), el('button', { class: 'small', onclick: addLayer, title: 'a new layer in this group, after its last one' }, '+ layer'),
+      el('button', { class: 'small', onclick: () => saveGroupPreset(g), title: 'keep a copy of the whole group in the presets list, to drop into any scene' }, 'save group as preset')),
     el('fieldset', {}, el('legend', {}, 'layers'), ...g.layers.map((l) => el('div', { class: 'row' },
       el('button', { class: 'link', onclick: () => select('layer', s.layers.indexOf(l)) }, l.name || l.id), el('span', { class: 'doc' }, `${l.kind}${l.stage ? ' · ' + l.stage : ''}${l.muted ? ' · muted' : ''}`)))),
     el('div', { class: 'doc' }, 'a group is a name on its layers — draw order is still the list order; layers of a group are shown together when they are next to each other'),
@@ -1186,7 +1206,7 @@ function chainRow(list, c, k, rerender, probePart = null, isMask = false) {
     el('span', { class: 'lbl' }, 'threshold'), num('threshold', 0.05),
     el('span', { class: 'lbl' }, 'width'), num('width', 0.05),
     el('span', { class: 'lbl', title: 'a ripple from the centre: the source arrives later the farther the cell is from the centre dot — this × its distance (0 centre .. 1 corner), in cycles — beat, bar, pulse, span, transition. For the same shift on every cell use offset' }, 'ripple'), num('ripple', 0.1),
-    el('span', { class: 'lbl' }, 'curve'), num('curve', 0.1),
+    el('span', { class: 'lbl', title: 'the smooth step raised to this power: 1 as it is, 2 late, 0.5 early — 0 is a straight ramp instead (no smoothing)' }, 'curve'), num('curve', 0.1),
     el('span', { class: 'lbl', title: 'beat and bar (and their phases) on a cycle of this many beats (bars), counted from the downbeat and on across bars: 2 every other beat, 3 a three against the four, 0.5 twice a beat; the phase runs 0..1 over the cycle' }, 'every'), num('every', 1),
     el('span', { class: 'lbl', title: 'which of them: every 2, offset 1 is the off-beats' }, 'offset'), num('offset', 1),
     el('label', {}, el('input', { type: 'checkbox', ...(c.invert ? { checked: '' } : {}), onchange: (e) => { snapshotForUndo(); c.invert = e.target.checked; commit({ silent: true }); } }), 'invert'),

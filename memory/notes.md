@@ -664,3 +664,23 @@ fine in incognito. `index.html` now has `const glue = './app/gender.js?v=dev'` a
 `new URL(glue.replace('gender.js', 'gender_bg.wasm'))` — ops rewrites that line's `?v=`.
 The editor already used `?v=${Date.now()}` for the wasm. Also: a headless profile reused
 across a deploy shows the same stale pairing — use a fresh `--user-data-dir` per run.
+
+## Group presets, curve 0, negative length (2026-11-21)
+
+Owner: "is it possible to redo bars as a group of normal layers instead of as a special thing"
+→ "i like the idea of preset groups"; and, for later: "save people's mp3s and their levels and
+their groups, so people using the editor can browse and rate groups … upload their levels".
+- Presets: `{id, name, layers: [...]}` beside `{id, name, layer}`; `saveGroupPreset` (group
+  header), `insertPreset` handles both (a fresh group name per drop). Keep the group a
+  self-contained JSON document — it is the sharing unit when the server side comes.
+- `curve: 0` on a chain = straight ramp (engine `shape()` and the editor's copy). Needed
+  because the bars kind grows linearly and the smooth step can't be undone.
+- `length < 0` draws the line the other way out of the dot (angle + 180, |length|) — so a
+  dot can draw its pitch backward: the bars' part 2 ("extend from the other end") without
+  swapping which dot owns the pitch.
+- The bounce as layers (angle locked): two cells layers, `cols [2, 0]` and `cols [2, 1]`,
+  lines 1, angle 90 / 270, length = curtain A (depth +1, turn down/up, edge 1, offset base
+  5.5 with bar.phase-every-4 chains depth −11 [0, .25] and +11 [.25, .5], curve 0) + curtain B
+  (depth −1, the other way, quarters [.5, .75] / [.75, 1]). The pinwheel (angle unlocked) is
+  not done as layers yet: needs the plain pair masked by `unlock:angle` inverted and an
+  angled set of 4 (col parity × checker sense) masked by `unlock:angle`.

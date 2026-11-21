@@ -397,8 +397,13 @@ impl Default for Sidechain {
 impl Sidechain {
 	pub fn shape(&self, level: f32) -> f32 {
 		let t = ((level - self.threshold) / self.width.max(1e-6)).clamp(0.0, 1.0);
+		// curve 0: a straight ramp (a bar's worth of growth at one speed); otherwise a smooth
+		// step, raised to the curve
+		if self.curve <= 0.0 {
+			return if self.invert { 1.0 - t } else { t };
+		}
 		let t = t * t * (3.0 - 2.0 * t);
-		let t = if self.curve > 0.0 && self.curve != 1.0 { t.powf(self.curve) } else { t };
+		let t = if self.curve != 1.0 { t.powf(self.curve) } else { t };
 		if self.invert {
 			1.0 - t
 		} else {
@@ -947,7 +952,7 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 		default: 1.0,
 		gate: Gate::Row(1.0),
 		step: 0.1,
-		doc: "in cells; 1 — to the next dot — until length is unlocked",
+		doc: "in cells; 1 — to the next dot — until length is unlocked Negative: the other way out of the dot.",
 	},
 	RowSpec {
 		name: "angle",
@@ -2081,7 +2086,10 @@ fn render(
 	// The dot — or the line out of it: a line of no length draws as the dot, at the dots
 	// row's share of the brightness; a line covers its dot, so dots only show where there
 	// is no line.
+	// A negative length is the line the other way out of the dot (so a dot can draw its
+	// pitch backward — the bars bounce as two layers).
 	let line = (length + hot_length) * lines * unit;
+	let (angle, line) = if line < 0.0 { (angle + 180.0, -line) } else { (angle, line) };
 	if line > 0.001 || brightness * dots + hot_brightness > 0.001 {
 		shape(
 			draw,
