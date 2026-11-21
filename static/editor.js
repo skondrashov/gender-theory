@@ -327,6 +327,16 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
+// Where the music is across the selected layer's bars (the scene's if it has none): 0..1, as
+// data.rs's span for that layer. The scene playing may not be the one being edited: NaN then.
+function spanNow() {
+  const s = scene();
+  if (!s || st.scene !== s.id || typeof st.bar !== 'number') return NaN;
+  const item = selected();
+  const [from, to] = (item && item.kind && item.bars) || s.bars;
+  return to > from ? clamp((st.bar - from) / (to - from), 0, 1) : 0;
+}
+
 // Built-in sources, the way data.rs computes them (noise and transition are per cell / per passage).
 function builtins() {
   const whole = st.phase ?? 0;
@@ -339,7 +349,7 @@ function builtins() {
   return {
     beat, bar, pulse: beat * (0.7 + 0.3 * bar),
     'bar.phase': whole, 'beat.phase': quarter, clock: NaN, position: NaN,
-    span: NaN, noise: NaN, distance: NaN, bearing: NaN, around: NaN, transition: 0,
+    span: spanNow(), noise: NaN, distance: NaN, bearing: NaN, around: NaN, transition: 0,
     bass: coarse(0, 2 * per), mid: coarse(2 * per, 8 * per), treble: coarse(8 * per, 16 * per),
   };
 }
