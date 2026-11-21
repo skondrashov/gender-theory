@@ -11,6 +11,9 @@
   <header id="top">
     <span class="title">gender-theory</span>
     <select id="track"></select>
+    <button id="add-track" title="a song from this computer: it becomes a track with one scene over the whole of it, playing in this tab only — the saved album names the file (music/<its name>), so it has to be put there (or picked again after a reload)">+ song</button>
+    <input type="file" id="song-file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac,.aac" hidden>
+    <label class="bpm" title="the track's tempo: everything is measured in its bars (4/4). Guessed for a song you pick — fix it if it's wrong"><input type="number" id="bpm" step="0.1" min="20" max="300"> bpm</label>
     <button id="play" title="space">▶</button>
     <span id="where" class="mono">—</span>
     <select id="stage-pick" title="stage of the playing scene"></select>

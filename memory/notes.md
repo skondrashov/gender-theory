@@ -606,3 +606,20 @@ layer to a hotspot 4. be centered horizontally in the available space". Supersed
   centring in the text kind; plain `align: center` still rounds down to a box.
 - Editor UI unchanged (owner: "no need to change anything in the ui"); only the hint beside a
   stage hotspot's name now shows the word (`stage_name` export) and says when it shows.
+
+## + song, rows on one line (2026-11-21)
+
+- Owner: the "nothing for the masks to land" readout note flickered on a pulse sidechain and
+  rewrapped the row; "all of the row settings should be in a row, even if we need horizontal
+  scroll". `.row`/`.chain`/`.fparam` are `flex-wrap: nowrap`, children `flex: none`, the
+  doc the one flexible item (wrapping in its own column; a row's doc single-line with
+  ellipsis + title), readouts a fixed width; the note is now "· masks idle" with the sentence
+  in the tooltip. `#inspector` already scrolls both ways.
+- Owner: "add the upload button! i want people to be able to try it with their own music".
+  `addSong(file)` in editor.js: decode in the page, `guessTempo` (phases.py's method in JS:
+  10 ms log-energy onsets, autocorrelation peaks 60–200 bpm, best beat-grid fit ±2 bpm),
+  a track `{id: <file stem>, path: music/<file name>, bpm, scenes: [one over all the bars]}`;
+  `uploads[path]` = object URL, and `wire()` swaps it in whenever the album goes to the
+  engine (`push`, seeks) — `livePath` for the waveform fetch. Tab-only: after a reload the
+  path 404s and the status says to pick it again. The **bpm** field in the top bar edits any
+  track's tempo (new; there was no way to).

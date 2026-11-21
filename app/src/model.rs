@@ -401,7 +401,10 @@ impl Model {
 		if let Some(seek) = command.get("seek") {
 			let id = seek.get("scene").and_then(Value::as_str).unwrap_or("");
 			let bar = seek.get("bar").and_then(Value::as_u64).unwrap_or(0) as usize;
-			if scenes::find(id).is_some() {
+			if let Some(scene) = scenes::find(id) {
+				// Another track's scene (a song just added, a scene played from the graph):
+				// nothing else would ask for its audio.
+				self.audio.load(scene.track);
 				self.seek = Some((id.to_string(), bar));
 				self.started = true;
 				self.audio.resume();

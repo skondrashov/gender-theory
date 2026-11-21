@@ -47,6 +47,8 @@ label { white-space: nowrap; }
   padding: 6px 12px; border-bottom: 1px solid var(--line); background: var(--panel);
 }
 #top .title { font-weight: 600; letter-spacing: .04em; }
+#top .bpm { color: var(--dim); font-size: 11px; display: inline-flex; align-items: center; gap: 4px; }
+#top .bpm input { width: 56px; }
 #where { min-width: 180px; }
 .unlocks label { margin-right: 8px; color: var(--dim); }
 .unlocks label.on { color: var(--text); }
@@ -115,27 +117,35 @@ main { display: flex; height: 500px; flex: none; border-bottom: 1px solid var(--
 #inspector .hint { color: var(--dim); padding: 20px 0; }
 #inspector h2 { font-size: 13px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
 #inspector h2 .kind { color: var(--dim); font-weight: normal; }
-.row { display: flex; align-items: center; gap: 8px; padding: 3px 0; flex-wrap: wrap; }
+/* A row's settings stay on one line — the inspector scrolls sideways if it must (owner,
+   2026-11-21) — and its doc takes what is left, wrapping in its own column. */
+.row { display: flex; align-items: center; gap: 8px; padding: 3px 0; flex-wrap: nowrap; white-space: nowrap; }
+.row > * { flex: none; }
 .row > .name { width: 86px; color: var(--dim); text-align: right; }
-.row .doc { color: var(--dim); font-size: 11px; }
+.row .doc { color: var(--dim); font-size: 11px; flex: 1 1 200px; min-width: 200px; white-space: normal; }
+.rowed .row .doc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 fieldset { border: 1px solid var(--line); border-radius: 4px; margin: 8px 0; padding: 4px 10px 6px; }
 legend { color: var(--dim); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; padding: 0 4px; }
 .chains { margin-left: 94px; padding: 2px 0 4px; }
 .rowed .row .tag { color: var(--dim); font-size: 10px; border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; cursor: help; }
 .rowed .row .lbl { color: var(--dim); font-size: 11px; }
-.rowed .row .readout { color: var(--accent); font-size: 11px; min-width: 64px; }
-.chain .readout { color: var(--accent); min-width: 48px; }
+/* Readouts change every frame: a fixed width, so nothing beside them moves. */
+.rowed .row .readout { color: var(--accent); font-size: 11px; width: 170px; overflow: hidden; text-overflow: ellipsis; }
+.chain .readout { color: var(--accent); width: 104px; overflow: hidden; text-overflow: ellipsis; }
 #probe-at { font-weight: normal; font-size: 10px; margin-left: 4px; }
 .readout { white-space: nowrap; }
 .chains.masks { border-left: 2px solid #b08040; padding-left: 6px; }
 .field { margin: 2px 0 6px 22px; padding: 4px 8px; border-left: 2px solid var(--line); font-size: 11px; }
 .field > .doc { color: var(--dim); margin-bottom: 4px; }
-.fparam { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 1px 0; }
+.fparam { display: flex; flex-wrap: nowrap; white-space: nowrap; align-items: center; gap: 6px; padding: 1px 0; }
+.fparam > * { flex: none; }
+.fparam .doc { flex: 1 1 160px; min-width: 160px; white-space: normal; }
 .fparam .lbl { min-width: 64px; color: var(--dim); }
 .fparam input[type=number] { width: 56px; }
 .fparam .doc { color: var(--dim); font-size: 10px; }
 .field .chains { margin-left: 70px; }
-.chain { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; padding: 2px 0; font-size: 11px; }
+.chain { display: flex; flex-wrap: nowrap; white-space: nowrap; align-items: center; gap: 5px; padding: 2px 0; font-size: 11px; }
+.chain > * { flex: none; }
 .chain input[type=number] { width: 48px; }
 .chain .lbl { color: var(--dim); }
 .chain.off { opacity: .5; }

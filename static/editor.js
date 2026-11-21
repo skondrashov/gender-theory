@@ -48,6 +48,10 @@ let conflict = false;      // the file on disk moved on without this tab: saves 
 let noServer = false;      // PUT failed outright: the deployed site, or the dev server is down
 let pushTimer = null;
 const waves = {};          // track id → {peaks, bars, duration}
+const uploads = {};        // track path → object URL of a song picked from this computer (this tab only)
+// The album as the engine and the waveform fetch it: a picked song's path points at its file here.
+const livePath = (p) => uploads[p] ?? p;
+const wire = (extra = {}) => JSON.stringify({ album: { ...album, tracks: album.tracks.map((t) => uploads[t.path] ? { ...t, path: uploads[t.path] } : t) }, ...extra });
 let audioCtx;
 
 const track = () => album.tracks[ti];
@@ -93,6 +97,17 @@ async function boot() {
   }, 50);
 
   $('#track').onchange = () => { ti = +$('#track').value; si = 0; sel = null; renderAll(); };
+  $('#add-track').onclick = () => $('#song-file').click();
+  $('#song-file').onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) addSong(f); };
+  $('#bpm').onchange = (e) => {
+    const t = track(), bpm = +e.target.value;
+    if (!t || !(bpm > 0)) { renderTopbar(); return; }
+    snapshotForUndo();
+    t.bpm = bpm;
+    delete waves[t.id];
+    commit({ silent: true });
+    decodeWave(t);
+  };
   $('#play').onclick = togglePlay;
   $('#stage-pick').onchange = () => send(JSON.stringify({ stage: +$('#stage-pick').value }));
   $('#undo').onclick = undo;
@@ -135,7 +150,7 @@ function renderAll() {
 
 function push() {
   clearTimeout(pushTimer);
-  pushTimer = setTimeout(() => send(JSON.stringify({ album })), 60);
+  pushTimer = setTimeout(() => send(wire()), 60);
 }
 
 // Every edit goes through here: remember for undo, push to the app, mark unsaved.
@@ -359,8 +374,9 @@ function updateReadouts() {
     const frozen = r.dataset.gate !== 'sidechains' && !unlocked(r.dataset.unlock) ? ` · needs ${r.dataset.unlock} (at ${r.dataset.gate})` : '';
     // masks scale the row's change: a row that adds 0 (or multiplies by 1) gives them nothing to land
     const idle = (p.op === 'add' && Math.abs(p.value) < 0.005) || (p.op === 'multiply' && Math.abs(p.value - 1) < 0.005);
-    const nothing = idle && p.masks && p.masks.length ? ' · nothing for the masks to land — a mask scales the change, a sidechain makes one' : '';
-    r.textContent = `${sym} ${p.value.toFixed(2)}${p.amount < 0.995 ? ` · ${Math.round(p.amount * 100)}%` : ''}${frozen}${nothing}`;
+    const nothing = idle && p.masks && p.masks.length;
+    r.textContent = `${sym} ${p.value.toFixed(2)}${p.amount < 0.995 ? ` · ${Math.round(p.amount * 100)}%` : ''}${frozen}${nothing ? ' · masks idle' : ''}`;
+    r.title = 'what this row is worth at the probe cell right now: its value, and how much of it its masks let land' + (nothing ? '\nmasks idle: the row adds 0 (or multiplies by 1) here right now, so there is no change for the masks to land — a mask scales the change, a sidechain makes one' : '');
   }
   for (const r of document.querySelectorAll('.readout[data-probe-part]')) {
     const [layer, row, kind, k] = r.dataset.probePart.split('|');
@@ -401,6 +417,7 @@ function renderTopbar() {
   const sel = $('#track');
   sel.replaceChildren(...album.tracks.map((t, k) => el('option', { value: k }, t.id)));
   sel.value = ti;
+  $('#bpm').value = track()?.bpm ?? '';
   $('#unlocks').replaceChildren(...UNLOCKS.map((u) =>
     el('label', {}, el('input', { type: 'checkbox', id: `unlock-${u}`, onchange: () => {
       const on = UNLOCKS.filter((v) => $(`#unlock-${v}`).checked);
@@ -634,10 +651,114 @@ function addScene() {
   // Go there now, so the new scene is what's on the stage.
   clearTimeout(pushTimer);
   follow = true;
-  send(JSON.stringify({ album, seek: { scene: id, bar: end } }));
+  send(wire({ seek: { scene: id, bar: end } }));
 }
 
 const baseLayer = () => ({ id: uid('l'), name: 'field', region: {}, kind: 'cells', params: defaultParams('cells') });
+
+// ---- a song from this computer (owner, 2026-11-21: "i want people to be able to try it with
+// their own music") ----
+// It becomes a track with one scene over the whole of it, playing from an object URL in this
+// tab; the album names the file as music/<name>, where it would live on the site.
+async function addSong(file) {
+  setStatus(`reading ${file.name}…`);
+  let buf;
+  try {
+    audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
+    buf = await audioCtx.decodeAudioData(await file.arrayBuffer());
+  } catch (e) {
+    setStatus(`${file.name}: can't decode it (${e.message || e})`);
+    return;
+  }
+  const stem = file.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'song';
+  let id = stem;
+  for (let n = 2; album.tracks.some((t) => t.id === id); n++) id = `${stem}-${n}`;
+  const path = `music/${file.name}`;
+  if (uploads[path]) URL.revokeObjectURL(uploads[path]);
+  uploads[path] = URL.createObjectURL(file);
+  const bpm = guessTempo(buf) ?? 120;
+  const bars = Math.max(1, Math.ceil(buf.duration / (240 / bpm)));
+  snapshotForUndo();
+  const sceneId = `${id}/1`;
+  album.tracks.push({ id, path, bpm, scenes: [{ id: sceneId, bars: [0, bars], loop: 0, stages: [], layers: [baseLayer()], hotspots: [] }] });
+  ti = album.tracks.length - 1; si = 0; sel = { type: 'scene', index: 0 };
+  commit({ silent: true, inspector: true });
+  renderTopbar();
+  decodeWave(track());
+  clearTimeout(pushTimer);
+  follow = true;
+  send(wire({ seek: { scene: sceneId, bar: 0 } }));
+  setStatus(`${file.name}: ${bpm} bpm guessed (fix it in the top bar if it's wrong) — ${bars} bars, one scene. It plays in this tab only; the album names it ${path}`);
+}
+
+// A tempo from the audio, after tools/phases.py: an onset curve (10 ms frames: the rise in
+// log energy of three bands — under 150 Hz, the middle, over 2 kHz — so a kick counts once
+// however loud the pad), the strongest autocorrelation lags between 70 and 180 bpm, then the
+// tempo among them whose beat grid the onsets sit on best. null if it can't tell.
+function guessTempo(buf) {
+  const FPS = 100, sr = buf.sampleRate, hop = Math.round(sr / FPS);
+  const seconds = Math.min(buf.duration, 120);
+  const frames = Math.floor(seconds * sr / hop) - 1;
+  if (frames < FPS * 8) return null;
+  const n = frames * hop, chans = buf.numberOfChannels;
+  const x = new Float32Array(n);
+  for (let c = 0; c < chans; c++) { const d = buf.getChannelData(c); for (let k = 0; k < n; k++) x[k] += d[k] / chans; }
+  // one-pole lowpasses at 150 Hz and 2 kHz split the bands
+  const a1 = 1 - Math.exp(-2 * Math.PI * 150 / sr), a2 = 1 - Math.exp(-2 * Math.PI * 2000 / sr);
+  let l1 = 0, l2 = 0;
+  const e = [new Float32Array(frames), new Float32Array(frames), new Float32Array(frames)];
+  for (let f = 0; f < frames; f++) {
+    let s0 = 0, s1 = 0, s2 = 0;
+    for (let k = f * hop, end = k + hop; k < end; k++) {
+      l1 += a1 * (x[k] - l1); l2 += a2 * (x[k] - l2);
+      const lo = l1, mid = l2 - l1, hi = x[k] - l2;
+      s0 += lo * lo; s1 += mid * mid; s2 += hi * hi;
+    }
+    e[0][f] = Math.log1p(100 * Math.sqrt(s0 / hop)); e[1][f] = Math.log1p(100 * Math.sqrt(s1 / hop)); e[2][f] = Math.log1p(100 * Math.sqrt(s2 / hop));
+  }
+  const onset = new Float32Array(frames);
+  let mean = 0;
+  for (let f = 1; f < frames; f++) {
+    onset[f] = Math.max(0, e[0][f] - e[0][f - 1]) + Math.max(0, e[1][f] - e[1][f - 1]) + Math.max(0, e[2][f] - e[2][f - 1]);
+    mean += onset[f];
+  }
+  mean /= frames;
+  if (!(mean > 0)) return null;
+  const o = Float32Array.from(onset, (v) => v / mean - 1);
+  const LO = 70, HI = 180;
+  const lagLo = Math.floor(60 * FPS / HI), lagHi = Math.ceil(60 * FPS / LO);
+  const ac = [];
+  for (let lag = lagLo; lag <= lagHi; lag++) {
+    let s = 0;
+    for (let f = lag; f < frames; f++) s += o[f] * o[f - lag];
+    ac.push([s / (frames - lag), 60 * FPS / lag]);
+  }
+  ac.sort((a, b) => b[0] - a[0]);
+  const peaks = [];
+  for (const [, bpm] of ac) {
+    if (peaks.every((p) => Math.abs(p - bpm) > 3)) peaks.push(bpm);
+    if (peaks.length === 6) break;
+  }
+  // how much stronger than chance the onsets are on this tempo's beat grid, at its best phase
+  const fit = (bpm) => {
+    const beat = 60 / bpm * FPS, count = Math.floor((frames - beat) / beat);
+    let best = 0;
+    for (let phase = 0; phase < beat; phase += 0.5) {
+      let s = 0;
+      for (let k = 0; k < count; k++) s += onset[Math.round(phase + beat * k)];
+      best = Math.max(best, s / count);
+    }
+    return best / mean;
+  };
+  let bestBpm = null, bestFit = -1;
+  for (const peak of peaks) {
+    for (let bpm = Math.max(LO, peak - 2); bpm <= Math.min(HI, peak + 2); bpm += 0.1) {
+      const f = fit(bpm);
+      if (f > bestFit) { bestFit = f; bestBpm = bpm; }
+    }
+  }
+  return bestBpm === null ? null : Math.round(bestBpm * 10) / 10;
+}
 
 // New layers and hotspots go in the stage the lists are filtered to, if any.
 const inFilteredStage = () => (stageFilter ? { stage: stageFilter } : {});
@@ -769,7 +890,7 @@ function renderInspector() {
       row('hotspots', el('span', { class: 'doc' }, (item.hotspots || []).map((h) => h.name || h.id).join(', ') || 'none')),
     );
   } else if (sel.type === 'layer') {
-    box.replaceChildren(head(item.name || item.id, item.kind), ...layerInspector(item));
+    box.replaceChildren(head(item.name || item.id, item.kind), ...layerInspector(item).filter(Boolean)); // a stageless scene has no stage row
   } else if (sel.type === 'hotspot') {
     box.replaceChildren(head(item.name || item.id, 'hotspot'), ...hotspotInspector(item).filter(Boolean));
   } else if (sel.type === 'band') {
@@ -924,7 +1045,7 @@ function rowEditor(l, spec) {
     toggle, option ? tag : null, maskToggle,
     el('span', { class: 'readout mono', 'data-probe': l.id + '|' + spec.name, 'data-unlock': spec.unlock, 'data-gate': spec.gate, title: 'what this row is worth at the probe cell right now: its value, and how much of it its masks let land' }, '—'),
     el('button', { class: 'link danger', title: 'take the row out of this layer', onclick: () => { snapshotForUndo(); delete l.params[spec.name]; commit({ silent: true, inspector: true }); } }, '×'),
-    el('span', { class: 'doc' }, spec.doc)), chainsBox, masksBox);
+    el('span', { class: 'doc', title: spec.doc }, spec.doc)), chainsBox, masksBox);
 }
 
 // A param's sidechains (`key` 'chains': add to it) or a row's masks ('masks': how much of
@@ -1152,6 +1273,9 @@ function glyphFor(g, value, rowName) {
 // One number → a grid: every cell of the layer's region painted that number.
 function toGrid(l, p, rowName) {
   const g = { map: mapRows('').join('\n'), legend: {} };
+  // An angle row's palette comes with the eight directions (owner, 2026-11-21); tidy drops
+  // the unused ones.
+  if (rowName === 'angle' || rowName === 'rotation') for (const d of Object.keys(ARROWS)) glyphFor(g, +d, rowName);
   const c = glyphFor(g, +p.base || 0, rowName);
   const cells = gridCells(g.map);
   for (const [i, j] of regionCells(l.region || {})) cells[gridIndex(i, j)] = c;
@@ -1689,7 +1813,12 @@ function renderTimeline() {
 async function decodeWave(t) {
   try {
     audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
-    const bytes = await (await fetch(t.path)).arrayBuffer();
+    const r = await fetch(livePath(t.path));
+    if (!r.ok) {
+      if (!uploads[t.path]) setStatus(`${t.path} isn't on this site — a song from your computer has to be picked again (+ song) after a reload`);
+      throw new Error(`${r.status} ${t.path}`);
+    }
+    const bytes = await r.arrayBuffer();
     const buf = await audioCtx.decodeAudioData(bytes);
     const barSec = 240 / t.bpm;
     const bars = Math.ceil(buf.duration / barSec);
