@@ -353,10 +353,12 @@ pub struct Sidechain {
 	pub curve: f32,
 	pub invert: bool,
 	pub on: bool,
-	/// The source arrives later the farther the cell is from the centre: `delay` × the cell's
-	/// distance (0 centre .. 1 corner), in cycles of the source. For beat, bar, pulse, span,
-	/// transition — the sources that are a phase. A ripple.
-	pub delay: f32,
+	/// The source arrives later the farther the cell is from the centre: `ripple` × the
+	/// cell's distance (0 centre .. 1 corner), in cycles of the source. For beat, bar, pulse,
+	/// span, transition — the sources that are a phase. (Was `delay` until 2026-11-21 — the
+	/// owner: "setting the delay makes the cells desync from each other" — still read.)
+	#[serde(alias = "delay")]
+	pub ripple: f32,
 	/// For beat, bar and their phases: a cycle is `every` beats (bars), counted from the
 	/// downbeat and on across bars — 2 every other beat, 3 a three against the four, 0.5
 	/// twice a beat — and `offset` says which of them (every 2, offset 1: the off-beats).
@@ -383,7 +385,7 @@ impl Default for Sidechain {
 			curve: 1.0,
 			invert: false,
 			on: true,
-			delay: 0.0,
+			ripple: 0.0,
 			every: 1.0,
 			offset: 0.0,
 			field: None,
@@ -557,7 +559,7 @@ impl Signals<'_> {
 	}
 
 	/// A sidechain's or mask's level: its field at the cell if it is one, else its source,
-	/// delayed by its `delay` × the cell's distance.
+	/// delayed by its `ripple` × the cell's distance.
 	pub fn level(&self, chain: &Sidechain, gate: f32, depth: u8) -> f32 {
 		match &chain.field {
 			Some(field) if chain.source == "position" => {
@@ -567,7 +569,7 @@ impl Signals<'_> {
 					field.eval(self, gate, depth + 1)
 				}
 			}
-			_ => self.get_timed(&chain.source, chain.delay * self.distance, chain.every, chain.offset),
+			_ => self.get_timed(&chain.source, chain.ripple * self.distance, chain.every, chain.offset),
 		}
 	}
 

@@ -133,7 +133,7 @@ for new *kinds* of mechanic (`scenes/data.rs`).
 - Dots **3 px**; lines **3 px, round caps**, so a line covers its dot exactly and no more.
 - **Distance and angle**: anything can be a function of a cell's distance from the centre
   dot or its bearing (sources `distance`, `bearing`), and the beat can arrive later further
-  out (a chain's `delay`) — ripples. Layers stack, each on its own cells, setting, adding to
+  out (a chain's `ripple`) — ripples. Layers stack, each on its own cells, setting, adding to
   or multiplying any row; so a missing dot is a dot nothing lights, and a ripple only
   touches the cells its layer is painted on (owner: "these masks can stack and each mask is
   enabled on certain cells with the same editor as the hotspot and layers").

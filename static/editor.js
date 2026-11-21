@@ -78,6 +78,17 @@ function fitScene(s, oldBars) {
   }
 }
 
+// Older files: a chain's `delay` is `ripple` since 2026-11-21 (the engine reads both; the
+// editor writes the new name). Walks everything — chains, masks, a field's params, presets.
+function migrate(node) {
+  if (Array.isArray(node)) node.forEach(migrate);
+  else if (node && typeof node === 'object') {
+    if ('source' in node && 'delay' in node) { node.ripple ??= node.delay; delete node.delay; }
+    Object.values(node).forEach(migrate);
+  }
+  return node;
+}
+
 // ---- boot ----
 
 async function boot() {
@@ -85,7 +96,7 @@ async function boot() {
   if (!/[?&]editor/.test(location.search)) { location.replace(`${location.pathname}?editor=${STAGE}`); return; } // the same path: /editor.html here, /editor on the site
   const text = await (await fetch('album.json', { cache: 'no-store' })).text();
   base = fingerprint(text);
-  album = JSON.parse(text);
+  album = migrate(JSON.parse(text));
   // The wasm, fresh: the glue fetches it by a fixed URL, which browsers were happy to serve
   // from cache next to a newer glue.
   await init(new URL(`./app/gender_bg.wasm?v=${Date.now()}`, location.href));
@@ -1097,7 +1108,7 @@ function chainsUi(p, step, key = 'chains', probeKey = null) {
     onclick: () => { box.hidden = !box.hidden; } }, label());
   const render = () => {
     box.replaceChildren(...list.map((c, k) => chainRow(list, c, k, render, probeKey ? `${probeKey}|${key}|${k}` : null, key === 'masks')),
-      el('button', { class: 'link', onclick: () => { snapshotForUndo(); list.push({ source: masks ? 'distance' : (album.bands[0]?.id ?? 'beat'), depth: !masks && step >= 1 ? 360 : 1, threshold: 0, width: 1, curve: 1, invert: false, on: true, delay: 0 }); commit({ silent: true }); render(); } }, masks ? '+ mask' : '+ sidechain'));
+      el('button', { class: 'link', onclick: () => { snapshotForUndo(); list.push({ source: masks ? 'distance' : (album.bands[0]?.id ?? 'beat'), depth: !masks && step >= 1 ? 360 : 1, threshold: 0, width: 1, curve: 1, invert: false, on: true, ripple: 0 }); commit({ silent: true }); render(); } }, masks ? '+ mask' : '+ sidechain'));
     toggle.textContent = label(); // the count on the button follows adds and removes
   };
   render();
@@ -1170,7 +1181,7 @@ function chainRow(list, c, k, rerender, probePart = null, isMask = false) {
     el('span', { class: 'lbl' }, 'depth'), num('depth', 0.1),
     el('span', { class: 'lbl' }, 'threshold'), num('threshold', 0.05),
     el('span', { class: 'lbl' }, 'width'), num('width', 0.05),
-    el('span', { class: 'lbl', title: 'the source arrives later the farther the cell is from the centre: this × its distance (0..1), in cycles — beat, bar, pulse, span, transition' }, 'delay'), num('delay', 0.1),
+    el('span', { class: 'lbl', title: 'a ripple from the centre: the source arrives later the farther the cell is from the centre dot — this × its distance (0 centre .. 1 corner), in cycles — beat, bar, pulse, span, transition. For the same shift on every cell use offset' }, 'ripple'), num('ripple', 0.1),
     el('span', { class: 'lbl' }, 'curve'), num('curve', 0.1),
     el('span', { class: 'lbl', title: 'beat and bar (and their phases) on a cycle of this many beats (bars), counted from the downbeat and on across bars: 2 every other beat, 3 a three against the four, 0.5 twice a beat; the phase runs 0..1 over the cycle' }, 'every'), num('every', 1),
     el('span', { class: 'lbl', title: 'which of them: every 2, offset 1 is the off-beats' }, 'offset'), num('offset', 1),

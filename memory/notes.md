@@ -646,3 +646,11 @@ of it, 0 on the morph's landing frame of such a stage (preview), 1 when nothing 
 `reveal(u)` is `min`'d with it and `visible(hotspot)` needs `hold_in() == 1` for a hotspot
 with any `needs`. The editor: a number per stage row (and one for a stageless scene) in the
 stages fieldset; rename/remove keep the map in step.
+
+## delay → ripple (2026-11-21)
+
+Owner read the chain's `delay` as a plain delay ("setting the delay makes the cells desync
+from each other"); it is the ripple (× distance). Renamed `ripple` — `#[serde(alias =
+"delay")]` in Rust, `migrate()` in the editor on load (walks every object with `source` +
+`delay`), so album.json converts on the owner's next save without a disk rewrite (a rewrite
+would 409 their open tab). A uniform shift is `offset` (beats, fractional).
