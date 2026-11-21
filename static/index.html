@@ -22,9 +22,13 @@
   <noscript>This page contains Webassembly and Javascript content. Please make sure that you are using the latest
     version of a modern browser and that Javascript and Webassembly (Wasm) are enabled.</noscript>
   <script type="module">
-    import init, { main_web } from './app/gender.js';
+    // One version string for the glue and the wasm: the glue would otherwise fetch the wasm
+    // by a fixed URL, and a browser holding a cached wasm next to a new glue gets a LinkError
+    // and a blank page (2026-11-21). Ops rewrites the ?v= on deploy.
+    const glue = './app/gender.js?v=dev';
+    const { default: init, main_web } = await import(glue);
     const album = await (await fetch('album.json', { cache: 'no-cache' })).text();
-    await init();
+    await init(new URL(glue.replace('gender.js', 'gender_bg.wasm'), location.href));
     main_web(album);
   </script>
 </body>
