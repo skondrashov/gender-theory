@@ -334,6 +334,12 @@
           }
          ],
          "masks": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
         }
        },
        "stage": "foyer"
@@ -1430,6 +1436,21 @@
         }
        ],
        "stage": "bottom"
+      },
+      {
+       "id": "hmwpsxphx14m",
+       "name": "hotspot",
+       "region": {
+        "map": "...........\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n.........#.\n..........."
+       },
+       "needs": [],
+       "on": "outline",
+       "then": [
+        {
+         "stage": "right"
+        }
+       ],
+       "stage": "foyer"
       }
      ]
     }
