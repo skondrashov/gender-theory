@@ -222,6 +222,23 @@
        "muted": true
       },
       {
+       "id": "lmwlv4cz6pu1",
+       "name": "middle",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n....###....\n....#.#....\n....###....\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "foyer"
+      },
+      {
        "id": "lmwmwo72pig6",
        "name": "left",
        "region": {
@@ -232,7 +249,18 @@
         "brightness": {
          "op": "multiply",
          "base": 1,
-         "chains": [],
+         "chains": [
+          {
+           "source": "bar",
+           "depth": -1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
+           "on": true,
+           "delay": 0
+          }
+         ],
          "masks": [
           {
            "source": "unlock:lines",
@@ -287,23 +315,6 @@
        "muted": false
       },
       {
-       "id": "lmwlv4cz6pu1",
-       "name": "middle",
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n....###....\n....#.#....\n....###....\n...........\n...........\n...........\n..........."
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
-        }
-       },
-       "stage": "foyer"
-      },
-      {
        "id": "lmwlybct9oor",
        "name": "top",
        "region": {
@@ -312,9 +323,20 @@
        "kind": "cells",
        "params": {
         "brightness": {
-         "op": "add",
+         "op": "multiply",
          "base": 1,
-         "chains": [],
+         "chains": [
+          {
+           "source": "pulse",
+           "depth": -1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
+           "on": true,
+           "delay": 0
+          }
+         ],
          "masks": [
           {
            "source": "unlock:glow",
@@ -322,16 +344,6 @@
            "threshold": 0,
            "width": 1,
            "curve": 1,
-           "invert": false,
-           "on": true,
-           "delay": 0
-          },
-          {
-           "source": "pulse",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 0.1,
            "invert": false,
            "on": true,
            "delay": 0
