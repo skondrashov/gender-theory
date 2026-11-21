@@ -684,3 +684,8 @@ their groups, so people using the editor can browse and rate groups … upload t
   (depth −1, the other way, quarters [.5, .75] / [.75, 1]). The pinwheel (angle unlocked) is
   not done as layers yet: needs the plain pair masked by `unlock:angle` inverted and an
   angled set of 4 (col parity × checker sense) masked by `unlock:angle`.
+- Headless drivers must import the page's own module instance: `import('/app/gender.js?v=dev')`
+  (index.html's `const glue` string), not `/app/gender.js` — a different URL is a second,
+  uninitialised module and every call throws `__wbindgen_add_to_stack_pointer`.
+- The bounce group lives in album.json as the preset "bounce" (two layers, `cols [2, 0]` /
+  `[2, 1]`, regions unbounded — set a rect on both layers to confine it).
