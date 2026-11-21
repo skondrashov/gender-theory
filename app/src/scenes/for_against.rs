@@ -84,6 +84,7 @@ pub const SCENES: &[&Scene] = &[
 		bars: 0..8,
 		loop_from: 0,
 		stages: &[],
+		delays: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [whole, _half, quarter, _eighth, _sixteenth, bass, _mid, treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -144,6 +145,7 @@ pub const SCENES: &[&Scene] = &[
 		bars: 0..8,
 		loop_from: 0,
 		stages: &[],
+		delays: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [_whole, half, _quarter, _eighth, _sixteenth, _bass, mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -213,6 +215,7 @@ pub const SCENES: &[&Scene] = &[
 		bars: 0..7,
 		loop_from: 0,
 		stages: &[],
+		delays: &[],
 		render: &|draw, model, i, j, _time, modifiers| {
 			let [_whole, _half, _quarter, eighth, _sixteenth, _bass, mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -252,6 +255,7 @@ pub const SCENES: &[&Scene] = &[
 		bars: 7..14,
 		loop_from: 7,
 		stages: &[],
+		delays: &[],
 		render: &|draw, model, i, j, _time, modifiers| {
 			const SQUARES: Regions = Regions::Grid { cols: 4, rows: 4 };
 			let [_whole, _half, _quarter, _eighth, sixteenth, bass, _mid, _treble] = modifiers;
@@ -315,6 +319,7 @@ pub const SCENES: &[&Scene] = &[
 		bars: 2..10,
 		loop_from: 2,
 		stages: &[],
+		delays: &[],
 		render: &|draw, model, i, j, _time, modifiers| {
 			let [whole, _half, _quarter, _eighth, _sixteenth, bass, _mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -398,6 +403,7 @@ pub const SCENES: &[&Scene] = &[
 		bars: 0..8,
 		loop_from: 0,
 		stages: &[],
+		delays: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [_whole, half, _quarter, _eighth, _sixteenth, bass, _mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -467,6 +473,7 @@ pub const SCENES: &[&Scene] = &[
 		bars: 0..8,
 		loop_from: 0,
 		stages: &[],
+		delays: &[],
 		render: &|draw, model, i, j, _time, _modifiers| {
 			let noise = model.noisemap.get_value(i, j) as f32;
 			let (i, j) = scale_coordinates(model, i, j);
@@ -493,6 +500,7 @@ pub const SCENES: &[&Scene] = &[
 		bars: 0..8,
 		loop_from: 0,
 		stages: &[],
+		delays: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [whole, half, quarter, eighth, _sixteenth, _bass, mid, treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -540,6 +548,7 @@ pub const SCENES: &[&Scene] = &[
 		bars: 0..14,
 		loop_from: 0,
 		stages: &[],
+		delays: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [whole, half, quarter, _eighth, _sixteenth, _bass, mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -576,6 +585,7 @@ pub const SCENES: &[&Scene] = &[
 		bars: 0..14,
 		loop_from: 0,
 		stages: &[],
+		delays: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [whole, half, quarter, _eighth, _sixteenth, bass, _mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -621,6 +631,7 @@ pub const SCENES: &[&Scene] = &[
 		bars: 0..14,
 		loop_from: 0,
 		stages: &[],
+		delays: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [_whole, half, quarter, _eighth, _sixteenth, bass, _mid, _treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;
@@ -656,6 +667,7 @@ pub const SCENES: &[&Scene] = &[
 		bars: 0..14,
 		loop_from: 0,
 		stages: &[],
+		delays: &[],
 		render: &|draw, model, i, j, time, modifiers| {
 			let [_whole, half, quarter, eighth, sixteenth, bass, mid, treble] = modifiers;
 			let noise = model.noisemap.get_value(i, j) as f32;

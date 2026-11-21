@@ -633,3 +633,16 @@ hit falls over one beat as before (`hit(phase × max(n, 1))`), the phases run ov
 `delay` still shifts in cycles. Other sources ignore both. The editor's chain meter mirrors it
 (`chainLevel`). Fields' parameters go through `level()` too, so a field's phase can be on a
 3-beat cycle. Pulse untouched (it is the bar's shape).
+
+## Delay unlocks (2026-11-21)
+
+Owner: "what if every stage started without unlocks so the effects of the unlocks were more
+obvious? … a setting per stage … 'delay unlocks' … literally turn off the unlocks so it affects
+hotspots too". `SceneData.unlock_delays: {stage name: bars}` (`""` for a stageless scene) →
+`Scene::delays: &[f32]` per stage (hand-written scenes: empty). `Model.at` notices a change
+of (scene, stage) in `note_visited` (every update, so landing, the editor's stage picker and
+seeks all count) and sets `hold = (time, bars × 240 / bpm)`; `hold_in()` is the smoothstep
+of it, 0 on the morph's landing frame of such a stage (preview), 1 when nothing holds;
+`reveal(u)` is `min`'d with it and `visible(hotspot)` needs `hold_in() == 1` for a hotspot
+with any `needs`. The editor: a number per stage row (and one for a stageless scene) in the
+stages fieldset; rename/remove keep the map in step.

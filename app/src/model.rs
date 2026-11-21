@@ -92,6 +92,11 @@ pub struct Model {
 	/// The stages the player has been in, a bit each, by scene id (saved): a hotspot that
 	/// sends you to a stage shows its name once you have been there.
 	visited: progress::Visited,
+	/// (scene id, stage) as of the last update — to notice entering a stage.
+	at: Option<(&'static str, usize)>,
+	/// A stage that delays its unlocks, entered: (app time it landed, seconds they take to
+	/// come back in). `reveal()` is held under it; hotspots that need an unlock wait for it.
+	hold: Option<(f32, f32)>,
 	unlocks: Unlocks,
 	/// When each unlock was granted (app time), for easing it in. `-inf` = always had it.
 	revealed: [f32; Unlock::COUNT],
@@ -175,6 +180,8 @@ impl Model {
 			scene,
 			stage: 0,
 			visited,
+			at: None,
+			hold: None,
 			unlocks,
 			revealed: [f32::NEG_INFINITY; Unlock::COUNT],
 			time: 0.0,
@@ -203,8 +210,32 @@ impl Model {
 		self.visited.get(self.viewed().id).is_some_and(|bits| bits & (1u64 << stage.min(63)) != 0)
 	}
 
-	/// The stage we are in has been visited; saved when that is news.
+	/// How far the unlocks have come back in, 0..1, in a stage that delays them — 1 when
+	/// nothing holds them. The landing frame of such a stage (the morph's target) is 0.
+	fn hold_in(&self) -> f32 {
+		let (scene, stage) = (self.viewed(), self.stage());
+		let delayed = scene.delays.get(stage).copied().unwrap_or(0.0) > 0.0;
+		if delayed && (self.preview.get().is_some() || self.preview_stage.get().is_some()) {
+			return 0.0;
+		}
+		match self.hold {
+			Some((since, secs)) if secs > 0.0 => {
+				let t = ((self.time - since) / secs).clamp(0.0, 1.0);
+				t * t * (3.0 - 2.0 * t)
+			}
+			_ => 1.0,
+		}
+	}
+
+	/// The stage we are in has been visited; saved when that is news. Entering it (any
+	/// way: landing, the editor, a seek) starts its unlock delay, if it has one.
 	fn note_visited(&mut self) {
+		let here = (self.scene.id, self.stage);
+		if self.at != Some(here) {
+			self.at = Some(here);
+			let bars = self.scene.delays.get(self.stage).copied().unwrap_or(0.0);
+			self.hold = (bars > 0.0).then(|| (self.time, bars * 240.0 / self.scene.track.bpm as f32));
+		}
 		let bits = self.visited.entry(self.scene.id.to_string()).or_default();
 		let bit = 1u64 << self.stage.min(63);
 		if *bits & bit == 0 {
@@ -292,7 +323,7 @@ impl Model {
 			return 0.0;
 		}
 		let t = ((self.time - self.revealed[unlock as usize]) / REVEAL).clamp(0.0, 1.0);
-		t * t * (3.0 - 2.0 * t)
+		(t * t * (3.0 - 2.0 * t)).min(self.hold_in())
 	}
 
 	/// Is this frame's render the landing frame of the scene being morphed into?
@@ -524,6 +555,8 @@ impl Model {
 	fn visible(&self, hotspot: &Hotspot) -> bool {
 		hotspot.stage.map_or(true, |stage| stage == self.stage())
 			&& self.unlocks.has_all(hotspot.needs)
+			// in a stage that delays its unlocks, one that needs any waits for them
+			&& (hotspot.needs == NONE || self.hold_in() >= 1.0)
 			&& !hotspot.then.spent(self.unlocks)
 	}
 

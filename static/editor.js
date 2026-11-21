@@ -948,11 +948,23 @@ function groupInspector(g) {
 function stagesEditor(s) {
   s.stages ??= [];
   const box = el('fieldset', { class: 'stages' }, el('legend', {}, 'stages'));
+  // bars the stage's unlocks take to come back in on entering it (stage name; '' for a stageless scene)
+  const delayInput = (name) => el('input', { type: 'number', min: 0, step: 0.25, placeholder: '0', value: s.unlock_delays?.[name] ?? '',
+    title: 'delay unlocks: the stage lands as if nothing were unlocked and the unlocks play out over this many bars (0.25 a beat); hotspots that need an unlock wait for them. Empty or 0: the unlocks are there from the landing',
+    onchange: (e) => {
+      snapshotForUndo();
+      const v = +e.target.value;
+      s.unlock_delays ??= {};
+      if (v > 0) s.unlock_delays[name] = v; else delete s.unlock_delays[name];
+      if (!Object.keys(s.unlock_delays).length) delete s.unlock_delays;
+      commit({ silent: true });
+    } });
   const rename = (k, name) => {
     const old = s.stages[k];
     if (!name || name === old || s.stages.includes(name)) return;
     snapshotForUndo();
     s.stages[k] = name;
+    if (s.unlock_delays && old in s.unlock_delays) { s.unlock_delays[name] = s.unlock_delays[old]; delete s.unlock_delays[old]; }
     for (const item of [...s.layers, ...s.hotspots]) {
       if (item.stage === old) item.stage = name;
       for (const a of item.then || []) if (a.stage === old) a.stage = name;
@@ -963,6 +975,7 @@ function stagesEditor(s) {
     const old = s.stages[k];
     snapshotForUndo();
     s.stages.splice(k, 1);
+    if (s.unlock_delays) { delete s.unlock_delays[old]; if (!Object.keys(s.unlock_delays).length) delete s.unlock_delays; }
     for (const item of [...s.layers, ...s.hotspots]) {
       if (item.stage === old) delete item.stage;
       if (item.then) item.then = item.then.filter((a) => a.stage !== old);
@@ -980,10 +993,12 @@ function stagesEditor(s) {
     el('input', { type: 'text', value: name, onchange: (e) => rename(k, e.target.value.trim()) }),
     el('button', { class: 'small', onclick: () => swap(k, -1) }, '↑'), el('button', { class: 'small', onclick: () => swap(k, 1) }, '↓'),
     el('button', { class: 'small', onclick: () => send(JSON.stringify({ stage: k })) }, 'view'),
+    el('span', { class: 'lbl' }, 'delay unlocks'), delayInput(name),
     el('span', { class: 'doc' }, `${s.layers.filter((l) => l.stage === name).length} layers, ${s.hotspots.filter((h) => h.stage === name).length} hotspots`),
     el('button', { class: 'link danger', onclick: () => remove(k) }, '×'))),
     el('button', { class: 'link', onclick: () => { snapshotForUndo(); let n = s.stages.length; while (s.stages.includes('stage ' + n)) n++; s.stages.push('stage ' + n); commit({ silent: true, inspector: true }); } }, '+ stage'),
-    el('div', { class: 'doc' }, 'the visual states of the stretch, in order; the player starts in the first. A hotspot\'s "stage" action moves to one at the next bar, the music unchanged; layers and hotspots with a stage show only in it.'));
+    s.stages.length ? null : el('div', { class: 'stage-row' }, el('span', { class: 'lbl' }, 'delay unlocks'), delayInput(''), el('span', { class: 'doc' }, 'on entering the scene (it has no stages)')),
+    el('div', { class: 'doc' }, 'the visual states of the stretch, in order; the player starts in the first. A hotspot\'s "stage" action moves to one at the next bar, the music unchanged; layers and hotspots with a stage show only in it. Delay unlocks: the stage lands as if nothing were unlocked and the unlocks play out over that many bars.'));
   return box;
 }
 

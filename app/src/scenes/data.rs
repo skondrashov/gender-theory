@@ -108,6 +108,10 @@ pub struct SceneData {
 	pub loop_from: Option<usize>,
 	#[serde(default)]
 	pub stages: Vec<String>,
+	/// Stage name → bars its unlocks take to come back in on entering it (`""` for a
+	/// stageless scene). See `Scene::delays`.
+	#[serde(default)]
+	pub unlock_delays: HashMap<String, f32>,
 	#[serde(default)]
 	pub layers: Vec<Layer>,
 	#[serde(default)]
@@ -1623,6 +1627,12 @@ pub fn install(json: &str) -> Result<usize, String> {
 			let bars = scene.bars[0]..scene.bars[1].max(scene.bars[0] + 1);
 			let loop_from = scene.loop_from.unwrap_or(bars.start).clamp(bars.start, bars.end - 1);
 			let stages: Vec<&'static str> = scene.stages.iter().map(|s| leak_str(s)).collect();
+			let delay = |name: &str| scene.unlock_delays.get(name).copied().unwrap_or(0.0).max(0.0);
+			let delays: Vec<f32> = if scene.stages.is_empty() {
+				vec![delay("")]
+			} else {
+				scene.stages.iter().map(|s| delay(s)).collect()
+			};
 			let mut hotspots = vec![];
 			let mut tags = vec![];
 			for hotspot in &scene.hotspots {
@@ -1692,6 +1702,7 @@ pub fn install(json: &str) -> Result<usize, String> {
 				bars,
 				loop_from,
 				stages: Vec::leak(stages),
+				delays: Vec::leak(delays),
 				render,
 				hotspots: Vec::leak(hotspots),
 			}));

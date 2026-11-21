@@ -41,6 +41,11 @@ pub struct Scene {
 	pub loop_from: usize,
 	/// Names of the stages, in order. Empty means one unnamed stage.
 	pub stages: &'static [&'static str],
+	/// Per stage (one entry for a stageless scene; empty: none): bars the unlocks take to
+	/// come back in on entering it — the stage lands as if nothing were unlocked and the
+	/// unlocks play out from there, hotspots that need them waiting (owner, 2026-11-21:
+	/// "delay unlocks"). 0: the unlocks are there from the landing.
+	pub delays: &'static [f32],
 	/// Called once per grid cell per frame: (draw, model, i, j, time, modifiers).
 	pub render: &'static dyn Fn(&Draw, &Model, usize, usize, f32, [f32; 8]),
 	pub hotspots: &'static [Hotspot],
