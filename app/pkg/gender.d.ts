@@ -1,10 +1,11 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* The editor page: what kinds of layer there are and their params (JSON).
-* @returns {string}
+* `album` is the contents of `static/album.json` (the page fetches it).
+* @param {string} album
+* @returns {Promise<void>}
 */
-export function catalogue(): string;
+export function main_web(album: string): Promise<void>;
 /**
 * The editor page: a command (JSON) for the next update. See `Model::handle`.
 * @param {string} command
@@ -15,6 +16,18 @@ export function editor(command: string): void;
 * @returns {Uint8Array}
 */
 export function spectrum(): Uint8Array;
+/**
+* The editor page: what kinds of layer there are and their params (JSON).
+* @returns {string}
+*/
+export function catalogue(): string;
+/**
+* The editor page: the name of stage `stage` of room `room`.
+* @param {number} room
+* @param {number} stage
+* @returns {string}
+*/
+export function stage_name(room: number, stage: number): string;
 /**
 * The editor page: the state as of the last update (JSON). See `Model::state`.
 * @returns {string}
@@ -27,12 +40,6 @@ export function state(): string;
 * @returns {string}
 */
 export function exit_name(room: number, k: number): string;
-/**
-* `album` is the contents of `static/album.json` (the page fetches it).
-* @param {string} album
-* @returns {Promise<void>}
-*/
-export function main_web(album: string): Promise<void>;
 /**
 * The editor page: new random names for every exit, from now on (kept with the progress).
 */
@@ -48,6 +55,7 @@ export interface InitOutput {
   readonly main_web: (a: number, b: number) => number;
   readonly reset_names: () => void;
   readonly spectrum: (a: number) => void;
+  readonly stage_name: (a: number, b: number, c: number) => void;
   readonly state: (a: number) => void;
   readonly wgpu_render_pass_begin_pipeline_statistics_query: (a: number, b: number, c: number) => void;
   readonly wgpu_render_pass_draw: (a: number, b: number, c: number, d: number, e: number) => void;

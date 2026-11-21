@@ -7,6 +7,7 @@ export function exit_name(a: number, b: number, c: number): void;
 export function main_web(a: number, b: number): number;
 export function reset_names(): void;
 export function spectrum(a: number): void;
+export function stage_name(a: number, b: number, c: number): void;
 export function state(a: number): void;
 export function wgpu_render_pass_begin_pipeline_statistics_query(a: number, b: number, c: number): void;
 export function wgpu_render_pass_draw(a: number, b: number, c: number, d: number, e: number): void;
