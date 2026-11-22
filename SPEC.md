@@ -23,7 +23,15 @@ radius, fill, morph, flatness, rotation; color. An unlock is a row, or a row's s
 option — glow is brightness's, dots is dots's (2026-11-20: "dots should just be treated like
 other unlocks for simplicity. that way i can disable dots on some cells"), angle is angle's
 (owner: "an unlock basically just means either a
-row or a sidechain option, so glow is really just the brightness sidechain option"). A
+row or a sidechain option, so glow is really just the brightness sidechain option").
+Refined 2026-11-22 — "conceptually, an unlock is either the ability to set a value, or the
+ability to automate it … the purist in me still wants to stick with 1, and force myself to
+work within the more restricted system": every unlock is the ability to **set** a row (it
+rests at 0 until then) or to **move** it (its music sidechains, masks and spin wait), in pairs
+where a row has both — dots/glow for brightness (dots first: everything is dark before it),
+lines/length, angle/rotation, rings/size — and single for bend, fill, morph, flatness, color;
+the dots row and the ring's rotation row are free. A layer may also `need` unlocks outright,
+for a pattern that changes with one. A
 layer is a region plus the rows it changes, each
 *set*, *added to* or *multiplied* over what the layers before it left; a cell under no layer
 is a dark dot (dots always exist; brightness can be 0). Any row can be masked by distance,

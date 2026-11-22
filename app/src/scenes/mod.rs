@@ -106,22 +106,22 @@ pub enum Action {
 /// ones — `ALL` is the display order.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Unlock {
-	/// Points become lines, pointing wherever the layer says.
+	/// The lines row may leave 0: a dot gets its line (the bit that used to be "lines" in
+	/// the old sense too).
 	Lines = 0,
-	/// Lines get a length other than one grid interval.
+	/// The length moves: its sidechains and masks on the music (its base is free).
 	Length,
-	/// Lines get to turn (the bit that used to be "rotation").
+	/// The angle may leave 0: lines point where the layer says.
 	Angle,
 	/// Rings appear (the bit that used to be "circles").
 	Rings,
 	/// The one color (see `COLOR`). More colors can be more unlocks.
 	Color,
-	/// Brightness follows the music where a glow layer says (see `glow`). The owner's
-	/// "opacity".
+	/// Brightness moves: its sidechains and masks on the music. The owner's "opacity".
 	Glow,
 	/// Lines bend into arcs.
 	Bend,
-	/// Rings get a size other than the default.
+	/// The radius moves (its base is free).
 	Size,
 	/// Rings fill in.
 	Fill,
@@ -129,11 +129,12 @@ pub enum Unlock {
 	Morph,
 	/// Rings flatten.
 	Flatness,
-	/// Rings get to turn.
+	/// The angle moves: spin, its sidechains and masks on the music (2026-11-22; it was the
+	/// ring's rotation row's unlock, and "angle" was this).
 	Rotation,
-	/// The dot itself follows the music where a layer says — the dots row's sidechain
-	/// option (owner, 2026-11-20: "dots should just be treated like other unlocks … that way
-	/// i can disable dots on some cells"). Last in the enum so saved progress bits hold.
+	/// Brightness may leave 0: the first unlock — before it everything is dark but the
+	/// hints (2026-11-22; before, the dots row's motion). Last in the enum so saved progress
+	/// bits hold.
 	Dots,
 }
 
@@ -142,18 +143,18 @@ impl Unlock {
 
 	/// Display order.
 	pub const ALL: [Unlock; Unlock::COUNT] = [
-		Unlock::Glow,
 		Unlock::Dots,
+		Unlock::Glow,
 		Unlock::Lines,
 		Unlock::Length,
 		Unlock::Angle,
+		Unlock::Rotation,
 		Unlock::Bend,
 		Unlock::Rings,
 		Unlock::Size,
 		Unlock::Fill,
 		Unlock::Morph,
 		Unlock::Flatness,
-		Unlock::Rotation,
 		Unlock::Color,
 	];
 

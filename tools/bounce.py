@@ -2,7 +2,7 @@
 
 Plain pair (angle locked): even/odd columns, angle up/down, length = two position→curtain
 chains on bar.phase every 4 (grow+retreat up, grow+retreat from the other end as a negative
-length). Pinwheel set (angle unlocked, masked by unlock:angle): four layers by column parity ×
+length). Pinwheel set (needs the rotation unlock): four layers by column parity ×
 row parity; angle = V + a sequence of quarter turns (6 chains on bar.phase every 8, kept
 within 90° of the plain angle so the crossfade in is a swing, never a flip); length = eight
 one-bar curtains (grow/retreat along the pointing of that bar), signed so opposite directions
@@ -71,8 +71,6 @@ def pinwheel(a, b):
     V = 90 if a == 0 else 270
     s = -90 if a == b else 90  # the way this segment turns
     H = V + s
-    unlock = {'source': 'unlock:angle', 'depth': 1, 'threshold': 0, 'width': 1, 'curve': 0, 'invert': False, 'on': True,
-              'add': False, 'ripple': 0, 'every': 1, 'offset': 0}
     beat = 1 / 32  # one beat of the 8-bar phase
     angle = [phase8(s, 1 / 8, beat), phase8(-180, 3 / 8, STEP), phase8(s, 3 / 8, beat),
              phase8(s, 5 / 8, beat), phase8(-180, 6 / 8, STEP), phase8(s, 7 / 8, beat)]
@@ -87,9 +85,9 @@ def pinwheel(a, b):
         retreat8(7, turn_of(V), -1),        # turn; retreat as columns
     ]
     return {'name': f"pinwheel {'even' if a == 0 else 'odd'} columns, {'even' if b == 0 else 'odd'} rows",
-            'region': {'cols': [2, a], 'rows': [2, b]}, 'kind': 'cells', 'params': {
-                'angle': row(V, angle, [unlock]),
-                'length': row(0, length, [unlock])}}
+            'region': {'cols': [2, a], 'rows': [2, b]}, 'kind': 'cells', 'needs': ['rotation'], 'params': {
+                'angle': row(V, angle),
+                'length': row(0, length)}}
 
 
 def layers():

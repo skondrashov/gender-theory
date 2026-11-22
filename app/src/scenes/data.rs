@@ -215,6 +215,8 @@ pub struct Layer {
 	/// Only in this stage of the scene (by name).
 	pub stage: Option<String>,
 	pub muted: bool,
+	/// Unlocks the whole layer waits for (by name): it comes in with the last of them.
+	pub needs: Vec<String>,
 }
 
 impl Default for Layer {
@@ -228,6 +230,7 @@ impl Default for Layer {
 			params: Value::Null,
 			stage: None,
 			muted: false,
+			needs: vec![],
 		}
 	}
 }
@@ -727,10 +730,10 @@ pub fn catalogue() -> String {
 		.map(|row| {
 			serde_json::json!({
 				"name": row.name,
-				"unlock": row.unlock.name(),
+				"set": row.set.map(|(unlock, rest)| serde_json::json!({ "unlock": unlock.name(), "rest": rest })),
+				"motion": row.motion.map(Unlock::name),
 				"start": row.start,
 				"default": row.default,
-				"gate": match row.gate { Gate::Sidechains => Value::from("sidechains"), Gate::Row(v) => Value::from(v) },
 				"step": row.step,
 				"doc": row.doc,
 			})
@@ -873,27 +876,26 @@ impl Row {
 	}
 }
 
-/// What a row's unlock is (owner: "an unlock basically just means either a row or a
-/// sidechain option, so glow is really just the brightness sidechain option").
-/// `Sidechains`: the row is free from the start — dots at any brightness, lines pointing
-/// anywhere — and the unlock is its motion: the sidechains and masks on the music, the
-/// spin. `Row(v)`: the unlock is the row itself; it sits at `v` until then and eases to
-/// the layers' value as the unlock comes in.
-#[derive(Clone, Copy)]
-pub enum Gate {
-	Sidechains,
-	Row(f32),
-}
-
+/// An unlock is the ability to **set** a row — the row rests at a value until it and eases
+/// to the layers' value as the unlock comes in — or the ability to **move** it: its
+/// sidechains and masks on the music, its spin, wait for it (owner, 2026-11-22:
+/// "conceptually, an unlock is either the ability to set a value, or the ability to
+/// automate it"; before that, by hand: "an unlock basically just means either a row or a
+/// sidechain option"). Some rows have both — dots sets brightness and glow moves it, lines
+/// and length, angle and rotation, rings and size — the rest one, and the dots row and the
+/// ring's rotation row are free.
 /// One row of a cell, the thing one unlock unlocks.
 pub struct RowSpec {
 	pub name: &'static str,
-	pub unlock: Unlock,
+	/// The unlock that lets the row leave its resting value, and that value.
+	pub set: Option<(Unlock, f32)>,
+	/// The unlock that lets the row move: its sidechains and masks on the music, its spin.
+	/// None: motion comes with the row.
+	pub motion: Option<Unlock>,
 	/// The cell's value under no layer at all.
 	pub start: f32,
 	/// The base of a row newly added in the editor.
 	pub default: f32,
-	pub gate: Gate,
 	/// The editor's step for its base.
 	pub step: f32,
 	pub doc: &'static str,
@@ -910,118 +912,118 @@ const ROW_RINGS: usize = 6;
 pub const ROWS: [RowSpec; Unlock::COUNT] = [
 	RowSpec {
 		name: "brightness",
-		unlock: Unlock::Glow,
+		set: Some((Unlock::Dots, 0.0)),
+		motion: Some(Unlock::Glow),
 		start: 0.0,
 		default: 1.0,
-		gate: Gate::Sidechains,
 		step: 0.05,
 		doc: "0 dark .. 1 full, of the dot, its line and its ring. Free from the start; glow is its sidechain option — it follows the music once glow is unlocked.",
 	},
 	RowSpec {
 		name: "dots",
-		unlock: Unlock::Dots,
+		set: None,
+		motion: None,
 		start: 1.0,
 		default: 1.0,
-		gate: Gate::Sidechains,
 		step: 0.1,
 		doc: "0 no dot .. 1 the dot (× brightness) — seen where the cell has no line, since a line covers its dot. Free from the start, so a layer or a painted base can take the dots off some cells; dots is its sidechain option — the dot follows the music once dots is unlocked.",
 	},
 	RowSpec {
 		name: "lines",
-		unlock: Unlock::Lines,
+		set: Some((Unlock::Lines, 0.0)),
+		motion: None,
 		start: 0.0,
 		default: 1.0,
-		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 no line .. 1 the line (× its length). Nothing until lines are unlocked; then it grows out of the dot. Mask it by distance or bearing for lines only here.",
 	},
 	RowSpec {
 		name: "length",
-		unlock: Unlock::Length,
+		set: None,
+		motion: Some(Unlock::Length),
 		start: 1.0,
 		default: 1.0,
-		gate: Gate::Row(1.0),
 		step: 0.1,
 		doc: "in cells; 1 — to the next dot — until length is unlocked Negative: the other way out of the dot.",
 	},
 	RowSpec {
 		name: "angle",
-		unlock: Unlock::Angle,
+		set: Some((Unlock::Angle, 0.0)),
+		motion: Some(Unlock::Rotation),
 		start: 0.0,
 		default: 0.0,
-		gate: Gate::Sidechains,
 		step: 15.0,
 		doc: "degrees anticlockwise from pointing right: 0 along, 90 across. Free from the start; angle is its sidechain option — it turns (and spins) once angle is unlocked. Patterns: noise × 360 scatters; bearing × −360 + 90 is radial, + 180 tangent; around × 360 runs round the rectangle.",
 	},
 	RowSpec {
 		name: "bend",
-		unlock: Unlock::Bend,
+		set: Some((Unlock::Bend, 0.0)),
+		motion: None,
 		start: 0.0,
 		default: 0.0,
-		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 straight .. 1 a half circle turning left; negative turns right. Straight until bend is unlocked.",
 	},
 	RowSpec {
 		name: "rings",
-		unlock: Unlock::Rings,
+		set: Some((Unlock::Rings, 0.0)),
+		motion: None,
 		start: 0.0,
 		default: 1.0,
-		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 no ring .. 1 the ring (× its radius). Nothing until rings are unlocked; then it grows out of the dot.",
 	},
 	RowSpec {
 		name: "radius",
-		unlock: Unlock::Size,
+		set: None,
+		motion: Some(Unlock::Size),
 		start: RING,
 		default: RING,
-		gate: Gate::Row(RING),
 		step: 0.05,
 		doc: "in cells; 0.4 until size is unlocked",
 	},
 	RowSpec {
 		name: "fill",
-		unlock: Unlock::Fill,
+		set: Some((Unlock::Fill, 0.0)),
+		motion: None,
 		start: 0.0,
 		default: 0.0,
-		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 an outline .. 1 a disc; an outline until fill is unlocked",
 	},
 	RowSpec {
 		name: "morph",
-		unlock: Unlock::Morph,
+		set: Some((Unlock::Morph, 0.0)),
+		motion: None,
 		start: 0.0,
 		default: 0.0,
-		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 a circle .. 1 a square; a circle until morph is unlocked",
 	},
 	RowSpec {
 		name: "flatness",
-		unlock: Unlock::Flatness,
+		set: Some((Unlock::Flatness, 0.0)),
+		motion: None,
 		start: 0.0,
 		default: 0.0,
-		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 round .. 1 squashed flat across its rotation; round until flatness is unlocked",
 	},
 	RowSpec {
 		name: "rotation",
-		unlock: Unlock::Rotation,
+		set: None,
+		motion: None,
 		start: 0.0,
 		default: 0.0,
-		gate: Gate::Row(0.0),
 		step: 15.0,
 		doc: "degrees the ring is turned (and spins); 0 until rotation is unlocked",
 	},
 	RowSpec {
 		name: "color",
-		unlock: Unlock::Color,
+		set: Some((Unlock::Color, 0.0)),
+		motion: None,
 		start: 0.0,
 		default: 0.0,
-		gate: Gate::Row(0.0),
 		step: 0.1,
 		doc: "0 grey .. 1 the color; grey until color is unlocked",
 	},
@@ -1284,6 +1286,7 @@ fn around_level(area: Area, i: usize, j: usize) -> f32 {
 struct LayerRt {
 	layer: Layer,
 	kind: Kind,
+	needs: Unlocks,
 	/// Index of the stage it belongs to, if one.
 	stage: Option<usize>,
 	/// A snake layer's region cut into its pieces.
@@ -1578,7 +1581,8 @@ pub fn install(json: &str) -> Result<usize, String> {
 					}
 					_ => (None, None, None, None),
 				};
-				layers.push(LayerRt { layer, kind, stage, snake, text, hotspot, direction, to_stage });
+				let needs = layer.needs.iter().filter_map(|name| unlock_named(name)).fold(Unlocks::default(), Unlocks::with);
+				layers.push(LayerRt { layer, kind, needs, stage, snake, text, hotspot, direction, to_stage });
 			}
 			let layers: &'static [LayerRt] = Vec::leak(layers);
 			let bars = scene.bars[0]..scene.bars[1].max(scene.bars[0] + 1);
@@ -1767,6 +1771,16 @@ fn render(
 		if rt.layer.muted {
 			continue;
 		}
+		// A layer that `needs` unlocks comes in with the last of them, crossfading over what
+		// the layers before it drew (a pattern that changes with an unlock: the pinwheel).
+		let need = Unlock::ALL
+			.iter()
+			.filter(|&&unlock| rt.needs.has(unlock))
+			.map(|&unlock| model.reveal(unlock))
+			.fold(1.0f32, f32::min);
+		if need <= 0.001 {
+			continue;
+		}
 		let signals = for_layer(rt);
 		match &rt.kind {
 			Kind::Cells(cells) => {
@@ -1779,13 +1793,10 @@ fn render(
 					if !row.param.painted(i, j) {
 						continue;
 					}
-					// Where the unlock is the row's sidechain option, its motion — the sidechains
-					// and masks on the music, the spin — comes in with the unlock; where it is
-					// the row, the row is eased from its resting value once the cell is folded.
-					let motion = match spec.gate {
-						Gate::Sidechains => model.reveal(spec.unlock),
-						Gate::Row(_) => 1.0,
-					};
+					// The row's motion — the sidechains and masks on the music, the spin — comes in
+					// with its motion unlock; a row that rests until its set unlock is eased from
+					// the resting value once the cell is folded.
+					let motion = spec.motion.map_or(1.0, |unlock| model.reveal(unlock));
 					let dir = if row.alternate && (i + j) % 2 == 1 { -1.0 } else { 1.0 };
 					let value = row.param.value_gated(&signals, motion) + row.spin * time * dir * motion;
 					let applied = match row.op {
@@ -1793,7 +1804,7 @@ fn render(
 						Op::Add => cell[k] + value,
 						Op::Multiply => cell[k] * value,
 					};
-					let amount = row.amount(&signals, motion);
+					let amount = row.amount(&signals, motion) * need;
 					cell[k] += (applied - cell[k]) * amount;
 					if (i, j) == model.probe && !model.previewing() {
 						model.probed.borrow_mut().push(crate::model::Probed {
@@ -1827,7 +1838,7 @@ fn render(
 				let run_len = last + 1 - head * run;
 				let front = snake.progress.value(&signals).clamp(0.0, 1.0) * run_len as f32;
 				let color = snake.color.value(&signals);
-				let dots = snake.dots.value_gated(&signals, glow) + hot_brightness;
+				let dots = snake.dots.value_gated(&signals, glow) * need + hot_brightness;
 				dot(draw, model, x, y, paint(model, dots, color));
 				if k < last || snake.tail {
 					// the segment's far end: the next cell, or for the last cell with a tail, one
@@ -1854,7 +1865,7 @@ fn render(
 						// from this dot towards the next, anchored there
 						let (sx, sy, dx, dy) = if arrive { (x, y, qx - x, qy - y) } else { (qx, qy, x - qx, y - qy) };
 						let angle = dy.atan2(dx) + snake.spin.to_radians() * (1.0 - fill);
-						let brightness = snake.brightness.value_gated(&signals, glow) + hot_brightness;
+						let brightness = snake.brightness.value_gated(&signals, glow) * need + hot_brightness;
 						stroke(draw, model, sx, sy, angle, fill * unit, paint(model, brightness, color));
 					}
 				}
@@ -1876,7 +1887,7 @@ fn render(
 				if cell.index >= shown {
 					continue;
 				}
-				let brightness = text.brightness.value_gated(&signals, glow) + hot_brightness;
+				let brightness = text.brightness.value_gated(&signals, glow) * need + hot_brightness;
 				if brightness <= 0.001 {
 					continue;
 				}
@@ -1896,7 +1907,7 @@ fn render(
 				);
 				let pull = orbits.pull.value(&signals).clamp(0.0, 1.0);
 				let (ex, ey) = (x1 + (x2 - x1) * pull, y1 + (y2 - y1) * pull);
-				let brightness = orbits.brightness.value_gated(&signals, glow) + hot_brightness;
+				let brightness = orbits.brightness.value_gated(&signals, glow) * need + hot_brightness;
 				let color = orbits.color.value(&signals);
 				dot(draw, model, x, y, paint(model, 0.9, 0.0));
 				dot(draw, model, x1, y1, paint(model, 0.5, 0.0));
@@ -1914,7 +1925,7 @@ fn render(
 			}
 			Kind::Walk(_) => {}
 			Kind::Hole(hole) => {
-				if rt.hotspot.is_some_and(|tag| !model.hint_visible(tag)) {
+				if rt.hotspot.is_some_and(|tag| !model.hint_visible(tag)) || need < 0.5 {
 					continue;
 				}
 				// What the layers before it drew here goes: the scenery marks recorded so far
@@ -1939,10 +1950,13 @@ fn render(
 		return;
 	}
 
-	// A row that is itself an unlock rests at its value until then, then eases to the cell's.
+	// A row with a set unlock rests at its value until then, then eases to the cell's — an
+	// angle the short way round.
 	for (k, spec) in ROWS.iter().enumerate() {
-		if let Gate::Row(before) = spec.gate {
-			cell[k] = before + (cell[k] - before) * model.reveal(spec.unlock);
+		if let Some((unlock, rest)) = spec.set {
+			let delta = cell[k] - rest;
+			let delta = if k == ROW_ANGLE { (delta + 180.0).rem_euclid(360.0) - 180.0 } else { delta };
+			cell[k] = rest + delta * model.reveal(unlock);
 		}
 	}
 	let [brightness, dots, lines, length, angle, bend, rings, radius, fill, morph, flatness, rotation, color] = cell;

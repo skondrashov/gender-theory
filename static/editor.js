@@ -11,7 +11,7 @@ const STAGE = 500;
 const CELL = 250 / W;  // grid px per cell
 const PPB = 12;      // timeline px per bar
 const GUTTER = 72;   // timeline lane labels
-const UNLOCKS = ['glow', 'dots', 'lines', 'length', 'angle', 'bend', 'rings', 'size', 'fill', 'morph', 'flatness', 'rotation', 'color'];
+const UNLOCKS = ['dots', 'glow', 'lines', 'length', 'angle', 'rotation', 'bend', 'rings', 'size', 'fill', 'morph', 'flatness', 'color'];
 const BAND_COLORS = ['#ff7333', '#ffd23f', '#3fd2a0', '#3f9fff', '#c77dff', '#ff5e8a', '#9cff57'];
 
 const $ = (s) => document.querySelector(s);
@@ -78,15 +78,25 @@ function fitScene(s, oldBars) {
   }
 }
 
-// Older files: a chain's `delay` is `ripple` since 2026-11-21 (the engine reads both; the
-// editor writes the new name). Walks everything — chains, masks, a field's params, presets.
-function migrate(node) {
-  if (Array.isArray(node)) node.forEach(migrate);
-  else if (node && typeof node === 'object') {
-    if ('source' in node && 'delay' in node) { node.ripple ??= node.delay; delete node.delay; }
-    Object.values(node).forEach(migrate);
-  }
-  return node;
+// Older files. A chain's `delay` is `ripple` since 2026-11-21 (the engine reads both; the
+// editor writes the new name). Since 2026-11-22 (`version` 2) the unlocks come in set/move
+// pairs and what "angle" unlocked — the angle's motion — is `rotation`: hotspots that grant
+// or need it and masks on it are renamed; a file's own "angle" means setting the angle now.
+function migrate(album) {
+  const walk = (node) => {
+    if (Array.isArray(node)) node.forEach(walk);
+    else if (node && typeof node === 'object') {
+      if ('source' in node && 'delay' in node) { node.ripple ??= node.delay; delete node.delay; }
+      if (old && typeof node.source === 'string' && node.source === 'unlock:angle') node.source = 'unlock:rotation';
+      if (old && Array.isArray(node.needs)) node.needs = node.needs.map((u) => (u === 'angle' ? 'rotation' : u));
+      if (old && node.unlock === 'angle' && Object.keys(node).length === 1) node.unlock = 'rotation';
+      Object.values(node).forEach(walk);
+    }
+  };
+  const old = (album.version ?? 1) < 2;
+  walk(album);
+  if (old) album.version = 2;
+  return album;
 }
 
 // ---- boot ----
@@ -392,8 +402,8 @@ function updateReadouts() {
     const p = (probe.rows || []).find((p) => p.layer === layer && p.row === row);
     if (!p) { r.textContent = '—'; r.title = 'not on the probe cell right now (its region, stage or bars — or the cell is unpainted)'; continue; }
     const sym = p.op === 'add' ? '+' : p.op === 'multiply' ? '×' : '=';
-    // a row that is itself an unlock sits at its resting value until the unlock is on in the preview
-    const frozen = r.dataset.gate !== 'sidechains' && !unlocked(r.dataset.unlock) ? ` · needs ${r.dataset.unlock} (at ${r.dataset.gate})` : '';
+    // a row with a set unlock sits at its resting value until the unlock is on in the preview
+    const frozen = r.dataset.setUnlock && !unlocked(r.dataset.setUnlock) ? ` · needs ${r.dataset.setUnlock} (at ${r.dataset.rest})` : '';
     // masks scale the row's change: a row that adds 0 (or multiplies by 1) gives them nothing to land
     const idle = (p.op === 'add' && Math.abs(p.value) < 0.005) || (p.op === 'multiply' && Math.abs(p.value - 1) < 0.005);
     const nothing = idle && p.masks && p.masks.length;
@@ -405,9 +415,9 @@ function updateReadouts() {
     const p = (probe.rows || []).find((p) => p.layer === layer && p.row === row);
     const v = p?.[kind]?.[+k];
     if (v === undefined) { r.textContent = '—'; continue; }
-    // a sidechain or mask on the music waits for the row's unlock
+    // a sidechain or mask on the music waits for the row's motion unlock
     const chain = chainRefs[r.dataset.chainRef];
-    const unlock = rowSpec(row)?.unlock;
+    const unlock = rowSpec(row)?.motion;
     const waiting = chain && !fixedSource(chain.source) && unlock && !unlocked(unlock) ? ` · needs ${unlock}` : '';
     r.textContent = (kind === 'masks' ? `${chain?.add ? '+' : '×'} ${v.toFixed(2)}` : `${v < 0 ? '−' : '+'} ${Math.abs(v).toFixed(2)}`) + waiting;
   }
@@ -1056,7 +1066,7 @@ function layerInspector(l) {
   const kinds = Object.keys(cat.kinds);
   const spec = cat.kinds[l.kind] || cat.kinds.cells;
   l.params ??= {};
-  delete l.ignore_glow; delete l.glow; delete l.when; delete l.fade; delete l.needs; // older files: a row's masks now
+  delete l.ignore_glow; delete l.glow; delete l.when; delete l.fade; // older files: a row's masks now
 
   const groups = el('datalist', { id: 'group-names' }, ...groupNames().map((n) => el('option', { value: n })));
   return [
@@ -1069,6 +1079,9 @@ function layerInspector(l) {
     stageRow(l),
     barsRow(l),
     moveRow(),
+    row('needs', ...UNLOCKS.map((u) => el('label', {}, el('input', { type: 'checkbox', ...((l.needs || []).includes(u) ? { checked: '' } : {}), onchange: (e) => {
+      snapshotForUndo(); l.needs = UNLOCKS.filter((v) => (v === u ? e.target.checked : (l.needs || []).includes(v))); if (!l.needs.length) delete l.needs; commit({ silent: true }); } }), u)),
+      el('span', { class: 'doc' }, 'unlocks the whole layer waits for: it comes in with the last of them, crossfading over what the layers before it drew — for a pattern that changes with an unlock (the pinwheel needs rotation). Rows wait for their own unlocks by themselves')),
     row('', checkInput(l, 'muted', 'muted'), el('button', { class: 'small', onclick: () => savePreset(l), title: 'keep a copy in the presets list, to drop into any scene' }, 'save as preset')),
     spec.rows
       ? rowsEditor(l)
@@ -1086,9 +1099,9 @@ function rowsEditor(l) {
     snapshotForUndo();
     l.params[r.name] = newRow(r);
     commit({ silent: true, inspector: true });
-  } }, el('option', { value: '' }, '+ row'), ...missing.map((r) => el('option', { value: r.name }, r.gate === 'sidechains' ? r.name : `${r.name} · ${r.unlock}`)));
+  } }, el('option', { value: '' }, '+ row'), ...missing.map((r) => el('option', { value: r.name }, r.set ? `${r.name} · ${r.set.unlock}` : r.name)));
   return el('fieldset', { class: 'rows' }, el('legend', {}, 'rows ', el('span', { class: 'dim', id: 'probe-at', title: 'the readouts are for this cell (orange on the region grid): one of its own, or hover the grid to pick another' }, `at ${probeCell[0]},${probeCell[1]}`)),
-    missing.length ? row('', add, el('span', { class: 'doc' }, have.length ? 'an unlock is a row, or a row\'s sidechain option (glow: brightness\'s)' : 'nothing: the cells are as the layers before leave them')) : null,
+    missing.length ? row('', add, el('span', { class: 'doc' }, have.length ? 'an unlock lets a row leave its resting value (dots: brightness) or lets it move (glow: brightness)' : 'nothing: the cells are as the layers before leave them')) : null,
     ...have.map((r) => rowEditor(l, r)));
 }
 
@@ -1101,20 +1114,18 @@ function rowEditor(l, spec) {
   const turns = spec.name === 'angle' || spec.name === 'rotation';
   const [toggle, chainsBox] = chainsUi(p, spec.step, 'chains', `${l.id}|${spec.name}`);
   const [maskToggle, masksBox] = chainsUi(p, 1, 'masks', `${l.id}|${spec.name}`);
-  // An unlock is either the row (it rests at a value until then) or the row's sidechain option.
-  const option = spec.gate === 'sidechains';
-  const tag = el('span', { class: 'tag', title: option
-    ? `the ${spec.unlock} unlock is this row's sidechain option: until it's had, only sidechains and masks on patterns (noise, distance, bearing, around) and states (hotspots, unlocks) act — the music${turns ? ', and spin,' : ''} waits for it`
-    : `this row is the ${spec.unlock} unlock: ${spec.gate} until it's had` }, spec.unlock);
+  // An unlock is the ability to set a row (it rests at a value until then) or to move it.
+  const setTag = spec.set ? el('span', { class: 'tag', title: `this row rests at ${spec.set.rest} until the ${spec.set.unlock} unlock, then eases to the layers' value` }, spec.set.unlock) : null;
+  const motionTag = spec.motion ? el('span', { class: 'tag', title: `the ${spec.motion} unlock is this row's motion: until it's had, only sidechains and masks on patterns (noise, distance, bearing, around, position) and states (hotspots, unlocks) act — the music${turns ? ', and spin,' : ''} waits for it` }, spec.motion) : null;
   return el('div', { class: 'rowed' }, row(spec.name,
-    option ? null : tag,
+    setTag,
     selectInput(p, 'op', ROW_OPS),
     baseInput(l, p, spec),
     turns ? el('span', { class: 'lbl' }, 'spin') : null,
     turns ? numberInput(p, 'spin', { step: 5 }) : null,
     turns ? checkInput(p, 'alternate', 'alternate') : null,
-    toggle, option ? tag : null, maskToggle,
-    el('span', { class: 'readout mono', 'data-probe': l.id + '|' + spec.name, 'data-unlock': spec.unlock, 'data-gate': spec.gate, title: 'what this row is worth at the probe cell right now: its value, and how much of it its masks let land' }, '—'),
+    toggle, motionTag, maskToggle,
+    el('span', { class: 'readout mono', 'data-probe': l.id + '|' + spec.name, 'data-set-unlock': spec.set?.unlock ?? '', 'data-rest': spec.set?.rest ?? '', title: 'what this row is worth at the probe cell right now: its value, and how much of it its masks let land' }, '—'),
     el('button', { class: 'link danger', title: 'take the row out of this layer', onclick: () => { snapshotForUndo(); delete l.params[spec.name]; commit({ silent: true, inspector: true }); } }, '×'),
     el('span', { class: 'doc', title: spec.doc }, spec.doc)), chainsBox, masksBox);
 }

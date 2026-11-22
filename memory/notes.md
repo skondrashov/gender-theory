@@ -720,3 +720,32 @@ length rows (a crossfade from the plain pair: masked `set` is `cell += (value �
 - Album stats at the time (for the unlock-semantics question): grants glow 2, angle 2, lines 1,
   length 1; needs glow 1, lines 1; masks unlock:glow 2, unlock:lines 3, unlock:angle 2; rows
   used brightness 54, angle 51, length 45, color 38, lines 31, dots 1.
+
+## Unlocks as set/move pairs; a layer's `needs` (2026-11-22)
+
+Owner: "formalize the unlocks actually unlocking things so i don't have to remember to put a
+mask for every unlock … an unlock is either the ability to set a value, or the ability to
+automate it … the purist in me still wants to stick with 1" → "yeah" to the table.
+- `RowSpec { set: Option<(Unlock, f32)>, motion: Option<Unlock> }` replaces `unlock` + `Gate`.
+  brightness: set Dots (0) / move Glow; dots row: free; lines: set Lines (0); length: move
+  Length (base free — it used to rest at 1); angle: set Angle (0) / move Rotation; bend, rings,
+  fill, morph, flatness, color: set; radius: move Size (used to rest at 0.4); rotation row: free.
+  The fold eases a set row from its rest by the reveal — the angle the short way round
+  (`(delta + 180).rem_euclid(360) − 180`).
+- The Angle bit now means "set the angle"; the Rotation bit "move it" (spin + music chains).
+  Bit values unchanged (progress holds); `Unlock::ALL` display order: dots, glow, lines,
+  length, angle, rotation, bend, rings, size, fill, morph, flatness, color.
+- `Layer.needs: Vec<String>` → `LayerRt.needs: Unlocks`; `need` = min reveal over them; cells
+  rows' `amount *= need` (crossfade over the layers before), snake/text/orbits brightness
+  × need, hole skipped under 0.5. Editor: a `needs` checkbox row in the layer inspector; the
+  old `delete l.needs` migration line is gone.
+- Album `version` 2: `migrate()` renames `angle` → `rotation` in hotspot grants (`{unlock}`
+  objects with that one key), `needs`, and `unlock:angle` sources, once (`album.version < 2`).
+  album.json migrated on disk by `migrate_album.py` (2 grants, 10 masks) and the bounce
+  preset regenerated with `needs: ["rotation"]` instead of masks (`tools/bounce.py`).
+- Consequence the owner accepted: everything is dark until a `dots` unlock. The album has no
+  dots door yet — the live-site deploy entry stays at `66f99f6` (pre-change) until it does.
+  In the editor tick `dots` in the unlock bar.
+- Verified headless (`cdp_unlocks.py`): nothing → 0 lit px; dots → dots only; +lines →
+  horizontal half-pitch lines (angle rests 0, length base 0.5 lands); +angle → 60°; +length →
+  pulsing with the beat chain; +rotation → spin. Preset: columns without rotation, rows with.
