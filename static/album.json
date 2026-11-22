@@ -1,4 +1,5 @@
 {
+ "version": 2,
  "bands": [
   {
    "id": "b-kick",
@@ -224,7 +225,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0,
+              "threshold": 0.0,
               "width": 0.25,
               "curve": 0,
               "invert": false,
@@ -314,7 +315,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0,
+            "base": 0.0,
             "chains": []
            },
            "x": {
@@ -391,7 +392,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0,
+              "threshold": 0.0,
               "width": 0.25,
               "curve": 0,
               "invert": false,
@@ -419,7 +420,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0,
+            "base": 0.0,
             "chains": []
            },
            "x": {
@@ -513,6 +514,9 @@
       ]
      },
      "kind": "cells",
+     "needs": [
+      "rotation"
+     ],
      "params": {
       "angle": {
        "op": "set",
@@ -591,21 +595,7 @@
          "offset": 0
         }
        ],
-       "masks": [
-        {
-         "source": "unlock:angle",
-         "depth": 1,
-         "threshold": 0,
-         "width": 1,
-         "curve": 0,
-         "invert": false,
-         "on": true,
-         "add": false,
-         "ripple": 0,
-         "every": 1,
-         "offset": 0
-        }
-       ]
+       "masks": []
       },
       "length": {
        "op": "set",
@@ -631,7 +621,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0,
+              "threshold": 0.0,
               "width": 0.125,
               "curve": 0,
               "invert": false,
@@ -907,7 +897,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0,
+            "base": 0.0,
             "chains": []
            },
            "x": {
@@ -1093,7 +1083,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0,
+            "base": 0.0,
             "chains": []
            },
            "x": {
@@ -1108,21 +1098,7 @@
          }
         }
        ],
-       "masks": [
-        {
-         "source": "unlock:angle",
-         "depth": 1,
-         "threshold": 0,
-         "width": 1,
-         "curve": 0,
-         "invert": false,
-         "on": true,
-         "add": false,
-         "ripple": 0,
-         "every": 1,
-         "offset": 0
-        }
-       ]
+       "masks": []
       }
      }
     },
@@ -1139,6 +1115,9 @@
       ]
      },
      "kind": "cells",
+     "needs": [
+      "rotation"
+     ],
      "params": {
       "angle": {
        "op": "set",
@@ -1217,21 +1196,7 @@
          "offset": 0
         }
        ],
-       "masks": [
-        {
-         "source": "unlock:angle",
-         "depth": 1,
-         "threshold": 0,
-         "width": 1,
-         "curve": 0,
-         "invert": false,
-         "on": true,
-         "add": false,
-         "ripple": 0,
-         "every": 1,
-         "offset": 0
-        }
-       ]
+       "masks": []
       },
       "length": {
        "op": "set",
@@ -1257,7 +1222,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0,
+              "threshold": 0.0,
               "width": 0.125,
               "curve": 0,
               "invert": false,
@@ -1533,7 +1498,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0,
+            "base": 0.0,
             "chains": []
            },
            "x": {
@@ -1719,7 +1684,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0,
+            "base": 0.0,
             "chains": []
            },
            "x": {
@@ -1734,21 +1699,7 @@
          }
         }
        ],
-       "masks": [
-        {
-         "source": "unlock:angle",
-         "depth": 1,
-         "threshold": 0,
-         "width": 1,
-         "curve": 0,
-         "invert": false,
-         "on": true,
-         "add": false,
-         "ripple": 0,
-         "every": 1,
-         "offset": 0
-        }
-       ]
+       "masks": []
       }
      }
     },
@@ -1765,6 +1716,9 @@
       ]
      },
      "kind": "cells",
+     "needs": [
+      "rotation"
+     ],
      "params": {
       "angle": {
        "op": "set",
@@ -1843,21 +1797,7 @@
          "offset": 0
         }
        ],
-       "masks": [
-        {
-         "source": "unlock:angle",
-         "depth": 1,
-         "threshold": 0,
-         "width": 1,
-         "curve": 0,
-         "invert": false,
-         "on": true,
-         "add": false,
-         "ripple": 0,
-         "every": 1,
-         "offset": 0
-        }
-       ]
+       "masks": []
       },
       "length": {
        "op": "set",
@@ -1883,7 +1823,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0,
+              "threshold": 0.0,
               "width": 0.125,
               "curve": 0,
               "invert": false,
@@ -1911,7 +1851,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0,
+            "base": 0.0,
             "chains": []
            },
            "x": {
@@ -2097,7 +2037,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0,
+            "base": 0.0,
             "chains": []
            },
            "x": {
@@ -2360,21 +2300,7 @@
          }
         }
        ],
-       "masks": [
-        {
-         "source": "unlock:angle",
-         "depth": 1,
-         "threshold": 0,
-         "width": 1,
-         "curve": 0,
-         "invert": false,
-         "on": true,
-         "add": false,
-         "ripple": 0,
-         "every": 1,
-         "offset": 0
-        }
-       ]
+       "masks": []
       }
      }
     },
@@ -2391,6 +2317,9 @@
       ]
      },
      "kind": "cells",
+     "needs": [
+      "rotation"
+     ],
      "params": {
       "angle": {
        "op": "set",
@@ -2469,21 +2398,7 @@
          "offset": 0
         }
        ],
-       "masks": [
-        {
-         "source": "unlock:angle",
-         "depth": 1,
-         "threshold": 0,
-         "width": 1,
-         "curve": 0,
-         "invert": false,
-         "on": true,
-         "add": false,
-         "ripple": 0,
-         "every": 1,
-         "offset": 0
-        }
-       ]
+       "masks": []
       },
       "length": {
        "op": "set",
@@ -2509,7 +2424,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0,
+              "threshold": 0.0,
               "width": 0.125,
               "curve": 0,
               "invert": false,
@@ -2537,7 +2452,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0,
+            "base": 0.0,
             "chains": []
            },
            "x": {
@@ -2723,7 +2638,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0,
+            "base": 0.0,
             "chains": []
            },
            "x": {
@@ -2986,21 +2901,7 @@
          }
         }
        ],
-       "masks": [
-        {
-         "source": "unlock:angle",
-         "depth": 1,
-         "threshold": 0,
-         "width": 1,
-         "curve": 0,
-         "invert": false,
-         "on": true,
-         "add": false,
-         "ripple": 0,
-         "every": 1,
-         "offset": 0
-        }
-       ]
+       "masks": []
       }
      }
     }
@@ -3228,7 +3129,7 @@
          "chains": [],
          "masks": [
           {
-           "source": "unlock:angle",
+           "source": "unlock:rotation",
            "depth": 1,
            "threshold": 0,
            "width": 1,
@@ -3699,7 +3600,7 @@
          "chains": [],
          "masks": [
           {
-           "source": "unlock:angle",
+           "source": "unlock:rotation",
            "depth": 1,
            "threshold": 0,
            "width": 1,
@@ -4077,7 +3978,7 @@
        "on": "outline",
        "then": [
         {
-         "unlock": "angle"
+         "unlock": "rotation"
         }
        ],
        "stage": "bottom"
@@ -4107,7 +4008,7 @@
        "on": "outline",
        "then": [
         {
-         "unlock": "angle"
+         "unlock": "rotation"
         }
        ],
        "stage": "left"
