@@ -224,7 +224,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.25,
               "curve": 0,
               "invert": false,
@@ -314,7 +314,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -391,7 +391,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.25,
               "curve": 0,
               "invert": false,
@@ -419,7 +419,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -631,7 +631,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.125,
               "curve": 0,
               "invert": false,
@@ -907,7 +907,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -1093,7 +1093,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -1257,7 +1257,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.125,
               "curve": 0,
               "invert": false,
@@ -1533,7 +1533,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -1719,7 +1719,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -1883,7 +1883,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.125,
               "curve": 0,
               "invert": false,
@@ -1911,7 +1911,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -2097,7 +2097,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -2509,7 +2509,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.125,
               "curve": 0,
               "invert": false,
@@ -2537,7 +2537,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -2723,7 +2723,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -3101,7 +3101,7 @@
         "direction": "auto"
        },
        "stage": "bottom",
-       "muted": true
+       "muted": false
       },
       {
        "id": "lmwpjw3knhrs",
@@ -3715,24 +3715,6 @@
        "muted": false
       },
       {
-       "id": "lmwqlfomotuf",
-       "name": "layer",
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
-        }
-       },
-       "stage": "bottom",
-       "muted": true
-      },
-      {
        "id": "lmwqnqvmuyn3",
        "name": "scattered lines",
        "region": {
@@ -3992,7 +3974,11 @@
        "region": {
         "map": "...........\n...........\n.#.........\n.##........\n.###.......\n.###.......\n.###.......\n.##........\n.#.........\n...........\n..........."
        },
-       "needs": [],
+       "needs": [
+        "dots",
+        "lines",
+        "length"
+       ],
        "on": "tap",
        "then": [
         {
@@ -4006,9 +3992,11 @@
        "id": "hmwmcjqognib",
        "name": "bottom",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n....###....\n...#####...\n..#######..\n..........."
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n....###....\n....###....\n....###....\n..........."
        },
-       "needs": [],
+       "needs": [
+        "lines"
+       ],
        "on": "tap",
        "then": [
         {
