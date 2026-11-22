@@ -161,326 +161,6 @@
      }
     }
    }
-  },
-  {
-   "id": "pff93ac4arxs",
-   "name": "bounce",
-   "layers": [
-    {
-     "name": "bounce even columns",
-     "region": {
-      "cols": [
-       2,
-       0
-      ]
-     },
-     "kind": "cells",
-     "params": {
-      "brightness": {
-       "op": "set",
-       "base": 0.9,
-       "chains": [],
-       "masks": []
-      },
-      "dots": {
-       "op": "set",
-       "base": 0.667,
-       "chains": [],
-       "masks": []
-      },
-      "lines": {
-       "op": "set",
-       "base": 1,
-       "chains": [],
-       "masks": []
-      },
-      "angle": {
-       "op": "set",
-       "base": 90,
-       "chains": [],
-       "masks": []
-      },
-      "length": {
-       "op": "set",
-       "base": 0,
-       "chains": [
-        {
-         "source": "position",
-         "depth": 1,
-         "threshold": 0,
-         "width": 1,
-         "curve": 1,
-         "invert": false,
-         "on": true,
-         "field": {
-          "fn": "curtain",
-          "params": {
-           "offset": {
-            "base": 5.5,
-            "chains": [
-             {
-              "source": "bar.phase",
-              "depth": -11,
-              "threshold": 0.0,
-              "width": 0.25,
-              "curve": 0,
-              "invert": false,
-              "on": true,
-              "every": 4,
-              "offset": 0
-             },
-             {
-              "source": "bar.phase",
-              "depth": 11,
-              "threshold": 0.25,
-              "width": 0.25,
-              "curve": 0,
-              "invert": false,
-              "on": true,
-              "every": 4,
-              "offset": 0
-             }
-            ]
-           },
-           "edge": {
-            "base": 1,
-            "chains": []
-           },
-           "turn": {
-            "base": 0.5,
-            "chains": []
-           },
-           "x": {
-            "base": 0,
-            "chains": []
-           },
-           "y": {
-            "base": 0,
-            "chains": []
-           }
-          }
-         }
-        },
-        {
-         "source": "position",
-         "depth": -1,
-         "threshold": 0,
-         "width": 1,
-         "curve": 1,
-         "invert": false,
-         "on": true,
-         "field": {
-          "fn": "curtain",
-          "params": {
-           "offset": {
-            "base": 5.5,
-            "chains": [
-             {
-              "source": "bar.phase",
-              "depth": -11,
-              "threshold": 0.5,
-              "width": 0.25,
-              "curve": 0,
-              "invert": false,
-              "on": true,
-              "every": 4,
-              "offset": 0
-             },
-             {
-              "source": "bar.phase",
-              "depth": 11,
-              "threshold": 0.75,
-              "width": 0.25,
-              "curve": 0,
-              "invert": false,
-              "on": true,
-              "every": 4,
-              "offset": 0
-             }
-            ]
-           },
-           "edge": {
-            "base": 1,
-            "chains": []
-           },
-           "turn": {
-            "base": 0,
-            "chains": []
-           },
-           "x": {
-            "base": 0,
-            "chains": []
-           },
-           "y": {
-            "base": 0,
-            "chains": []
-           }
-          }
-         }
-        }
-       ],
-       "masks": []
-      }
-     }
-    },
-    {
-     "name": "bounce odd columns",
-     "region": {
-      "cols": [
-       2,
-       1
-      ]
-     },
-     "kind": "cells",
-     "params": {
-      "brightness": {
-       "op": "set",
-       "base": 0.9,
-       "chains": [],
-       "masks": []
-      },
-      "dots": {
-       "op": "set",
-       "base": 0.667,
-       "chains": [],
-       "masks": []
-      },
-      "lines": {
-       "op": "set",
-       "base": 1,
-       "chains": [],
-       "masks": []
-      },
-      "angle": {
-       "op": "set",
-       "base": 270,
-       "chains": [],
-       "masks": []
-      },
-      "length": {
-       "op": "set",
-       "base": 0,
-       "chains": [
-        {
-         "source": "position",
-         "depth": 1,
-         "threshold": 0,
-         "width": 1,
-         "curve": 1,
-         "invert": false,
-         "on": true,
-         "field": {
-          "fn": "curtain",
-          "params": {
-           "offset": {
-            "base": 5.5,
-            "chains": [
-             {
-              "source": "bar.phase",
-              "depth": -11,
-              "threshold": 0.0,
-              "width": 0.25,
-              "curve": 0,
-              "invert": false,
-              "on": true,
-              "every": 4,
-              "offset": 0
-             },
-             {
-              "source": "bar.phase",
-              "depth": 11,
-              "threshold": 0.25,
-              "width": 0.25,
-              "curve": 0,
-              "invert": false,
-              "on": true,
-              "every": 4,
-              "offset": 0
-             }
-            ]
-           },
-           "edge": {
-            "base": 1,
-            "chains": []
-           },
-           "turn": {
-            "base": 0,
-            "chains": []
-           },
-           "x": {
-            "base": 0,
-            "chains": []
-           },
-           "y": {
-            "base": 0,
-            "chains": []
-           }
-          }
-         }
-        },
-        {
-         "source": "position",
-         "depth": -1,
-         "threshold": 0,
-         "width": 1,
-         "curve": 1,
-         "invert": false,
-         "on": true,
-         "field": {
-          "fn": "curtain",
-          "params": {
-           "offset": {
-            "base": 5.5,
-            "chains": [
-             {
-              "source": "bar.phase",
-              "depth": -11,
-              "threshold": 0.5,
-              "width": 0.25,
-              "curve": 0,
-              "invert": false,
-              "on": true,
-              "every": 4,
-              "offset": 0
-             },
-             {
-              "source": "bar.phase",
-              "depth": 11,
-              "threshold": 0.75,
-              "width": 0.25,
-              "curve": 0,
-              "invert": false,
-              "on": true,
-              "every": 4,
-              "offset": 0
-             }
-            ]
-           },
-           "edge": {
-            "base": 1,
-            "chains": []
-           },
-           "turn": {
-            "base": 0.5,
-            "chains": []
-           },
-           "x": {
-            "base": 0,
-            "chains": []
-           },
-           "y": {
-            "base": 0,
-            "chains": []
-           }
-          }
-         }
-        }
-       ],
-       "masks": []
-      }
-     }
-    }
-   ]
   }
  ],
  "tracks": [
@@ -536,7 +216,9 @@
        "id": "lf1d8694fbars",
        "name": "turning bars",
        "stage": "bottom",
-       "region": {},
+       "region": {
+        "map": "###########\n###########\n###########\n###########\n####...####\n####...####\n####...####\n###########\n###########\n###########\n###########"
+       },
        "kind": "cells",
        "params": {
         "brightness": {
@@ -561,6 +243,21 @@
         "direction": "any"
        },
        "stage": "bottom"
+      },
+      {
+       "id": "lmwogoy6a5m9",
+       "name": "hole: hotspot",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n........#..\n........#..\n........#..\n........#..\n........#..\n..........."
+       },
+       "kind": "hole",
+       "params": {
+        "hotspot": "hmwog8hpw879",
+        "dots": true,
+        "direction": "auto"
+       },
+       "stage": "bottom",
+       "muted": true
       },
       {
        "id": "lmwpjw3knhrs",
@@ -765,7 +462,8 @@
          "masks": []
         }
        },
-       "stage": "foyer"
+       "stage": "foyer",
+       "muted": false
       },
       {
        "id": "lmwmwo72pig6",
@@ -817,7 +515,7 @@
          "chains": [
           {
            "source": "bar",
-           "depth": 1,
+           "depth": -1,
            "threshold": 0,
            "width": 1,
            "curve": 1,
@@ -1133,19 +831,6 @@
         "hotspot": "hmw4rooy7v5i"
        },
        "stage": "foyer",
-       "muted": true
-      },
-      {
-       "id": "lmwogoy6a5m9",
-       "name": "hole: hotspot",
-       "region": {},
-       "kind": "hole",
-       "params": {
-        "hotspot": "hmwog8hpw879",
-        "dots": true,
-        "direction": "auto"
-       },
-       "stage": "bottom",
        "muted": true
       },
       {
@@ -1569,7 +1254,7 @@
        "id": "hmwpjy2jpb3g",
        "name": "name 1",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n.####......\n.####......\n.####......\n.####......\n..........."
+        "map": "...........\n...........\n...........\n...........\n....###....\n....###....\n....###....\n...........\n...........\n...........\n..........."
        },
        "needs": [],
        "on": "tap",
@@ -1649,16 +1334,16 @@
      }
     },
     {
-     "id": "sine/1",
+     "id": "sine/2",
      "bars": [
-      32,
-      40
+      16,
+      32
      ],
-     "loop": 32,
+     "loop": 16,
      "stages": [],
      "layers": [
       {
-       "id": "lmwqkswgm0bt",
+       "id": "lmws95glrggr",
        "name": "field",
        "region": {},
        "kind": "cells",
