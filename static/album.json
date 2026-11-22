@@ -161,6 +161,326 @@
      }
     }
    }
+  },
+  {
+   "id": "pff93ac4arxs",
+   "name": "bounce",
+   "layers": [
+    {
+     "name": "bounce even columns",
+     "region": {
+      "cols": [
+       2,
+       0
+      ]
+     },
+     "kind": "cells",
+     "params": {
+      "brightness": {
+       "op": "set",
+       "base": 0.9,
+       "chains": [],
+       "masks": []
+      },
+      "dots": {
+       "op": "set",
+       "base": 0.667,
+       "chains": [],
+       "masks": []
+      },
+      "lines": {
+       "op": "set",
+       "base": 1,
+       "chains": [],
+       "masks": []
+      },
+      "angle": {
+       "op": "set",
+       "base": 90,
+       "chains": [],
+       "masks": []
+      },
+      "length": {
+       "op": "set",
+       "base": 0,
+       "chains": [
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.0,
+              "width": 0.25,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "every": 4,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.25,
+              "width": 0.25,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "every": 4,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.5,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.5,
+              "width": 0.25,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "every": 4,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.75,
+              "width": 0.25,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "every": 4,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        }
+       ],
+       "masks": []
+      }
+     }
+    },
+    {
+     "name": "bounce odd columns",
+     "region": {
+      "cols": [
+       2,
+       1
+      ]
+     },
+     "kind": "cells",
+     "params": {
+      "brightness": {
+       "op": "set",
+       "base": 0.9,
+       "chains": [],
+       "masks": []
+      },
+      "dots": {
+       "op": "set",
+       "base": 0.667,
+       "chains": [],
+       "masks": []
+      },
+      "lines": {
+       "op": "set",
+       "base": 1,
+       "chains": [],
+       "masks": []
+      },
+      "angle": {
+       "op": "set",
+       "base": 270,
+       "chains": [],
+       "masks": []
+      },
+      "length": {
+       "op": "set",
+       "base": 0,
+       "chains": [
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.0,
+              "width": 0.25,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "every": 4,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.25,
+              "width": 0.25,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "every": 4,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.5,
+              "width": 0.25,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "every": 4,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.75,
+              "width": 0.25,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "every": 4,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.5,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        }
+       ],
+       "masks": []
+      }
+     }
+    }
+   ]
   }
  ],
  "tracks": [
