@@ -212,6 +212,9 @@
          "curve": 1,
          "invert": false,
          "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
          "field": {
           "fn": "curtain",
           "params": {
@@ -221,11 +224,12 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0,
+              "threshold": 0.0,
               "width": 0.25,
               "curve": 0,
               "invert": false,
               "on": true,
+              "ripple": 0,
               "every": 4,
               "offset": 0
              },
@@ -237,6 +241,7 @@
               "curve": 0,
               "invert": false,
               "on": true,
+              "ripple": 0,
               "every": 4,
               "offset": 0
              }
@@ -269,6 +274,9 @@
          "curve": 1,
          "invert": false,
          "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
          "field": {
           "fn": "curtain",
           "params": {
@@ -283,6 +291,7 @@
               "curve": 0,
               "invert": false,
               "on": true,
+              "ripple": 0,
               "every": 4,
               "offset": 0
              },
@@ -294,6 +303,7 @@
               "curve": 0,
               "invert": false,
               "on": true,
+              "ripple": 0,
               "every": 4,
               "offset": 0
              }
@@ -304,7 +314,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0,
+            "base": 0.0,
             "chains": []
            },
            "x": {
@@ -369,6 +379,9 @@
          "curve": 1,
          "invert": false,
          "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
          "field": {
           "fn": "curtain",
           "params": {
@@ -378,11 +391,12 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0,
+              "threshold": 0.0,
               "width": 0.25,
               "curve": 0,
               "invert": false,
               "on": true,
+              "ripple": 0,
               "every": 4,
               "offset": 0
              },
@@ -394,6 +408,7 @@
               "curve": 0,
               "invert": false,
               "on": true,
+              "ripple": 0,
               "every": 4,
               "offset": 0
              }
@@ -404,7 +419,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0,
+            "base": 0.0,
             "chains": []
            },
            "x": {
@@ -426,6 +441,9 @@
          "curve": 1,
          "invert": false,
          "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
          "field": {
           "fn": "curtain",
           "params": {
@@ -440,6 +458,7 @@
               "curve": 0,
               "invert": false,
               "on": true,
+              "ripple": 0,
               "every": 4,
               "offset": 0
              },
@@ -451,6 +470,7 @@
               "curve": 0,
               "invert": false,
               "on": true,
+              "ripple": 0,
               "every": 4,
               "offset": 0
              }
@@ -477,6 +497,2510 @@
         }
        ],
        "masks": []
+      }
+     }
+    },
+    {
+     "name": "pinwheel even columns, even rows",
+     "region": {
+      "cols": [
+       2,
+       0
+      ],
+      "rows": [
+       2,
+       0
+      ]
+     },
+     "kind": "cells",
+     "params": {
+      "angle": {
+       "op": "set",
+       "base": 90,
+       "chains": [
+        {
+         "source": "bar.phase",
+         "depth": -90,
+         "threshold": 0.125,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -180,
+         "threshold": 0.375,
+         "width": 0.0002,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -90,
+         "threshold": 0.375,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -90,
+         "threshold": 0.625,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -180,
+         "threshold": 0.75,
+         "width": 0.0002,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -90,
+         "threshold": 0.875,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        }
+       ],
+       "masks": [
+        {
+         "source": "unlock:angle",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "add": false,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0
+        }
+       ]
+      },
+      "length": {
+       "op": "set",
+       "base": 0,
+       "chains": [
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.0,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.125,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.5,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.125,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.125,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.75,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.25,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.375,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.25,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.375,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.375,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.5,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.5,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.625,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.0,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.625,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.625,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.25,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.75,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.875,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.75,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.875,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.875,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.0,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        }
+       ],
+       "masks": [
+        {
+         "source": "unlock:angle",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "add": false,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "pinwheel even columns, odd rows",
+     "region": {
+      "cols": [
+       2,
+       0
+      ],
+      "rows": [
+       2,
+       1
+      ]
+     },
+     "kind": "cells",
+     "params": {
+      "angle": {
+       "op": "set",
+       "base": 90,
+       "chains": [
+        {
+         "source": "bar.phase",
+         "depth": 90,
+         "threshold": 0.125,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -180,
+         "threshold": 0.375,
+         "width": 0.0002,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": 90,
+         "threshold": 0.375,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": 90,
+         "threshold": 0.625,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -180,
+         "threshold": 0.75,
+         "width": 0.0002,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": 90,
+         "threshold": 0.875,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        }
+       ],
+       "masks": [
+        {
+         "source": "unlock:angle",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "add": false,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0
+        }
+       ]
+      },
+      "length": {
+       "op": "set",
+       "base": 0,
+       "chains": [
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.0,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.125,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.5,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.125,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.125,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.25,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.25,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.375,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.75,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.375,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.375,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.5,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.5,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.625,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.0,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.625,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.625,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.75,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.75,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.875,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.25,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.875,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.875,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.0,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        }
+       ],
+       "masks": [
+        {
+         "source": "unlock:angle",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "add": false,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "pinwheel odd columns, even rows",
+     "region": {
+      "cols": [
+       2,
+       1
+      ],
+      "rows": [
+       2,
+       0
+      ]
+     },
+     "kind": "cells",
+     "params": {
+      "angle": {
+       "op": "set",
+       "base": 270,
+       "chains": [
+        {
+         "source": "bar.phase",
+         "depth": 90,
+         "threshold": 0.125,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -180,
+         "threshold": 0.375,
+         "width": 0.0002,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": 90,
+         "threshold": 0.375,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": 90,
+         "threshold": 0.625,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -180,
+         "threshold": 0.75,
+         "width": 0.0002,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": 90,
+         "threshold": 0.875,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        }
+       ],
+       "masks": [
+        {
+         "source": "unlock:angle",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "add": false,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0
+        }
+       ]
+      },
+      "length": {
+       "op": "set",
+       "base": 0,
+       "chains": [
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.0,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.125,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.0,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.125,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.125,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.75,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.25,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.375,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.25,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.375,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.375,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.0,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.5,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.625,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.5,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.625,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.625,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.25,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.75,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.875,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.75,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.875,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.875,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.5,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        }
+       ],
+       "masks": [
+        {
+         "source": "unlock:angle",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "add": false,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "pinwheel odd columns, odd rows",
+     "region": {
+      "cols": [
+       2,
+       1
+      ],
+      "rows": [
+       2,
+       1
+      ]
+     },
+     "kind": "cells",
+     "params": {
+      "angle": {
+       "op": "set",
+       "base": 270,
+       "chains": [
+        {
+         "source": "bar.phase",
+         "depth": -90,
+         "threshold": 0.125,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -180,
+         "threshold": 0.375,
+         "width": 0.0002,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -90,
+         "threshold": 0.375,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -90,
+         "threshold": 0.625,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -180,
+         "threshold": 0.75,
+         "width": 0.0002,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        },
+        {
+         "source": "bar.phase",
+         "depth": -90,
+         "threshold": 0.875,
+         "width": 0.03125,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 8,
+         "offset": 0
+        }
+       ],
+       "masks": [
+        {
+         "source": "unlock:angle",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "add": false,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0
+        }
+       ]
+      },
+      "length": {
+       "op": "set",
+       "base": 0,
+       "chains": [
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.0,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.125,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.0,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.125,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.125,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.25,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.25,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.375,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.75,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.375,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.375,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.0,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.5,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.625,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.5,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.625,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.625,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.75,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.75,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.875,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.25,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        },
+        {
+         "source": "position",
+         "depth": -1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 1,
+         "invert": false,
+         "on": true,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0,
+         "field": {
+          "fn": "curtain",
+          "params": {
+           "offset": {
+            "base": 5.5,
+            "chains": [
+             {
+              "source": "bar.phase",
+              "depth": -11,
+              "threshold": 0.875,
+              "width": 0.0002,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             },
+             {
+              "source": "bar.phase",
+              "depth": 11,
+              "threshold": 0.875,
+              "width": 0.125,
+              "curve": 0,
+              "invert": false,
+              "on": true,
+              "ripple": 0,
+              "every": 8,
+              "offset": 0
+             }
+            ]
+           },
+           "edge": {
+            "base": 1,
+            "chains": []
+           },
+           "turn": {
+            "base": 0.5,
+            "chains": []
+           },
+           "x": {
+            "base": 0,
+            "chains": []
+           },
+           "y": {
+            "base": 0,
+            "chains": []
+           }
+          }
+         }
+        }
+       ],
+       "masks": [
+        {
+         "source": "unlock:angle",
+         "depth": 1,
+         "threshold": 0,
+         "width": 1,
+         "curve": 0,
+         "invert": false,
+         "on": true,
+         "add": false,
+         "ripple": 0,
+         "every": 1,
+         "offset": 0
+        }
+       ]
       }
      }
     }
