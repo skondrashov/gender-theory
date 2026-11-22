@@ -221,7 +221,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.25,
               "curve": 0,
               "invert": false,
@@ -378,7 +378,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.25,
               "curve": 0,
               "invert": false,
