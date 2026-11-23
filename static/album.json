@@ -1,5 +1,5 @@
 {
- "version": 2,
+ "version": 4,
  "bands": [
   {
    "id": "b-kick",
@@ -515,7 +515,7 @@
      },
      "kind": "cells",
      "needs": [
-      "rotation"
+      "angle"
      ],
      "params": {
       "angle": {
@@ -1116,7 +1116,7 @@
      },
      "kind": "cells",
      "needs": [
-      "rotation"
+      "angle"
      ],
      "params": {
       "angle": {
@@ -1717,7 +1717,7 @@
      },
      "kind": "cells",
      "needs": [
-      "rotation"
+      "angle"
      ],
      "params": {
       "angle": {
@@ -2318,7 +2318,7 @@
      },
      "kind": "cells",
      "needs": [
-      "rotation"
+      "angle"
      ],
      "params": {
       "angle": {
@@ -3082,7 +3082,7 @@
          "chains": [],
          "masks": [
           {
-           "source": "unlock:rotation",
+           "source": "unlock:angle",
            "depth": 1,
            "threshold": 0,
            "width": 1,
@@ -3504,7 +3504,7 @@
          "chains": [],
          "masks": [
           {
-           "source": "unlock:rotation",
+           "source": "unlock:angle",
            "depth": 1,
            "threshold": 0,
            "width": 1,
@@ -3949,7 +3949,7 @@
        "on": "outline",
        "then": [
         {
-         "unlock": "rotation"
+         "unlock": "angle"
         }
        ],
        "stage": "left"
@@ -4447,7 +4447,7 @@
        },
        "kind": "cells",
        "needs": [
-        "rotation"
+        "angle"
        ],
        "params": {
         "angle": {
@@ -5051,7 +5051,7 @@
        },
        "kind": "cells",
        "needs": [
-        "rotation"
+        "angle"
        ],
        "params": {
         "angle": {
@@ -5655,7 +5655,7 @@
        },
        "kind": "cells",
        "needs": [
-        "rotation"
+        "angle"
        ],
        "params": {
         "angle": {
@@ -6259,7 +6259,7 @@
        },
        "kind": "cells",
        "needs": [
-        "rotation"
+        "angle"
        ],
        "params": {
         "angle": {
@@ -6925,7 +6925,7 @@
        "on": "outline",
        "then": [
         {
-         "unlock": "rotation"
+         "unlock": "angle"
         }
        ],
        "stage": "bars"

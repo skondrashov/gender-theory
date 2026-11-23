@@ -941,12 +941,12 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 	},
 	RowSpec {
 		name: "angle",
-		set: Some((Unlock::Angle, 0.0)),
-		motion: Some(Unlock::Rotation),
+		set: None,
+		motion: Some(Unlock::Angle),
 		start: 0.0,
 		default: 0.0,
 		step: 15.0,
-		doc: "degrees anticlockwise from pointing right: 0 along, 90 across. Free from the start; angle is its sidechain option — it turns (and spins) once angle is unlocked. Patterns: noise × 360 scatters; bearing × −360 + 90 is radial, + 180 tangent; around × 360 runs round the rectangle.",
+		doc: "degrees anticlockwise from pointing right: 0 along, 90 across. The base is free; it turns (spins, follows the music) once angle is unlocked. Patterns: noise × 360 scatters; bearing × −360 + 90 is radial, + 180 tangent; around × 360 runs round the rectangle.",
 	},
 	RowSpec {
 		name: "bend",
@@ -1005,11 +1005,11 @@ pub const ROWS: [RowSpec; Unlock::COUNT] = [
 	RowSpec {
 		name: "rotation",
 		set: None,
-		motion: None,
+		motion: Some(Unlock::Rotation),
 		start: 0.0,
 		default: 0.0,
 		step: 15.0,
-		doc: "degrees the ring is turned (and spins); 0 until rotation is unlocked",
+		doc: "degrees the ring is turned; the base is free, it spins and follows the music once rotation is unlocked",
 	},
 	RowSpec {
 		name: "color",

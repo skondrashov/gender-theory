@@ -111,7 +111,9 @@ pub enum Unlock {
 	Lines = 0,
 	/// The length moves: its sidechains and masks on the music (its base is free).
 	Length,
-	/// The angle may leave 0: lines point where the layer says.
+	/// The angle moves: spin, its sidechains and masks on the music (its base is free).
+	/// One unlock for the angle (owner, 2026-11-23: "you basically unlock angles twice which
+	/// conceptually sucks" — 2026-11-22 had this set it and Rotation move it).
 	Angle,
 	/// Rings appear (the bit that used to be "circles").
 	Rings,
@@ -129,8 +131,7 @@ pub enum Unlock {
 	Morph,
 	/// Rings flatten.
 	Flatness,
-	/// The angle moves: spin, its sidechains and masks on the music (2026-11-22; it was the
-	/// ring's rotation row's unlock, and "angle" was this).
+	/// The ring's rotation moves: its spin and sidechains (its base is free).
 	Rotation,
 	/// Brightness may leave 0: the first unlock — before it everything is dark but the
 	/// hints (2026-11-22; before, the dots row's motion). Last in the enum so saved progress
@@ -148,10 +149,10 @@ impl Unlock {
 		Unlock::Lines,
 		Unlock::Length,
 		Unlock::Angle,
-		Unlock::Rotation,
 		Unlock::Bend,
 		Unlock::Rings,
 		Unlock::Size,
+		Unlock::Rotation,
 		Unlock::Fill,
 		Unlock::Morph,
 		Unlock::Flatness,

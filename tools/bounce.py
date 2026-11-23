@@ -2,7 +2,7 @@
 
 Plain pair (angle locked): even/odd columns, angle up/down, length = two position→curtain
 chains on bar.phase every 4 (grow+retreat up, grow+retreat from the other end as a negative
-length). Pinwheel set (needs the rotation unlock): four layers by column parity ×
+length). Pinwheel set (needs the angle unlock): four layers by column parity ×
 row parity; angle = V + a sequence of quarter turns (6 chains on bar.phase every 8, kept
 within 90° of the plain angle so the crossfade in is a swing, never a flip); length = eight
 one-bar curtains (grow/retreat along the pointing of that bar), signed so opposite directions
@@ -94,7 +94,7 @@ def pinwheel(a, b, rows=False):
     lane, other = ('rows', 'cols') if rows else ('cols', 'rows')
     words = {'cols': 'columns', 'rows': 'rows'}
     return {'name': f"pinwheel {'even' if a == 0 else 'odd'} {words[lane]}, {'even' if b == 0 else 'odd'} {words[other]}",
-            'region': {lane: [2, a], other: [2, b]}, 'kind': 'cells', 'needs': ['rotation'], 'params': {
+            'region': {lane: [2, a], other: [2, b]}, 'kind': 'cells', 'needs': ['angle'], 'params': {
                 'angle': row(V, angle),
                 'length': row(0, length)}}
 

@@ -11,7 +11,7 @@ const STAGE = 500;
 const CELL = 250 / W;  // grid px per cell
 const PPB = 12;      // timeline px per bar
 const GUTTER = 72;   // timeline lane labels
-const UNLOCKS = ['dots', 'glow', 'lines', 'length', 'angle', 'rotation', 'bend', 'rings', 'size', 'fill', 'morph', 'flatness', 'color'];
+const UNLOCKS = ['dots', 'glow', 'lines', 'length', 'angle', 'bend', 'rings', 'size', 'rotation', 'fill', 'morph', 'flatness', 'color'];
 const BAND_COLORS = ['#ff7333', '#ffd23f', '#3fd2a0', '#3f9fff', '#c77dff', '#ff5e8a', '#9cff57'];
 
 const $ = (s) => document.querySelector(s);
@@ -84,7 +84,9 @@ function fitScene(s, oldBars) {
 // or need it and masks on it are renamed; a file's own "angle" means setting the angle now.
 // Since 2026-11-23 (`version` 3) there is no hole kind: a hole becomes a cells layer that
 // multiplies lines (and rings, and brightness if it took the dots) by 0, masked on its hotspot
-// and, for a wide or tall one, on `along` the lines it cut.
+// and, for a wide or tall one, on `along` the lines it cut. Since 2026-11-23 too (`version` 4)
+// one unlock turns the lines: `angle` moves the angle row (base free) and `rotation` is the
+// ring's again — grants, needs and masks on "rotation" meant the lines and become "angle".
 function migrate(album) {
   const holeToCells = (l) => {
     const q = l.params || {};
@@ -106,12 +108,15 @@ function migrate(album) {
       if (old && Array.isArray(node.needs)) node.needs = node.needs.map((u) => (u === 'angle' ? 'rotation' : u));
       if (old && node.unlock === 'angle' && Object.keys(node).length === 1) node.unlock = 'rotation';
       if (holes && node.kind === 'hole') holeToCells(node);
+      if (twice && typeof node.source === 'string' && node.source === 'unlock:rotation') node.source = 'unlock:angle';
+      if (twice && Array.isArray(node.needs)) node.needs = node.needs.map((u) => (u === 'rotation' ? 'angle' : u));
+      if (twice && node.unlock === 'rotation' && Object.keys(node).length === 1) node.unlock = 'angle';
       Object.values(node).forEach(walk);
     }
   };
-  const old = (album.version ?? 1) < 2, holes = (album.version ?? 1) < 3;
+  const old = (album.version ?? 1) < 2, holes = (album.version ?? 1) < 3, twice = (album.version ?? 1) < 4;
   walk(album);
-  if (holes) album.version = 3;
+  if (twice) album.version = 4;
   return album;
 }
 

@@ -820,3 +820,14 @@ line values to sync with the direction of the lines".
   the `needs` doc span is gone; `migrate()` version 3 turns hole layers into the cells recipe
   (direction from `direction` or the map's shape). The album had no holes left (the owner had
   already deleted the bars scene's two).
+
+## One unlock for the angle (2026-11-23)
+
+Owner: "right now you basically unlock angles twice which conceptually sucks". The angle row:
+`set: None, motion: Some(Angle)` - the base is free like length's, `angle` makes it turn (spin,
+music). `rotation` is the ring's rotation row's motion again (`motion: Some(Rotation)`, was
+free). Bits unchanged; `Unlock::ALL` order dots, glow, lines, length, angle, bend, rings, size,
+rotation, fill, morph, flatness, color (editor UNLOCKS the same). Album `version` 4: grants,
+needs and `unlock:rotation` masks -> angle (they all meant the lines); `tools/bounce.py`
+pinwheel `needs: ["angle"]`. Consequence: a painted angle shows before any unlock (lines
+unlock shows the lines as painted, not horizontal).
