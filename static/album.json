@@ -6895,6 +6895,85 @@
        "stage": "bars"
       },
       {
+       "id": "lu36vgim9k8x",
+       "name": "frozen vertical",
+       "group": "bars",
+       "stage": "bars",
+       "region": {},
+       "kind": "cells",
+       "params": {
+        "angle": {
+         "op": "set",
+         "base": 90,
+         "chains": [],
+         "masks": [
+          {
+           "source": "done:hmwsplmejdf2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 0,
+           "invert": false,
+           "on": true,
+           "ripple": 0,
+           "every": 1,
+           "offset": 0
+          }
+         ]
+        },
+        "length": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": [
+          {
+           "source": "done:hmwsplmejdf2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 0,
+           "invert": false,
+           "on": true,
+           "ripple": 0,
+           "every": 1,
+           "offset": 0
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "lrwknvu9onyj",
+       "name": "where the vertical line goes",
+       "group": "bars",
+       "stage": "bars",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n........#..\n........#..\n........#..\n........#..\n........#..\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "lines": {
+         "op": "multiply",
+         "base": 0,
+         "chains": [],
+         "masks": [
+          {
+           "source": "done:hmwsplmejdf2",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 0,
+           "invert": false,
+           "on": true,
+           "ripple": 0,
+           "every": 1,
+           "offset": 0
+          }
+         ]
+        }
+       }
+      },
+      {
        "id": "lmwsplmek5qs",
        "name": "horizontal hotspot",
        "region": {
@@ -7011,11 +7090,7 @@
        },
        "needs": [],
        "on": "outline",
-       "then": [
-        {
-         "unlock": "glow"
-        }
-       ],
+       "then": [],
        "stage": "bars"
       },
       {
@@ -7031,7 +7106,10 @@
          "unlock": "angle"
         }
        ],
-       "stage": "bars"
+       "stage": "bars",
+       "after": [
+        "hmwsplmejdf2"
+       ]
       }
      ],
      "unlock_delays": {

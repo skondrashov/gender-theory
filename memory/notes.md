@@ -847,3 +847,25 @@ highlight is per scene and stage (`lastPlayingKey`).
   across tracks too, `renderAll()` then), and a scene picked by hand sticks until the next
   change; the `follow` flag is gone. Owner: "it should probably take you to the scene that
   starts playing when you switch". The playing scene/stage marks are set as the list is built.
+
+## Done hotspots: waves and `after` (2026-11-23)
+
+Owner, for the bars scene: "drawing the horizontal line to send out a ripple synced to the
+beat which freezes all the bars and turns them vertical as it passes over and erases the line
+that needs to be drawn at the vertical hotspot, which unlocks that hotspot".
+- `Model.done: Vec<Option<f32>>` by tag, the bar (next beat) a hotspot's gesture completed
+  this visit; `complete(hotspot)` replaces the two `act(&hotspot.then)` call sites (release,
+  outline closed); cleared in `enter()`. `done_at(tag)`.
+- `Hotspot.after: &'static [u8]` (data: ids) - `visible()` waits for them; a hotspot with
+  `Action::All(&[])` is hidden once done (a trigger). The 23 hand-written hotspots got
+  `after: &[]`.
+- Source `done:<id>` (handled first in `Signals::level`, fixed): `clamp((beats_since - d *
+  every) / every, 0, 1)`, d = the cell's distance to the hotspot's nearest cell
+  (`DataScene.dists`, 121 floats per hotspot, built with the scene). `every` = beats per cell.
+- Editor: `after` checkboxes + "done now" (`editor({done: k})`, k the hotspot's index) in the
+  hotspot inspector; `done · name` sources; `st.done` for the meter; copyStage remaps `after`
+  and `done:` sources.
+- Bars scene: horizontal `then: []` (a trigger - it granted glow), vertical `after`
+  horizontal, layers "frozen vertical" (angle set 90, length set 1, masked done:horizontal)
+  and "where the vertical line goes" (the vertical's cells, lines x 0, same mask) at the end
+  of the bars group. Frozen = full-height continuous columns; the owner may want another look.

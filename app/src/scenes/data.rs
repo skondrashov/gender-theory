@@ -251,6 +251,8 @@ pub struct HotspotData {
 	pub on: OnData,
 	pub then: Vec<ActionData>,
 	pub stage: Option<String>,
+	/// Ids of the scene's hotspots that must be done first (this visit).
+	pub after: Vec<String>,
 }
 
 impl Default for HotspotData {
@@ -265,6 +267,7 @@ impl Default for HotspotData {
 			on: OnData::Name("tap".into()),
 			then: vec![],
 			stage: None,
+			after: vec![],
 		}
 	}
 }
@@ -514,6 +517,8 @@ pub struct Signals<'a> {
 	/// spent) and `unlock:<name>` (its reveal, 0..1); and the noise map, for fields.
 	pub model: &'a Model,
 	pub tags: &'a [(String, u8)],
+	/// Per hotspot (by tag): each cell's distance in cells to its nearest cell, for `done:` waves.
+	pub dists: &'a [&'static [f32]],
 	/// The cell: its index, and where it is in cells right of and up from the centre dot.
 	pub i: usize,
 	pub j: usize,
@@ -566,12 +571,15 @@ impl Signals<'_> {
 	/// Is this source a fixed pattern or a state of the game rather than motion — so it
 	/// acts whatever is unlocked? (A position field's parameters gate their own motion.)
 	pub fn fixed(source: &str) -> bool {
-		matches!(source, "noise" | "distance" | "bearing" | "around" | "position") || source.starts_with("hotspot:") || source.starts_with("unlock:")
+		matches!(source, "noise" | "distance" | "bearing" | "around" | "position") || source.starts_with("hotspot:") || source.starts_with("unlock:") || source.starts_with("done:")
 	}
 
 	/// A sidechain's or mask's level: its field at the cell if it is one, else its source,
 	/// delayed by its `ripple` × the cell's distance.
 	pub fn level(&self, chain: &Sidechain, gate: f32, depth: u8) -> f32 {
+		if let Some(id) = chain.source.strip_prefix("done:") {
+			return self.wave(id, chain.every);
+		}
 		match &chain.field {
 			Some(field) if chain.source == "position" => {
 				if depth >= 3 {
@@ -582,6 +590,23 @@ impl Signals<'_> {
 			}
 			_ => self.get_timed(&chain.source, chain.ripple * self.distance, chain.every, chain.offset),
 		}
+	}
+
+	/// `done:<id>`: a wave from a hotspot once its gesture is done this visit — 0 ahead of it,
+	/// rising over one step as it passes, 1 behind; it leaves the hotspot's cells on the beat
+	/// after the gesture and moves one cell per `every` beats (owner, 2026-11-23: "a ripple
+	/// synced to the beat which freezes all the bars and turns them vertical as it passes").
+	fn wave(&self, id: &str, per: f32) -> f32 {
+		let Some(&(_, tag)) = self.tags.iter().find(|(hotspot, _)| hotspot == id) else {
+			return 0.0;
+		};
+		let Some(from) = self.model.done_at(tag) else {
+			return 0.0;
+		};
+		let per = per.max(1e-3);
+		let beats = (self.bars - from) * 4.0;
+		let d = self.dists.get(tag as usize).map_or(f32::MAX, |table| table[self.i * CANVAS_HEIGHT + self.j]);
+		((beats - d * per) / per).clamp(0.0, 1.0)
 	}
 
 	/// `get_delayed`, with the beat and bar sources on a cycle of `every` beats (bars) from
@@ -1447,6 +1472,8 @@ struct DataScene {
 	layers: &'static [LayerRt],
 	/// Hotspot id → its tag in this scene.
 	tags: Vec<(String, u8)>,
+	/// Per hotspot: each cell's distance to it, in cells.
+	dists: Vec<&'static [f32]>,
 	/// The scene's bars, for layers without their own.
 	bars: [usize; 2],
 }
@@ -1531,10 +1558,10 @@ pub fn install(json: &str) -> Result<usize, String> {
 				scene.stages.iter().map(|s| delay(s)).collect()
 			};
 			let mut hotspots = vec![];
-			let mut tags = vec![];
+			let mut dists: Vec<&'static [f32]> = vec![];
+			let tags: Vec<(String, u8)> = scene.hotspots.iter().enumerate().map(|(k, h)| (h.id.clone(), k as u8)).collect();
 			for hotspot in &scene.hotspots {
 				let tag = hotspots.len() as u8;
-				tags.push((hotspot.id.clone(), tag));
 				let region: &'static Region = leak(if hotspot.region.is_unset() {
 					Region {
 						rect: hotspot.rect,
@@ -1545,6 +1572,17 @@ pub fn install(json: &str) -> Result<usize, String> {
 				});
 				let inside: &'static (dyn Fn(usize, usize) -> bool + Sync) =
 					leak(move |i: usize, j: usize| region.contains(i, j));
+				// each cell's distance to the hotspot's nearest cell, for the wave a done hotspot sends
+				let cells: Vec<(usize, usize)> = (0..CANVAS_WIDTH).flat_map(|a| (0..CANVAS_HEIGHT).map(move |b| (a, b))).filter(|&(a, b)| region.contains(a, b)).collect();
+				dists.push(Vec::leak(
+					(0..CANVAS_WIDTH * CANVAS_HEIGHT)
+						.map(|n| {
+							let (i, j) = (n / CANVAS_HEIGHT, n % CANVAS_HEIGHT);
+							cells.iter().map(|&(a, b)| ((i as f32 - a as f32).powi(2) + (j as f32 - b as f32).powi(2)).sqrt()).fold(f32::MAX, f32::min)
+						})
+						.collect(),
+				));
+				let after: &'static [u8] = Vec::leak(hotspot.after.iter().filter_map(|id| tags.iter().find(|(h, _)| h == id).map(|(_, t)| *t)).collect());
 				let needs = Unlocks::of(
 					&hotspot
 						.needs
@@ -1582,11 +1620,13 @@ pub fn install(json: &str) -> Result<usize, String> {
 					then,
 					tag,
 					stage: stage_index(&hotspot.stage),
+					after,
 				});
 			}
 			let data: &'static DataScene = leak(DataScene {
 				layers,
 				tags,
+				dists,
 				bars: [bars.start, bars.end],
 			});
 			let render: &'static dyn Fn(&Draw, &Model, usize, usize, f32, [f32; 8]) =
@@ -1646,6 +1686,7 @@ fn render(
 		around: 0.0,
 		model,
 		tags: &scene.tags,
+		dists: &scene.dists,
 		i,
 		j,
 		di,

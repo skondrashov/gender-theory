@@ -102,6 +102,9 @@ pub struct Model {
 	unlocks: Unlocks,
 	/// When each unlock was granted (app time), for easing it in. `-inf` = always had it.
 	revealed: [f32; Unlock::COUNT],
+	/// Per hotspot of the scene (by tag): the bar its gesture was completed on this visit — on
+	/// the beat after it — for `done:<id>` waves and `after`. Cleared on entering a scene.
+	done: Vec<Option<f32>>,
 	/// App time, as of the last update.
 	time: f32,
 	pending: Option<Pending>,
@@ -186,6 +189,7 @@ impl Model {
 			hold: None,
 			unlocks,
 			revealed: [f32::NEG_INFINITY; Unlock::COUNT],
+			done: vec![None; scene.hotspots.len()],
 			time: 0.0,
 			pending: None,
 			started: false,
@@ -439,6 +443,12 @@ impl Model {
 			self.started = true;
 			self.audio.resume();
 		}
+		// the editor: a hotspot done as if drawn (its index in the scene)
+		if let Some(k) = command.get("done").and_then(Value::as_u64) {
+			if let Some(hotspot) = self.scene.hotspots.get(k as usize) {
+				self.complete(hotspot);
+			}
+		}
 		if let Some(cell) = command.get("probe").and_then(Value::as_array) {
 			let at = |k: usize| cell.get(k).and_then(Value::as_u64).unwrap_or(0) as usize;
 			self.probe = (at(0).min(CANVAS_WIDTH - 1), at(1).min(CANVAS_HEIGHT - 1));
@@ -476,6 +486,7 @@ impl Model {
 			"unlocks": Unlock::ALL.iter().filter(|u| self.has(**u)).map(|u| u.name()).collect::<Vec<_>>(),
 			"bands": self.bands,
 			"hotspots": hotspots,
+			"done": self.done.iter().map(|d| d.is_some()).collect::<Vec<_>>(),
 			"pending": self.pending.as_ref().map(|pending| pending.scene.id),
 			"probe": {
 				"i": self.probe.0,
@@ -529,10 +540,13 @@ impl Model {
 		Some((t * t * (3.0 - 2.0 * t), pending.scene, pending.stage, (lands - now).max(0.0) as f32))
 	}
 
-	/// In this stage, unlocked, and still has something to do.
+	/// In this stage, unlocked, its `after` done, and still has something to do (a trigger —
+	/// nothing in `then` — is done once drawn).
 	fn visible(&self, hotspot: &Hotspot) -> bool {
 		hotspot.stage.map_or(true, |stage| stage == self.stage())
 			&& self.unlocks.has_all(hotspot.needs)
+			&& hotspot.after.iter().all(|&tag| self.done_at(tag).is_some())
+			&& !(self.done_at(hotspot.tag).is_some() && matches!(hotspot.then, Action::All(list) if list.is_empty()))
 			// in a stage that delays its unlocks, one that needs any waits for them
 			&& (hotspot.needs == NONE || self.hold_in() >= 1.0)
 			&& !hotspot.then.spent(self.unlocks)
@@ -558,6 +572,23 @@ impl Model {
 				self.audio.load(scene.track);
 			}
 		}
+	}
+
+	/// The bar a hotspot's gesture was completed on this visit, if it was (the beat after).
+	pub fn done_at(&self, tag: u8) -> Option<f32> {
+		self.done.get(tag as usize).copied().flatten()
+	}
+
+	/// A hotspot's gesture is complete: note it (on the next beat, so what follows is on the
+	/// beat) and do what it says.
+	fn complete(&mut self, hotspot: &'static Hotspot) {
+		let next_beat = ((self.bar() * 4.0).floor() + 1.0) / 4.0;
+		if let Some(slot) = self.done.get_mut(hotspot.tag as usize) {
+			if slot.is_none() {
+				*slot = Some(next_beat);
+			}
+		}
+		self.act(&hotspot.then);
 	}
 
 	fn act(&mut self, action: &'static Action) {
@@ -651,6 +682,7 @@ impl Model {
 	fn enter(&mut self, scene: &'static Scene) {
 		self.scene = scene;
 		self.stage = 0;
+		self.done = vec![None; scene.hotspots.len()];
 		self.ticks = [0; 5];
 		self.phases = [0.0; 5];
 		self.trail.clear();
@@ -728,7 +760,7 @@ impl Model {
 						segment.born = now + TRAIL_LINGER;
 					}
 				}
-				self.act(&hotspot.then);
+				self.complete(hotspot);
 			}
 		}
 	}
@@ -1196,6 +1228,6 @@ pub fn mouse_released(app: &App, model: &mut Model, _button: MouseButton) {
 			}
 	});
 	if let Some(hotspot) = hit {
-		model.act(&hotspot.then);
+		model.complete(hotspot);
 	}
 }

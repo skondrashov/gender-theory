@@ -403,6 +403,7 @@ function sourceLevel(name) {
   if (st.bands && name in st.bands) return st.bands[name];
   if (name === 'position') return 0;
   if (name.startsWith('hotspot:')) { const k = (scene()?.hotspots || []).findIndex((h) => h.id === name.slice(8)); return (st.hotspots || []).includes(k) ? 1 : 0; }
+  if (name.startsWith('done:')) { const k = (scene()?.hotspots || []).findIndex((h) => h.id === name.slice(5)); return (st.done || [])[k] ? 1 : 0; }
   if (name.startsWith('unlock:')) return (st.unlocks || []).includes(name.slice(7)) ? 1 : 0;
   const b = builtins();
   return name in b ? b[name] : 0;
@@ -450,7 +451,7 @@ function updateReadouts() {
 // Is this unlock on in the preview (the top bar's toggles)?
 const unlocked = (name) => (st.unlocks || []).includes(name);
 // A pattern or a state, which acts whatever is unlocked — as data.rs's Signals::fixed.
-const fixedSource = (source) => ['noise', 'distance', 'bearing', 'around', 'position'].includes(source) || source.startsWith('hotspot:') || source.startsWith('unlock:');
+const fixedSource = (source) => ['noise', 'distance', 'bearing', 'around', 'position'].includes(source) || source.startsWith('hotspot:') || source.startsWith('unlock:') || source.startsWith('done:');
 
 // A chain's source as it reads it: beat and bar (and their phases) on the chain's `every`
 // cycle, `offset` in — as data.rs's Signals::get_timed, from the playing bar.
@@ -719,6 +720,8 @@ function copyStage(s, k, to) {
     if (Array.isArray(node)) node.forEach(walk);
     else if (node && typeof node === 'object') {
       if (typeof node.hotspot === 'string' && node.hotspot in ids) node.hotspot = ids[node.hotspot];
+      if (Array.isArray(node.after)) node.after = node.after.map((x) => ids[x] ?? x);
+      if (typeof node.source === 'string' && node.source.startsWith('done:') && node.source.slice(5) in ids) node.source = 'done:' + ids[node.source.slice(5)];
       if (typeof node.source === 'string' && node.source.startsWith('hotspot:') && node.source.slice(8) in ids) node.source = 'hotspot:' + ids[node.source.slice(8)];
       Object.values(node).forEach(walk);
     }
@@ -1296,6 +1299,7 @@ function chainRow(list, c, k, rerender, probePart = null, isMask = false) {
     ]),
     ...cat.sources.map((s) => ({ value: s, label: s })),
     ...(scene()?.hotspots || []).map((h) => ({ value: 'hotspot:' + h.id, label: 'hotspot · ' + (h.name || h.id) })),
+    ...(scene()?.hotspots || []).map((h) => ({ value: 'done:' + h.id, label: 'done · ' + (h.name || h.id) })),
     ...UNLOCKS.map((u) => ({ value: 'unlock:' + u, label: 'unlock · ' + u })),
   ];
   const num = (key, step) => el('input', { type: 'number', value: c[key] ?? (key === 'every' ? 1 : 0), step, onchange: (e) => { snapshotForUndo(); c[key] = +e.target.value; commit({ silent: true }); } });
@@ -1414,8 +1418,13 @@ function hotspotInspector(h) {
     row('needs', ...UNLOCKS.map((u) => el('label', {}, el('input', { type: 'checkbox', ...(h.needs.includes(u) ? { checked: '' } : {}), onchange: (e) => {
       snapshotForUndo(); h.needs = UNLOCKS.filter((v) => (v === u ? e.target.checked : h.needs.includes(v))); commit({ silent: true });
     } }), u)), el('span', { class: 'doc' }, 'invisible and inert until the player has these')),
+    row('after', ...scene().hotspots.filter((o) => o !== h).map((o) => el('label', {}, el('input', { type: 'checkbox', ...((h.after || []).includes(o.id) ? { checked: '' } : {}), onchange: (e) => {
+      snapshotForUndo(); h.after = scene().hotspots.filter((x) => x !== h && (x === o ? e.target.checked : (h.after || []).includes(x.id))).map((x) => x.id); if (!h.after.length) delete h.after; commit({ silent: true });
+    } }), o.name || o.id)),
+      el('button', { class: 'small', title: 'as if the player had just drawn or tapped it: its then happens and done:<it> starts its wave', onclick: () => send(JSON.stringify({ done: scene().hotspots.indexOf(h) })) }, 'done now'),
+      el('span', { class: 'doc' }, 'shows once these are done, this visit of the scene')),
     el('fieldset', {}, el('legend', {}, 'then'), actions,
-      el('div', { class: 'doc' }, 'an unlock never moves you; a spent unlock hotspot disappears, so a second hotspot on the same cells that needs it can be the door')),
+      el('div', { class: 'doc' }, 'an unlock never moves you; a spent unlock hotspot disappears, so a second hotspot on the same cells that needs it can be the door. Nothing here: a trigger — done when drawn, then gone; done:<it> is a wave from it, one cell per `every` beats')),
   ];
 }
 

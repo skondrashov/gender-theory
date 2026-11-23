@@ -64,6 +64,9 @@ pub struct Hotspot {
 	pub tag: u8,
 	/// Only in this stage of the scene (`None`: every stage).
 	pub stage: Option<usize>,
+	/// Hotspots of the scene (their tags) that must be done first — an order inside the scene,
+	/// for this visit only (owner, 2026-11-23: drawing the horizontal line "unlocks" the vertical).
+	pub after: &'static [u8],
 }
 
 impl Hotspot {
