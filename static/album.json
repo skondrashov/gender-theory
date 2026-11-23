@@ -3462,7 +3462,18 @@
          "op": "set",
          "base": 270,
          "chains": [],
-         "masks": [],
+         "masks": [
+          {
+           "source": "unlock:angle",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0
+          }
+         ],
          "spin": 0
         }
        },
@@ -3481,7 +3492,18 @@
          "op": "set",
          "base": 180,
          "chains": [],
-         "masks": [],
+         "masks": [
+          {
+           "source": "unlock:angle",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0
+          }
+         ],
          "spin": 0
         }
        },
@@ -3500,7 +3522,18 @@
          "op": "set",
          "base": 90,
          "chains": [],
-         "masks": [],
+         "masks": [
+          {
+           "source": "unlock:angle",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0
+          }
+         ],
          "spin": 0
         }
        },
@@ -3618,6 +3651,16 @@
          "masks": [
           {
            "source": "noise",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0
+          },
+          {
+           "source": "unlock:angle",
            "depth": 1,
            "threshold": 0,
            "width": 1,
@@ -3794,19 +3837,8 @@
          "chains": []
         },
         "brightness": {
-         "base": 0,
-         "chains": [
-          {
-           "source": "unlock:dots",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": true,
-           "on": true,
-           "ripple": 0
-          }
-         ]
+         "base": 1,
+         "chains": []
         },
         "color": {
          "base": 0,
