@@ -771,3 +771,20 @@ Editor only (no engine change):
   7 distinct hotspot ids in the scene, both holes resolving to the new horizontal/vertical.
 - Reusing a headless Edge for a second CDP script after the first exited hung every evaluate
   (no replies at all); a fresh profile per script run is the reliable way.
+
+## The bars scene: the bounce as rows (2026-11-22)
+
+Owner moved the first act's "bottom" stage into a new scene `bars` (sine, bars 16-32, one
+stage `bars`) and put its "turning bars" layer (every row of lines, even rows pointing right,
+odd rows left) in a group `bars`: "i want the bars effect in normal layers ... flesh it out".
+`tools/bounce.py` grew `rows=True` (`--rows`): the same six layers transposed - even/odd rows,
+the plain angle 0/180 (the owner's map), the pinwheel by row parity x column parity. Inserted
+into the group after "turning bars" and before the scene's two holes (a hole cuts what is
+before it). The columns preset is unchanged (0 differing leaves; only key order differs in
+the file). Verified headless (`cdp_bars_scene.py`, `?scene=bars`, `editor({play:true})`):
+dots+lines+angle -> 968 lit px (dots: the bounce sets length 0 everywhere, so "turning bars"
+shows nothing on its own); +length -> horizontal runs 2x vertical through the cycle;
++rotation -> bars 1-2 of 8 flip to vertical runs 2x horizontal. Without `angle` every line
+folds to 0 deg (all horizontal) - the scene needs the angle unlock as well as length.
+Loose end for the owner: the stage's "name 1" hotspot still says `stage: foyer`, which this
+scene has no stage of (it was a way back in sine/1).

@@ -55,20 +55,23 @@ def row(base, chains=(), masks=(), op='set'):
     return {'op': op, 'base': base, 'chains': list(chains), 'masks': list(masks)}
 
 
-def plain(a):
-    """Even (a=0) / odd (a=1) columns: the bounce with the angle locked (as the preset already had)."""
-    V = 90 if a == 0 else 270
+def plain(a, rows=False):
+    """Even (a=0) / odd (a=1) columns: the bounce with the angle locked (as the preset already had).
+    `rows`: even/odd rows instead, the lines pointing right/left (the owner's "turning bars" map)."""
+    V = (0 if a == 0 else 180) if rows else (90 if a == 0 else 270)
+    lane, word = ('rows', 'rows') if rows else ('cols', 'columns')
     def pair(turn, depth, q):  # grow over quarter q, retreat over q+1, of the 4-bar cycle
         return curtain(turn, depth, [phase4(-11, q * 0.25, 0.25), phase4(11, (q + 1) * 0.25, 0.25)])
-    return {'name': 'bounce ' + ('even' if a == 0 else 'odd') + ' columns',
-            'region': {'cols': [2, a]}, 'kind': 'cells', 'params': {
+    return {'name': 'bounce ' + ('even' if a == 0 else 'odd') + ' ' + word,
+            'region': {lane: [2, a]}, 'kind': 'cells', 'params': {
                 'brightness': row(0.9), 'dots': row(0.667), 'lines': row(1), 'angle': row(V),
                 'length': row(0, [pair(turn_of(V + 180), 1, 0), pair(turn_of(V), -1, 2)])}}
 
 
-def pinwheel(a, b):
-    """Column parity a × row parity b: what those cells do once the angle is unlocked."""
-    V = 90 if a == 0 else 270
+def pinwheel(a, b, rows=False):
+    """Column parity a × row parity b: what those cells do once the angle is unlocked.
+    `rows`: a is the row parity and b the column's; the plain state points right/left."""
+    V = (0 if a == 0 else 180) if rows else (90 if a == 0 else 270)
     s = -90 if a == b else 90  # the way this segment turns
     H = V + s
     beat = 1 / 32  # one beat of the 8-bar phase
@@ -84,15 +87,18 @@ def pinwheel(a, b):
         grow8(6, turn_of(H + 180), -1),     # rows back
         retreat8(7, turn_of(V), -1),        # turn; retreat as columns
     ]
-    return {'name': f"pinwheel {'even' if a == 0 else 'odd'} columns, {'even' if b == 0 else 'odd'} rows",
-            'region': {'cols': [2, a], 'rows': [2, b]}, 'kind': 'cells', 'needs': ['rotation'], 'params': {
+    lane, other = ('rows', 'cols') if rows else ('cols', 'rows')
+    words = {'cols': 'columns', 'rows': 'rows'}
+    return {'name': f"pinwheel {'even' if a == 0 else 'odd'} {words[lane]}, {'even' if b == 0 else 'odd'} {words[other]}",
+            'region': {lane: [2, a], other: [2, b]}, 'kind': 'cells', 'needs': ['rotation'], 'params': {
                 'angle': row(V, angle),
                 'length': row(0, length)}}
 
 
-def layers():
-    return [plain(0), plain(1), pinwheel(0, 0), pinwheel(0, 1), pinwheel(1, 0), pinwheel(1, 1)]
+def layers(rows=False):
+    return [plain(0, rows), plain(1, rows), pinwheel(0, 0, rows), pinwheel(0, 1, rows), pinwheel(1, 0, rows), pinwheel(1, 1, rows)]
 
 
 if __name__ == '__main__':
-    print(json.dumps(layers(), indent=1))
+    import sys
+    print(json.dumps(layers(rows='--rows' in sys.argv), indent=1))
