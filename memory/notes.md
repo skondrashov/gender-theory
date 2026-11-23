@@ -749,3 +749,25 @@ automate it … the purist in me still wants to stick with 1" → "yeah" to the 
 - Verified headless (`cdp_unlocks.py`): nothing → 0 lit px; dots → dots only; +lines →
   horizontal half-pitch lines (angle rests 0, length base 0.5 lands); +angle → 60°; +length →
   pulsing with the beat chain; +rotation → spin. Preset: columns without rotation, rows with.
+
+## Scene and track order, copying stages, moving across tracks (2026-11-22)
+
+Owner: "i feel like i should be able to re-order scenes and copy stages between them and stuff".
+Editor only (no engine change):
+- `nudgeSelected` takes scenes too (↑/↓ in the inspector head); `si` follows. Order matters to
+  the engine as the album's order of rooms: `names::exit/stage` number rooms in it, and
+  `scenes::all().first()` — the first scene of the first track — is where the game starts.
+  `moveTrack(d)` (◂/▸ beside the track picker) swaps tracks for the same reason.
+- `copyStage(s, k, to)`: the stage's layers and hotspots deep-copied, hotspots with fresh ids
+  and references remapped (`hotspot` params, `hotspot:` sources), stage name made unique in
+  the target (`name`, `name 2` …), `unlock_delays` carried, `bars` dropped when crossing scenes,
+  `then: {stage: name}` → the new name; other stage actions kept, listed in the status if the
+  target has no such stage. Stageless layers are not copied (they are the scene's base).
+- `moveSelectedTo` / `moveRow` work across tracks (`findScene(id)`, `sceneOptions()` with an
+  optgroup per track); an item's `stage` is dropped if the target lacks it.
+- Verified headless (`cdp_order.py`, `cdp_order2.py`: editor.html with autosave off and PUTs
+  failed through `Fetch.enable`): scene ↑/↓ and track ◂/▸ reorder and undo; "bottom" copied
+  twice into pisser/1 → "bottom" and "bottom 2", 4 layers + 3 hotspots each, delay 1 carried,
+  7 distinct hotspot ids in the scene, both holes resolving to the new horizontal/vertical.
+- Reusing a headless Edge for a second CDP script after the first exited hung every evaluate
+  (no replies at all); a fresh profile per script run is the reliable way.

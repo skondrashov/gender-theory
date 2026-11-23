@@ -119,6 +119,8 @@ async function boot() {
 
   $('#track').onchange = () => { ti = +$('#track').value; si = 0; sel = null; renderAll(); };
   $('#add-track').onclick = () => $('#song-file').click();
+  $('#track-up').onclick = () => moveTrack(-1);
+  $('#track-down').onclick = () => moveTrack(1);
   $('#song-file').onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) addSong(f); };
   $('#bpm').onchange = (e) => {
     const t = track(), bpm = +e.target.value;
@@ -590,10 +592,11 @@ function duplicateSelected() {
 }
 
 // Move a layer or hotspot to another scene of the track (by id).
-// Move the selected layer or hotspot one place earlier (−1) or later (+1) in its list — for
-// layers, that is draw order: a layer acts on what the layers before it left.
+// Move the selected scene, layer or hotspot one place earlier (−1) or later (+1) in its list —
+// for layers, that is draw order: a layer acts on what the layers before it left; for scenes,
+// the album's order of rooms (the names' numbering; the first scene is where the game starts).
 function nudgeSelected(d) {
-  if (!sel || (sel.type !== 'layer' && sel.type !== 'hotspot')) return;
+  if (!sel || (sel.type !== 'layer' && sel.type !== 'hotspot' && sel.type !== 'scene')) return;
   const list = listOf(sel.type);
   // past the next one the list shows: the stage view hides layers of other stages, and a swap
   // with a hidden neighbour moved nothing in sight
@@ -604,22 +607,24 @@ function nudgeSelected(d) {
   const [item] = list.splice(sel.index, 1);
   list.splice(k, 0, item);
   sel = { type: sel.type, index: k };
+  if (sel.type === 'scene') si = k;
   commit({ silent: true, inspector: true });
 }
 
 function moveSelectedTo(sceneId) {
-  const t = track();
-  const k = t.scenes.findIndex((s) => s.id === sceneId);
-  if (k < 0 || k === si || !sel) return;
+  const where = findScene(sceneId);
+  if (!where || !sel || (where.ti === ti && where.si === si)) return;
+  const { ti: tk, si: k, scene: to } = where;
+  const land = () => { if (tk !== ti) { ti = tk; renderTopbar(); } si = k; };
   if (sel.type === 'group') {
     const g = selected();
     if (!g) return;
     snapshotForUndo();
-    const s = scene(), to = t.scenes[k];
+    const s = scene();
     s.layers = s.layers.filter((l) => l.group !== g.name);
     for (const l of g.layers) { delete l.bars; delete l.stage; }
     to.layers = [...(to.layers || []), ...g.layers];
-    si = k;
+    land();
     commit({ silent: true, inspector: true });
     return;
   }
@@ -627,12 +632,74 @@ function moveSelectedTo(sceneId) {
   snapshotForUndo();
   const list = listOf(sel.type);
   const [item] = list.splice(sel.index, 1);
-  const to = t.scenes[k];
   delete item.bars;
+  if (item.stage && !(to.stages || []).includes(item.stage)) delete item.stage; // a stage the target hasn't got
+  to[sel.type + 's'] ??= [];
   to[sel.type + 's'].push(item);
-  si = k;
+  land();
   sel = { type: sel.type, index: to[sel.type + 's'].length - 1 };
   commit({ silent: true, inspector: true });
+}
+
+// The album's tracks in another order: the rooms are numbered track by track, and the game
+// starts in the first scene of the first track.
+function moveTrack(d) {
+  const k = ti + d;
+  if (k < 0 || k >= album.tracks.length) return;
+  snapshotForUndo();
+  [album.tracks[ti], album.tracks[k]] = [album.tracks[k], album.tracks[ti]];
+  ti = k;
+  touched(); push(); renderAll();
+}
+
+// A scene of any track, by id.
+function findScene(id) {
+  for (let tk = 0; tk < album.tracks.length; tk++) {
+    const k = album.tracks[tk].scenes.findIndex((s) => s.id === id);
+    if (k >= 0) return { ti: tk, si: k, scene: album.tracks[tk].scenes[k] };
+  }
+  return null;
+}
+
+// A stage of scene `s` copied into scene `to` (`to === s`: a duplicate beside it): the layers
+// and hotspots in it, under a stage name the target doesn't have yet, with its unlock delay.
+// The stageless layers stay where they are — they're the scene's, not the stage's. Hotspots
+// get fresh ids and the copied layers follow them (a text layer's `hotspot`, a hole's,
+// `hotspot:` masks); an action to the stage itself follows it to the new name.
+function copyStage(s, k, to) {
+  const name = s.stages[k];
+  to.stages ??= []; to.layers ??= []; to.hotspots ??= [];
+  let fresh = name, n = 2;
+  while (to.stages.includes(fresh)) fresh = `${name} ${n++}`;
+  const ids = {};
+  const hotspots = s.hotspots.filter((h) => h.stage === name).map((h) => { const c = JSON.parse(JSON.stringify(h)); ids[h.id] = c.id = uid('h'); return c; });
+  const layers = s.layers.filter((l) => l.stage === name).map((l) => ({ ...JSON.parse(JSON.stringify(l)), id: uid('l') }));
+  const walk = (node) => {
+    if (Array.isArray(node)) node.forEach(walk);
+    else if (node && typeof node === 'object') {
+      if (typeof node.hotspot === 'string' && node.hotspot in ids) node.hotspot = ids[node.hotspot];
+      if (typeof node.source === 'string' && node.source.startsWith('hotspot:') && node.source.slice(8) in ids) node.source = 'hotspot:' + ids[node.source.slice(8)];
+      Object.values(node).forEach(walk);
+    }
+  };
+  walk(layers); walk(hotspots);
+  const missing = new Set();
+  for (const item of [...layers, ...hotspots]) {
+    item.stage = fresh;
+    if (to !== s) delete item.bars; // its own bars were this scene's
+    for (const a of item.then || []) {
+      if (a.stage === name) a.stage = fresh;
+      else if (a.stage && !to.stages.includes(a.stage)) missing.add(a.stage);
+    }
+  }
+  snapshotForUndo();
+  to.stages.push(fresh);
+  if (s.unlock_delays?.[name] > 0) { to.unlock_delays ??= {}; to.unlock_delays[fresh] = s.unlock_delays[name]; }
+  to.layers.push(...layers); to.hotspots.push(...hotspots);
+  if (to !== s) { const w = findScene(to.id); ti = w.ti; si = w.si; sel = { type: 'scene', index: si }; follow = false; renderTopbar(); }
+  commit({ silent: true, inspector: true });
+  setStatus(`copied stage "${name}"${to === s ? '' : ' to ' + to.id} as "${fresh}": ${layers.length} layer${layers.length === 1 ? '' : 's'}, ${hotspots.length} hotspot${hotspots.length === 1 ? '' : 's'}`
+    + (missing.size ? ` — hotspots in it lead to ${[...missing].map((x) => '"' + x + '"').join(', ')}, which ${to.id} has no stage of` : ''));
 }
 
 // ---- adding ----
@@ -937,8 +1004,8 @@ function renderInspector() {
   if (!item) { box.replaceChildren(el('div', { class: 'hint' }, 'select a scene, a layer, a hotspot or a band')); return; }
   const t = track();
   const head = (title, kind) => el('h2', {}, title, el('span', { class: 'kind' }, kind), el('span', { class: 'spacer' }),
-    sel.type === 'layer' || sel.type === 'hotspot' ? el('button', { class: 'small', title: sel.type === 'layer' ? 'draw it earlier: under the layer before it (the lists are in draw order; a layer acts on the ones above it in the list)' : 'earlier in the list', onclick: () => nudgeSelected(-1) }, '↑') : null,
-    sel.type === 'layer' || sel.type === 'hotspot' ? el('button', { class: 'small', title: sel.type === 'layer' ? 'draw it later: over the layer after it' : 'later in the list', onclick: () => nudgeSelected(1) }, '↓') : null,
+    sel.type === 'layer' || sel.type === 'hotspot' || sel.type === 'scene' ? el('button', { class: 'small', title: sel.type === 'layer' ? 'draw it earlier: under the layer before it (the lists are in draw order; a layer acts on the ones above it in the list)' : sel.type === 'scene' ? 'earlier in the album: the rooms are numbered in this order (the exits\' and stages\' random words), and the game starts in the first scene of the first track. The music is where its bars say' : 'earlier in the list', onclick: () => nudgeSelected(-1) }, '↑') : null,
+    sel.type === 'layer' || sel.type === 'hotspot' || sel.type === 'scene' ? el('button', { class: 'small', title: sel.type === 'layer' ? 'draw it later: over the layer after it' : sel.type === 'scene' ? 'later in the album' : 'later in the list', onclick: () => nudgeSelected(1) }, '↓') : null,
     sel.type !== 'band' ? el('button', { class: 'small', onclick: duplicateSelected }, 'duplicate') : null,
     el('button', { class: 'small danger', onclick: deleteSelected }, 'delete'));
 
@@ -1040,10 +1107,14 @@ function stagesEditor(s) {
     el('button', { class: 'small', onclick: () => send(JSON.stringify({ stage: k })) }, 'view'),
     el('span', { class: 'lbl' }, 'delay unlocks'), delayInput(name),
     el('span', { class: 'doc' }, `${s.layers.filter((l) => l.stage === name).length} layers, ${s.hotspots.filter((h) => h.stage === name).length} hotspots`),
+    el('select', { title: 'copy this stage — its layers and hotspots, under a new stage name — into a scene of any track, or beside itself here', onchange: (e) => {
+      const v = e.target.value; e.target.value = '';
+      if (v === '*') copyStage(s, k, s); else if (v) copyStage(s, k, findScene(v).scene);
+    } }, el('option', { value: '' }, 'copy to…'), el('option', { value: '*' }, 'a copy here'), ...sceneOptions(s).map((g) => { for (const o of g.children) o.removeAttribute('selected'); return g; })),
     el('button', { class: 'link danger', onclick: () => remove(k) }, '×'))),
     el('button', { class: 'link', onclick: () => { snapshotForUndo(); let n = s.stages.length; while (s.stages.includes('stage ' + n)) n++; s.stages.push('stage ' + n); commit({ silent: true, inspector: true }); } }, '+ stage'),
     s.stages.length ? null : el('div', { class: 'stage-row' }, el('span', { class: 'lbl' }, 'delay unlocks'), delayInput(''), el('span', { class: 'doc' }, 'on entering the scene (it has no stages)')),
-    el('div', { class: 'doc' }, 'the visual states of the stretch, in order; the player starts in the first. A hotspot\'s "stage" action moves to one at the next bar, the music unchanged; layers and hotspots with a stage show only in it. Delay unlocks: the stage lands as if nothing were unlocked and the unlocks play out over that many bars.'));
+    el('div', { class: 'doc' }, 'the visual states of the stretch, in order; the player starts in the first. A hotspot\'s "stage" action moves to one at the next bar, the music unchanged; layers and hotspots with a stage show only in it. Delay unlocks: the stage lands as if nothing were unlocked and the unlocks play out over that many bars. Copy to: the stage\'s layers and hotspots (not the stageless ones) go to that scene as a new stage, hotspots with fresh ids that their text and holes follow.'));
   return box;
 }
 
@@ -1055,11 +1126,12 @@ function stageRow(item) {
     el('option', { value: '' }, 'every stage'), ...names.map((n) => el('option', { value: n, ...(item.stage === n ? { selected: '' } : {}) }, n))));
 }
 
+// Every scene of the album as options, by track — the current one selected.
+const sceneOptions = (skip = null) => album.tracks.map((t, tk) => el('optgroup', { label: t.id },
+  ...t.scenes.filter((s) => s !== skip).map((s, k) => el('option', { value: s.id, ...(tk === ti && s === scene() ? { selected: '' } : {}) }, s.id))));
 function moveRow() {
-  const t = track();
-  return row('in scene', el('select', { onchange: (e) => moveSelectedTo(e.target.value) },
-    ...t.scenes.map((s, k) => el('option', { value: s.id, ...(k === si ? { selected: '' } : {}) }, s.id))),
-    el('span', { class: 'doc' }, 'pick another to move it there'));
+  return row('in scene', el('select', { onchange: (e) => moveSelectedTo(e.target.value) }, ...sceneOptions()),
+    el('span', { class: 'doc' }, 'pick another to move it there (any track; its own bars, if it had any, are dropped)'));
 }
 
 function layerInspector(l) {
