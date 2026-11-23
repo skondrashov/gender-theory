@@ -2915,6 +2915,67 @@
    "bpm": 135,
    "scenes": [
     {
+     "id": "title",
+     "bars": [
+      0,
+      4
+     ],
+     "loop": 0,
+     "stages": [
+      "title"
+     ],
+     "layers": [
+      {
+       "id": "lmwto51veqwq",
+       "name": "tap/click",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n........#..\n...####....\n...#####...\n...........\n...........\n...........\n..........."
+       },
+       "kind": "text",
+       "params": {
+        "text": "tap/\nclick",
+        "hotspot": "",
+        "align": "left",
+        "lead": 1,
+        "width": 1.5,
+        "height": 1.5,
+        "center": true,
+        "reveal": {
+         "base": 1,
+         "chains": []
+        },
+        "brightness": {
+         "base": 1,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        }
+       },
+       "stage": "title"
+      }
+     ],
+     "hotspots": [
+      {
+       "id": "hmwto51ve9ok",
+       "name": "hotspot",
+       "region": {},
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "unlock": "dots"
+        },
+        {
+         "go": "foyer"
+        }
+       ],
+       "stage": "title"
+      }
+     ]
+    },
+    {
      "id": "foyer",
      "bars": [
       0,
@@ -4021,7 +4082,7 @@
       }
      ],
      "unlock_delays": {
-      "foyer": 2
+      "foyer": 1
      }
     },
     {
@@ -6882,6 +6943,23 @@
        },
        "stage": "bars",
        "muted": false
+      },
+      {
+       "id": "lmwto04luyf2",
+       "name": "foyer",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n.###.......\n.###.......\n.###.......\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "dots": {
+         "op": "set",
+         "base": 0,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "bars"
       }
      ],
      "hotspots": [
@@ -6892,7 +6970,7 @@
         "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n.###.......\n.###.......\n.###.......\n..........."
        },
        "needs": [],
-       "on": "outline",
+       "on": "tap",
        "then": [
         {
          "go": "foyer"
