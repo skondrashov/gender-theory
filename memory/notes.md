@@ -801,3 +801,22 @@ rests at REST = 5 + EDGE/2 (5.75) travelling TRAVEL = 2 x REST, so the wider edg
 the grid at rest - at 5.5 it left 7% stubs on the end cells (lit 1320 instead of 968 px at
 rest). Applied to the bars scene's six layers; the album's columns preset still has edge 1 /
 curve 1 for comparison. Verified headless: rest 968 px, bounce and pinwheel as before.
+
+## No hole kind; the `along` field; new layers start empty (2026-11-23)
+
+Owner: "i don't want brightness as a default row. also i don't want the huge block of text
+next to the needs ... i want to get rid of the holes kind, but i'm not sure how to code the
+line values to sync with the direction of the lines".
+- The sync is a mask source that reads the cell's own angle: `Signals.angle` (the angle row as
+  the layers before left it, set per layer in the renderer loop) and a field `along`
+  (`family: "line"`, param `direction` deg) = cos^2(angle - direction). A door's hole is a
+  cells layer: `lines` multiply 0, masks `hotspot:<id>` x `along <direction>` - the same
+  numbers the hole kind used (`lines *= 1 - cos^2`), `rings` x 0 for a square one,
+  `brightness` x 0 for dots off. Position chains are fixed sources, so it acts under any unlocks.
+- Removed: `Hole` struct, `Kind::Hole`, the catalogue entry, `LayerRt.direction`,
+  `Model::cut_marks`, `ROW_LINES/ROW_RINGS/ROW_BRIGHTNESS` (only `ROW_ANGLE` stays). Scenery
+  (snakes, letters) under a door can no longer be cut - accepted with the kind.
+- Editor: `defaultParams` for a rows kind is `{}` (a new scene's `field` keeps brightness 1);
+  the `needs` doc span is gone; `migrate()` version 3 turns hole layers into the cells recipe
+  (direction from `direction` or the map's shape). The album had no holes left (the owner had
+  already deleted the bars scene's two).

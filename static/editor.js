@@ -82,7 +82,22 @@ function fitScene(s, oldBars) {
 // editor writes the new name). Since 2026-11-22 (`version` 2) the unlocks come in set/move
 // pairs and what "angle" unlocked — the angle's motion — is `rotation`: hotspots that grant
 // or need it and masks on it are renamed; a file's own "angle" means setting the angle now.
+// Since 2026-11-23 (`version` 3) there is no hole kind: a hole becomes a cells layer that
+// multiplies lines (and rings, and brightness if it took the dots) by 0, masked on its hotspot
+// and, for a wide or tall one, on `along` the lines it cut.
 function migrate(album) {
+  const holeToCells = (l) => {
+    const q = l.params || {};
+    const mask = (extra) => ({ source: 'hotspot', depth: 1, threshold: 0, width: 1, curve: 0, invert: false, on: true, ripple: 0, every: 1, offset: 0, ...extra });
+    const masks = q.hotspot ? [mask({ source: 'hotspot:' + q.hotspot })] : [];
+    const rows = (l.region?.map || '').split('\n'), lit = rows.map((r) => (r.match(/#/g) || []).length);
+    const h = lit.filter(Boolean).length, w = Math.max(0, ...lit);
+    const dir = q.direction === 'horizontal' ? 0 : q.direction === 'vertical' ? 90 : q.direction === 'any' ? null : w > h ? 0 : h > w ? 90 : null;
+    const cut = (extra = []) => ({ op: 'multiply', base: 0, chains: [], masks: [...masks, ...extra] });
+    const along = dir == null ? [] : [mask({ source: 'position', field: { fn: 'along', params: { direction: { base: dir, chains: [] } } } })];
+    l.kind = 'cells';
+    l.params = { lines: cut(along), ...(dir == null ? { rings: cut() } : {}), ...(q.dots === false ? { brightness: cut() } : {}) };
+  };
   const walk = (node) => {
     if (Array.isArray(node)) node.forEach(walk);
     else if (node && typeof node === 'object') {
@@ -90,12 +105,13 @@ function migrate(album) {
       if (old && typeof node.source === 'string' && node.source === 'unlock:angle') node.source = 'unlock:rotation';
       if (old && Array.isArray(node.needs)) node.needs = node.needs.map((u) => (u === 'angle' ? 'rotation' : u));
       if (old && node.unlock === 'angle' && Object.keys(node).length === 1) node.unlock = 'rotation';
+      if (holes && node.kind === 'hole') holeToCells(node);
       Object.values(node).forEach(walk);
     }
   };
-  const old = (album.version ?? 1) < 2;
+  const old = (album.version ?? 1) < 2, holes = (album.version ?? 1) < 3;
   walk(album);
-  if (old) album.version = 2;
+  if (holes) album.version = 3;
   return album;
 }
 
@@ -664,7 +680,7 @@ function findScene(id) {
 // A stage of scene `s` copied into scene `to` (`to === s`: a duplicate beside it): the layers
 // and hotspots in it, under a stage name the target doesn't have yet, with its unlock delay.
 // The stageless layers stay where they are — they're the scene's, not the stage's. Hotspots
-// get fresh ids and the copied layers follow them (a text layer's `hotspot`, a hole's,
+// get fresh ids and the copied layers follow them (a text layer's `hotspot`,
 // `hotspot:` masks); an action to the stage itself follows it to the new name.
 function copyStage(s, k, to) {
   const name = s.stages[k];
@@ -709,7 +725,7 @@ const defaultParam = (spec) => (typeof spec.default === 'object' ? JSON.parse(JS
 
 function defaultParams(kind) {
   const out = {};
-  if (cat.kinds[kind]?.rows) return { brightness: newRow(rowSpec('brightness')) };
+  if (cat.kinds[kind]?.rows) return {}; // a cells layer starts with no rows (owner, 2026-11-23: "i don't want brightness as a default row")
   for (const [name, spec] of Object.entries(cat.kinds[kind].params)) {
     out[name] = spec.type === 'param' ? defaultParam(spec) : spec.default;
   }
@@ -786,7 +802,7 @@ function addScene() {
   send(wire({ seek: { scene: id, bar: end } }));
 }
 
-const baseLayer = () => ({ id: uid('l'), name: 'field', region: {}, kind: 'cells', params: defaultParams('cells') });
+const baseLayer = () => ({ id: uid('l'), name: 'field', region: {}, kind: 'cells', params: { brightness: newRow(rowSpec('brightness')) } });
 
 // ---- a song from this computer (owner, 2026-11-21: "i want people to be able to try it with
 // their own music") ----
@@ -1114,7 +1130,7 @@ function stagesEditor(s) {
     el('button', { class: 'link danger', onclick: () => remove(k) }, '×'))),
     el('button', { class: 'link', onclick: () => { snapshotForUndo(); let n = s.stages.length; while (s.stages.includes('stage ' + n)) n++; s.stages.push('stage ' + n); commit({ silent: true, inspector: true }); } }, '+ stage'),
     s.stages.length ? null : el('div', { class: 'stage-row' }, el('span', { class: 'lbl' }, 'delay unlocks'), delayInput(''), el('span', { class: 'doc' }, 'on entering the scene (it has no stages)')),
-    el('div', { class: 'doc' }, 'the visual states of the stretch, in order; the player starts in the first. A hotspot\'s "stage" action moves to one at the next bar, the music unchanged; layers and hotspots with a stage show only in it. Delay unlocks: the stage lands as if nothing were unlocked and the unlocks play out over that many bars. Copy to: the stage\'s layers and hotspots (not the stageless ones) go to that scene as a new stage, hotspots with fresh ids that their text and holes follow.'));
+    el('div', { class: 'doc' }, 'the visual states of the stretch, in order; the player starts in the first. A hotspot\'s "stage" action moves to one at the next bar, the music unchanged; layers and hotspots with a stage show only in it. Delay unlocks: the stage lands as if nothing were unlocked and the unlocks play out over that many bars. Copy to: the stage\'s layers and hotspots (not the stageless ones) go to that scene as a new stage, hotspots with fresh ids that their text layers follow.'));
   return box;
 }
 
@@ -1152,8 +1168,7 @@ function layerInspector(l) {
     barsRow(l),
     moveRow(),
     row('needs', ...UNLOCKS.map((u) => el('label', {}, el('input', { type: 'checkbox', ...((l.needs || []).includes(u) ? { checked: '' } : {}), onchange: (e) => {
-      snapshotForUndo(); l.needs = UNLOCKS.filter((v) => (v === u ? e.target.checked : (l.needs || []).includes(v))); if (!l.needs.length) delete l.needs; commit({ silent: true }); } }), u)),
-      el('span', { class: 'doc' }, 'unlocks the whole layer waits for: it comes in with the last of them, crossfading over what the layers before it drew — for a pattern that changes with an unlock (the pinwheel needs rotation). Rows wait for their own unlocks by themselves')),
+      snapshotForUndo(); l.needs = UNLOCKS.filter((v) => (v === u ? e.target.checked : (l.needs || []).includes(v))); if (!l.needs.length) delete l.needs; commit({ silent: true }); } }), u))),
     row('', checkInput(l, 'muted', 'muted'), el('button', { class: 'small', onclick: () => savePreset(l), title: 'keep a copy in the presets list, to drop into any scene' }, 'save as preset')),
     spec.rows
       ? rowsEditor(l)

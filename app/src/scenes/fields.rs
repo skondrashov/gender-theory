@@ -70,6 +70,13 @@ const SHARP: ParamSpec = p("sharp", 0.0, 0.1, "0 a smooth wave .. 1 hard bands")
 const HALF: f32 = (CANVAS_WIDTH as f32 - 1.0) / 2.0;
 
 pub const FIELDS: &[FieldSpec] = &[
+	// ---- line: the cell's own line, as the layers before left it ----
+	FieldSpec {
+		name: "along",
+		family: "line",
+		doc: "how far the cell's line lies along `direction`: 1 along it (either way), 0 across, cos² between — as a mask on a lines × 0 row it cuts only the lines running that way, and a line turning through dims as it comes to lie along (what the hole kind did; owner, 2026-11-23)",
+		params: &[p("direction", 0.0, 45.0, "degrees, as the angle row: 0 right, 90 up")],
+	},
 	// ---- radial: functions of how far ----
 	FieldSpec {
 		name: "distance",
@@ -489,6 +496,7 @@ impl Field {
 				inside(dr - p("width") / 2.0, edge).max(spokes(p("count"), p("width")))
 			}
 			"gradient" => 0.5 + (along - p("offset")) / p("span").max(1e-3),
+			"along" => (s.angle - p("direction")).to_radians().cos().powi(2),
 			"curtain" => inside(p("offset") - along, edge),
 			"stripes" => wave(along / p("period").max(1e-3) - phase, sharp),
 			"waves" => wave((along + p("amp") * (TAU * across / p("wavelength").max(1e-3)).sin()) / p("period").max(1e-3) - phase, sharp),

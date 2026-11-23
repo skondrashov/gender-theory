@@ -275,35 +275,10 @@ impl Model {
 
 	/// How many marks are recorded so far: a cell's render notes this at its start so a
 	/// `hole` layer can take back what the layers before it drew there.
-	pub fn marks_len(&self) -> usize {
-		self.marks.borrow().len()
-	}
-
 	/// Drop the marks recorded since `from`: the dots (lines of no length) unless
 	/// `keep_dots`; with no `direction` every line and ring; with one, the lines running
 	/// that way (radians) — a line across it stays, one in between dims as it aligns — and
 	/// rings stay.
-	pub fn cut_marks(&self, from: usize, keep_dots: bool, direction: Option<f32>) {
-		let mut marks = self.marks.borrow_mut();
-		let kept: Vec<Mark> = marks
-			.drain(from..)
-			.filter_map(|mut m| match (m.shape, direction) {
-				(Shape::Line { length, .. }, _) if length <= 0.0 => keep_dots.then_some(m),
-				(_, None) => None,
-				(Shape::Ring { .. }, Some(_)) => Some(m),
-				(Shape::Line { angle, .. }, Some(dir)) => {
-					let f = 1.0 - (angle - dir).cos().powi(2);
-					if f < 0.01 {
-						return None;
-					}
-					m.color = nannou::prelude::rgb(m.color.red * f, m.color.green * f, m.color.blue * f);
-					Some(m)
-				}
-			})
-			.collect();
-		marks.extend(kept);
-	}
-
 	fn take_marks(&self) -> Vec<Mark> {
 		std::mem::take(&mut *self.marks.borrow_mut())
 	}

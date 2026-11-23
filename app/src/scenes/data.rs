@@ -519,6 +519,9 @@ pub struct Signals<'a> {
 	pub j: usize,
 	pub di: f32,
 	pub dj: f32,
+	/// The cell's line as the layers before this one left it, degrees (0 right, anticlockwise):
+	/// what the `along` field reads.
+	pub angle: f32,
 	/// The scene's time (seconds × 0.6), for `clock`.
 	pub time: f32,
 	/// Where the music is in the track, in bars (fractional), for things that step with it.
@@ -686,14 +689,6 @@ pub const CATALOGUE: &str = r##"{
         "reveal": {"type": "param", "default": 1, "step": 0.05, "doc": "0..1: how much of the text is there, letter by letter — sidechain it to span for a typewriter"},
         "brightness": {"type": "param", "default": 0.9, "step": 0.05, "doc": "sidechains act once glow is unlocked"},
         "color": {"type": "param", "default": 0, "step": 0.1}
-      }
-    },
-    "hole": {
-      "doc": "A hole: in its region, nothing the layers before it drew shows — their lines and rings go (scenery too: snakes, letters), the dots stay unless told otherwise; a layer after it draws there as usual. Tied to a hotspot it is that hotspot's cells, while the hotspot shows: lines passing over a door vanish there. Not a cells layer.",
-      "params": {
-        "hotspot": {"type": "hotspot", "default": "", "doc": "cut that hotspot's cells instead of this layer's region, while it shows"},
-        "dots": {"type": "bool", "default": true, "doc": "leave the dots"},
-        "direction": {"type": "select", "options": ["auto", "horizontal", "vertical", "any"], "default": "auto", "doc": "which lines it cuts: the ones running along it — auto reads the shape: a wide hole cuts horizontal lines, a tall one vertical, a square one everything; a line turning through dims as it comes to lie along the hole"}
       }
     },
     "orbits": {
@@ -903,11 +898,9 @@ pub struct RowSpec {
 
 /// The rows of a cell, in order: one per unlock. The drawing order of the cell is the
 /// dot, the line out of it (× `lines`), the ring round it (× `rings`).
-/// The rows the renderer reaches into by index (the hole kind); keep with `ROWS`.
-const ROW_BRIGHTNESS: usize = 0;
-const ROW_LINES: usize = 2;
+/// The row the renderer reaches into by index (the angle folds the short way round, and is
+/// what the `along` field reads); keep with `ROWS`.
 const ROW_ANGLE: usize = 4;
-const ROW_RINGS: usize = 6;
 
 pub const ROWS: [RowSpec; Unlock::COUNT] = [
 	RowSpec {
@@ -1108,31 +1101,6 @@ impl Default for Text {
 	}
 }
 
-/// A hole: in its region nothing the layers before it drew shows — their lines and rings go,
-/// the dots stay unless `dots` is off. Tied to a hotspot, it is the hotspot's cells, while
-/// the hotspot shows (owner, 2026-11-19: "i want the lines to be invisible as they pass over
-/// those hotspots").
-#[derive(Deserialize)]
-#[serde(default)]
-struct Hole {
-	hotspot: String,
-	dots: bool,
-	/// Which lines it cuts: `auto` reads the shape — a wide hole the horizontal lines, a tall
-	/// one the vertical, a square one all — or `horizontal`, `vertical`, `any` (owner: "there
-	/// shouldn't be vertical holes in the horizontal bars and vice versa").
-	direction: String,
-}
-
-impl Default for Hole {
-	fn default() -> Self {
-		Hole {
-			hotspot: String::new(),
-			dots: true,
-			direction: "auto".into(),
-		}
-	}
-}
-
 #[derive(Deserialize)]
 #[serde(default)]
 struct Snake {
@@ -1232,7 +1200,6 @@ enum Kind {
 	Text(Text),
 	Orbits(Orbits),
 	Walk(Walk),
-	Hole(Hole),
 }
 
 fn parse_kind(kind: &str, params: &Value) -> Result<Kind, String> {
@@ -1244,7 +1211,6 @@ fn parse_kind(kind: &str, params: &Value) -> Result<Kind, String> {
 	Ok(match kind {
 		"cells" => Kind::Cells(serde_json::from_value(params).map_err(bad)?),
 		"snake" => Kind::Snake(serde_json::from_value(params).map_err(bad)?),
-		"hole" => Kind::Hole(serde_json::from_value(params).map_err(bad)?),
 		"text" => Kind::Text(serde_json::from_value(params).map_err(bad)?),
 		"orbits" => Kind::Orbits(serde_json::from_value(params).map_err(bad)?),
 		"walk" => Kind::Walk(serde_json::from_value(params).map_err(bad)?),
@@ -1293,14 +1259,12 @@ struct LayerRt {
 	snake: Option<SnakePaths>,
 	/// A text layer's letters, placed.
 	text: Option<TextLayout>,
-	/// A text layer saying a hotspot's name, or a hole where a hotspot is: that hotspot's
+	/// A text layer saying a hotspot's name: that hotspot's
 	/// tag — there while it shows.
 	hotspot: Option<u8>,
 	/// A text layer saying a stage hotspot's name: that stage — the name shows once the
 	/// player has been there (`model.stage_visited`).
 	to_stage: Option<usize>,
-	/// A hole's direction: the way (radians) of the lines it cuts; None, all of them.
-	direction: Option<f32>,
 }
 
 /// A text layer laid out: which box (by its bottom-left dot) holds which glyph. The region's
@@ -1536,35 +1500,7 @@ pub fn install(json: &str) -> Result<usize, String> {
 					Kind::Snake(snake) => Some(SnakePaths::new(&layer.region, snake)),
 					_ => None,
 				};
-				let mut layer = layer;
-				let (text, hotspot, direction, to_stage) = match &kind {
-					Kind::Hole(hole) => {
-						let hotspot = (!hole.hotspot.is_empty())
-							.then(|| scene.hotspots.iter().position(|h| h.id == hole.hotspot))
-							.flatten();
-						if let Some(k) = hotspot {
-							let h = &scene.hotspots[k];
-							layer.region = if h.region.is_unset() {
-								Region {
-									rect: h.rect,
-									..Default::default()
-								}
-							} else {
-								h.region.clone()
-							};
-						}
-						let b = layer.region.bounds();
-						let (w, h) = (b.i1.saturating_sub(b.i0), b.j1.saturating_sub(b.j0));
-						let direction = match hole.direction.as_str() {
-							"horizontal" => Some(0.0),
-							"vertical" => Some(std::f32::consts::FRAC_PI_2),
-							"any" => None,
-							_ if w > h => Some(0.0),
-							_ if h > w => Some(std::f32::consts::FRAC_PI_2),
-							_ => None,
-						};
-						(None, hotspot.map(|k| k as u8), direction, None)
-					}
+				let (text, hotspot, to_stage) = match &kind {
 					Kind::Text(text) => {
 						// Saying a hotspot's name: its tag is its place in the list. A stage
 						// hotspot's name is centred, and waits for the stage to be visited.
@@ -1577,12 +1513,12 @@ pub fn install(json: &str) -> Result<usize, String> {
 							None => text.text.clone(),
 						};
 						let layout = TextLayout::new(&layer.region, text, &content, to_stage.is_some());
-						(Some(layout), hotspot.map(|k| k as u8), None, to_stage)
+						(Some(layout), hotspot.map(|k| k as u8), to_stage)
 					}
-					_ => (None, None, None, None),
+					_ => (None, None, None),
 				};
 				let needs = layer.needs.iter().filter_map(|name| unlock_named(name)).fold(Unlocks::default(), Unlocks::with);
-				layers.push(LayerRt { layer, kind, needs, stage, snake, text, hotspot, direction, to_stage });
+				layers.push(LayerRt { layer, kind, needs, stage, snake, text, hotspot, to_stage });
 			}
 			let layers: &'static [LayerRt] = Vec::leak(layers);
 			let bars = scene.bars[0]..scene.bars[1].max(scene.bars[0] + 1);
@@ -1685,7 +1621,6 @@ fn render(
 ) {
 	let bar = model.bar();
 	let unit = model.scaling;
-	let first_mark = model.marks_len();
 	let (x, y) = scale_coordinates(model, i, j);
 	let raw = model.noisemap.get_value(i, j) as f32;
 	let [whole, _half, quarter, _eighth, _sixteenth, bass, mid, treble] = modifiers;
@@ -1715,6 +1650,7 @@ fn render(
 		j,
 		di,
 		dj,
+		angle: 0.0,
 		time,
 		bars: bar,
 		whole,
@@ -1781,7 +1717,10 @@ fn render(
 		if need <= 0.001 {
 			continue;
 		}
-		let signals = for_layer(rt);
+		let signals = Signals {
+			angle: cell[ROW_ANGLE],
+			..for_layer(rt)
+		};
 		match &rt.kind {
 			Kind::Cells(cells) => {
 				covered = true;
@@ -1924,26 +1863,6 @@ fn render(
 				);
 			}
 			Kind::Walk(_) => {}
-			Kind::Hole(hole) => {
-				if rt.hotspot.is_some_and(|tag| !model.hint_visible(tag)) || need < 0.5 {
-					continue;
-				}
-				// What the layers before it drew here goes: the scenery marks recorded so far
-				// this cell, and the cells rows' line and ring (a later cells layer can set them
-				// again).
-				model.cut_marks(first_mark, hole.dots, rt.direction);
-				match rt.direction {
-					None => {
-						cell[ROW_LINES] = 0.0;
-						cell[ROW_RINGS] = 0.0;
-					}
-					// the cells' line too, by how far it lies along the hole
-					Some(dir) => cell[ROW_LINES] *= 1.0 - (cell[ROW_ANGLE].to_radians() - dir).cos().powi(2),
-				}
-				if !hole.dots {
-					cell[ROW_BRIGHTNESS] = 0.0;
-				}
-			}
 		}
 	}
 	if !covered {
