@@ -225,7 +225,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.25,
               "curve": 0,
               "invert": false,
@@ -315,7 +315,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -392,7 +392,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.25,
               "curve": 0,
               "invert": false,
@@ -420,7 +420,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -621,7 +621,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.125,
               "curve": 0,
               "invert": false,
@@ -897,7 +897,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -1083,7 +1083,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -1222,7 +1222,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.125,
               "curve": 0,
               "invert": false,
@@ -1498,7 +1498,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -1684,7 +1684,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -1823,7 +1823,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.125,
               "curve": 0,
               "invert": false,
@@ -1851,7 +1851,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -2037,7 +2037,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -2424,7 +2424,7 @@
              {
               "source": "bar.phase",
               "depth": -11,
-              "threshold": 0.0,
+              "threshold": 0,
               "width": 0.125,
               "curve": 0,
               "invert": false,
@@ -2452,7 +2452,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -2638,7 +2638,7 @@
             "chains": []
            },
            "turn": {
-            "base": 0.0,
+            "base": 0,
             "chains": []
            },
            "x": {
@@ -3478,18 +3478,18 @@
        },
        "kind": "cells",
        "params": {
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
-         "masks": []
-        },
         "angle": {
          "op": "set",
          "base": 270,
          "chains": [],
          "masks": [],
          "spin": 0
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
         }
        },
        "stage": "name 1"
@@ -3828,9 +3828,127 @@
         }
        },
        "stage": "foyer"
+      },
+      {
+       "id": "lmwscysvatvi",
+       "name": "tap/click",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n........#..\n...####....\n...#####...\n...........\n...........\n...........\n..........."
+       },
+       "kind": "text",
+       "params": {
+        "text": "tap/\nclick",
+        "hotspot": "",
+        "align": "left",
+        "lead": 1,
+        "width": 1.5,
+        "height": 1.5,
+        "center": true,
+        "reveal": {
+         "base": 1,
+         "chains": []
+        },
+        "brightness": {
+         "base": 0,
+         "chains": [
+          {
+           "source": "unlock:dots",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
+           "on": true,
+           "ripple": 0
+          }
+         ]
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        }
+       },
+       "stage": "foyer"
+      },
+      {
+       "id": "lmwsd9z6ut2i",
+       "name": "layer",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n###########\n...........\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "dots": {
+         "op": "set",
+         "base": 0,
+         "chains": [],
+         "masks": []
+        },
+        "angle": {
+         "op": "set",
+         "base": {
+          "map": "...........\n...........\n...........\n...........\n...........\n→↑→↑→↑→↑→↑→\n...........\n...........\n...........\n...........\n...........",
+          "legend": {
+           "→": 0,
+           "↗": 45,
+           "↑": 90,
+           "↖": 135,
+           "←": 180,
+           "↙": 225,
+           "↓": 270,
+           "↘": 315
+          }
+         },
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "name 1"
+      },
+      {
+       "id": "lmwsdb1guo09",
+       "name": "layer",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n###########\n...........\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "dots": {
+         "op": "set",
+         "base": 0,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "name 1"
       }
      ],
      "hotspots": [
+      {
+       "id": "hmwsd7gqx56h",
+       "name": "hotspot",
+       "region": {},
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "unlock": "dots"
+        }
+       ],
+       "stage": "foyer"
+      },
       {
        "id": "e",
        "name": "glow",
@@ -4077,6 +4195,32 @@
      "layers": [
       {
        "id": "lmws95glrggr",
+       "name": "field",
+       "region": {},
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       }
+      }
+     ],
+     "hotspots": []
+    },
+    {
+     "id": "sine/3",
+     "bars": [
+      0,
+      16
+     ],
+     "loop": 0,
+     "stages": [],
+     "layers": [
+      {
+       "id": "lmwso9pres2j",
        "name": "field",
        "region": {},
        "kind": "cells",
