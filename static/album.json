@@ -3635,6 +3635,12 @@
          },
          "chains": [],
          "masks": []
+        },
+        "length": {
+         "op": "multiply",
+         "base": 0.5,
+         "chains": [],
+         "masks": []
         }
        },
        "stage": "bottom",
@@ -4145,7 +4151,7 @@
                {
                 "source": "bar.phase",
                 "depth": -11.5,
-                "threshold": 0.0,
+                "threshold": 0,
                 "width": 0.25,
                 "curve": 0,
                 "invert": false,
@@ -4315,7 +4321,7 @@
                {
                 "source": "bar.phase",
                 "depth": -11.5,
-                "threshold": 0.0,
+                "threshold": 0,
                 "width": 0.25,
                 "curve": 0,
                 "invert": false,
@@ -4547,7 +4553,7 @@
                {
                 "source": "bar.phase",
                 "depth": -11.5,
-                "threshold": 0.0,
+                "threshold": 0,
                 "width": 0.125,
                 "curve": 0,
                 "invert": false,
@@ -4637,7 +4643,7 @@
               "chains": []
              },
              "turn": {
-              "base": 0.0,
+              "base": 0,
               "chains": []
              },
              "x": {
@@ -4947,7 +4953,7 @@
               "chains": []
              },
              "turn": {
-              "base": 0.0,
+              "base": 0,
               "chains": []
              },
              "x": {
@@ -5151,7 +5157,7 @@
                {
                 "source": "bar.phase",
                 "depth": -11.5,
-                "threshold": 0.0,
+                "threshold": 0,
                 "width": 0.125,
                 "curve": 0,
                 "invert": false,
@@ -5303,7 +5309,7 @@
               "chains": []
              },
              "turn": {
-              "base": 0.0,
+              "base": 0,
               "chains": []
              },
              "x": {
@@ -5489,7 +5495,7 @@
               "chains": []
              },
              "turn": {
-              "base": 0.0,
+              "base": 0,
               "chains": []
              },
              "x": {
@@ -5755,7 +5761,7 @@
                {
                 "source": "bar.phase",
                 "depth": -11.5,
-                "threshold": 0.0,
+                "threshold": 0,
                 "width": 0.125,
                 "curve": 0,
                 "invert": false,
@@ -5845,7 +5851,7 @@
               "chains": []
              },
              "turn": {
-              "base": 0.0,
+              "base": 0,
               "chains": []
              },
              "x": {
@@ -6155,7 +6161,7 @@
               "chains": []
              },
              "turn": {
-              "base": 0.0,
+              "base": 0,
               "chains": []
              },
              "x": {
@@ -6359,7 +6365,7 @@
                {
                 "source": "bar.phase",
                 "depth": -11.5,
-                "threshold": 0.0,
+                "threshold": 0,
                 "width": 0.125,
                 "curve": 0,
                 "invert": false,
@@ -6511,7 +6517,7 @@
               "chains": []
              },
              "turn": {
-              "base": 0.0,
+              "base": 0,
               "chains": []
              },
              "x": {
@@ -6697,7 +6703,7 @@
               "chains": []
              },
              "turn": {
-              "base": 0.0,
+              "base": 0,
               "chains": []
              },
              "x": {
@@ -6844,35 +6850,56 @@
       },
       {
        "id": "lmwsplmek5qs",
-       "name": "hole: hotspot",
+       "name": "horizontal hotspot",
        "region": {
         "map": "...........\n...........\n.#####.....\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
        },
-       "kind": "hole",
+       "kind": "cells",
        "params": {
-        "hotspot": "hmwsplmejdf2",
-        "dots": true,
-        "direction": "any"
+        "lines": {
+         "op": "set",
+         "base": 0,
+         "chains": [],
+         "masks": []
+        }
        },
        "stage": "bars"
       },
       {
        "id": "lmwsplmeklyy",
-       "name": "hole: hotspot",
+       "name": "vertical hotspot",
        "region": {
         "map": "...........\n...........\n...........\n...........\n...........\n........#..\n........#..\n........#..\n........#..\n........#..\n..........."
        },
-       "kind": "hole",
+       "kind": "cells",
        "params": {
-        "hotspot": "hmwsplmejagn",
-        "dots": true,
-        "direction": "auto"
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
        },
        "stage": "bars",
        "muted": false
       }
      ],
      "hotspots": [
+      {
+       "id": "hmwtmj90qu5l",
+       "name": "foyer",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n.###.......\n.###.......\n.###.......\n..........."
+       },
+       "needs": [],
+       "on": "outline",
+       "then": [
+        {
+         "go": "foyer"
+        }
+       ],
+       "stage": "bars"
+      },
       {
        "id": "hmwsplmejdf2",
        "name": "horizontal",
@@ -6892,28 +6919,13 @@
        "id": "hmwsplmejagn",
        "name": "vertical",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n........#..\n........#..\n........#..\n........#..\n........#..\n...........\n..........."
+        "map": "...........\n...........\n...........\n...........\n...........\n........#..\n........#..\n........#..\n........#..\n........#..\n..........."
        },
        "needs": [],
        "on": "outline",
        "then": [
         {
          "unlock": "rotation"
-        }
-       ],
-       "stage": "bars"
-      },
-      {
-       "id": "hmwsplmekxnb",
-       "name": "name 1",
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n....###....\n....###....\n....###....\n...........\n...........\n...........\n..........."
-       },
-       "needs": [],
-       "on": "tap",
-       "then": [
-        {
-         "stage": "foyer"
         }
        ],
        "stage": "bars"
