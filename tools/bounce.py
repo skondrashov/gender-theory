@@ -24,6 +24,10 @@ def phase4(depth, threshold, width):
     return chain('bar.phase', depth, threshold, width, every=4)
 
 
+EDGE = 1.5   # the curtain's edge in cells: 1 stops at every cell (a count of eleven to the bar), 1.5 runs even (owner, 2026-11-23: "smoother")
+CURVE = 0    # the position chain's curve: 0 a straight ramp - a smooth step on top of the edge's own stalls the front at each cell
+REST = 5 + EDGE / 2    # the curtain's offset with its edge wholly off the grid (cells run -5..5)
+TRAVEL = 2 * REST      # from off one side to off the other
 STEP = 0.0002  # a step: the width of a sidechain that is a switch (1/8 bar phase × 0.0002 ≈ 3 ms at 120)
 
 
@@ -33,22 +37,22 @@ def turn_of(deg):
 
 
 def curtain(turn, depth, offset_chains):
-    return {'source': 'position', 'depth': depth, 'threshold': 0, 'width': 1, 'curve': 1, 'invert': False, 'on': True,
+    return {'source': 'position', 'depth': depth, 'threshold': 0, 'width': 1, 'curve': CURVE, 'invert': False, 'on': True,
             'ripple': 0, 'every': 1, 'offset': 0,
             'field': {'fn': 'curtain', 'params': {
-                'offset': {'base': 5.5, 'chains': offset_chains},
-                'edge': {'base': 1, 'chains': []}, 'turn': {'base': turn, 'chains': []},
+                'offset': {'base': REST, 'chains': offset_chains},
+                'edge': {'base': EDGE, 'chains': []}, 'turn': {'base': turn, 'chains': []},
                 'x': {'base': 0, 'chains': []}, 'y': {'base': 0, 'chains': []}}}}
 
 
 def grow8(bar, turn, depth):
-    """Over bar `bar` of 8: the edge runs 5.5 → −5.5 along `turn` — the line grows from the root (and steps back at the next bar)."""
-    return curtain(turn, depth, [phase8(-11, bar / 8, 1 / 8), phase8(11, (bar + 1) / 8, STEP)])
+    """Over bar `bar` of 8: the edge runs REST → −REST along `turn` — the line grows from the root (and steps back at the next bar)."""
+    return curtain(turn, depth, [phase8(-TRAVEL, bar / 8, 1 / 8), phase8(TRAVEL, (bar + 1) / 8, STEP)])
 
 
 def retreat8(bar, turn, depth):
-    """Over bar `bar` of 8: −5.5 → 5.5 — the line retreats into the root (a step down at the bar, a ramp back up)."""
-    return curtain(turn, depth, [phase8(-11, bar / 8, STEP), phase8(11, bar / 8, 1 / 8)])
+    """Over bar `bar` of 8: −REST → REST — the line retreats into the root (a step down at the bar, a ramp back up)."""
+    return curtain(turn, depth, [phase8(-TRAVEL, bar / 8, STEP), phase8(TRAVEL, bar / 8, 1 / 8)])
 
 
 def row(base, chains=(), masks=(), op='set'):
@@ -61,7 +65,7 @@ def plain(a, rows=False):
     V = (0 if a == 0 else 180) if rows else (90 if a == 0 else 270)
     lane, word = ('rows', 'rows') if rows else ('cols', 'columns')
     def pair(turn, depth, q):  # grow over quarter q, retreat over q+1, of the 4-bar cycle
-        return curtain(turn, depth, [phase4(-11, q * 0.25, 0.25), phase4(11, (q + 1) * 0.25, 0.25)])
+        return curtain(turn, depth, [phase4(-TRAVEL, q * 0.25, 0.25), phase4(TRAVEL, (q + 1) * 0.25, 0.25)])
     return {'name': 'bounce ' + ('even' if a == 0 else 'odd') + ' ' + word,
             'region': {lane: [2, a]}, 'kind': 'cells', 'params': {
                 'brightness': row(0.9), 'dots': row(0.667), 'lines': row(1), 'angle': row(V),

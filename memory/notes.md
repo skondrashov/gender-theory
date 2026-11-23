@@ -788,3 +788,16 @@ shows nothing on its own); +length -> horizontal runs 2x vertical through the cy
 folds to 0 deg (all horizontal) - the scene needs the angle unlock as well as length.
 Loose end for the owner: the stage's "name 1" hotspot still says `stage: foyer`, which this
 scene has no stage of (it was a way back in sine/1).
+
+## The curtain's pause at each cell (2026-11-23)
+
+Owner: "a slight pause at each cell which makes it count in like 11/4 ... can the animation be
+smoother". Cause: two smooth steps stacked - the curtain field's `inside` (edge 1 cell) and the
+position chain's `curve 1` on top - so the front's speed hits 0 at every cell (0 / 2.25x mean).
+Computed over a bar (sum of the cells' lengths vs offset): edge 1.5 + chain curve 0 runs at
+0.89..1.11x mean with the front still under a cell wide; edge 2 curve 1 the same but 1.2 cells
+wide; edge 3 the flattest (1.8 cells). `tools/bounce.py`: EDGE 1.5, CURVE 0, and the curtain
+rests at REST = 5 + EDGE/2 (5.75) travelling TRAVEL = 2 x REST, so the wider edge is wholly off
+the grid at rest - at 5.5 it left 7% stubs on the end cells (lit 1320 instead of 968 px at
+rest). Applied to the bars scene's six layers; the album's columns preset still has edge 1 /
+curve 1 for comparison. Verified headless: rest 968 px, bounce and pinwheel as before.

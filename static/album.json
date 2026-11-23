@@ -4130,7 +4130,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -4140,11 +4140,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.0,
                 "width": 0.25,
                 "curve": 0,
@@ -4156,7 +4156,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.25,
                 "width": 0.25,
                 "curve": 0,
@@ -4169,7 +4169,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -4192,7 +4192,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -4202,11 +4202,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.5,
                 "width": 0.25,
                 "curve": 0,
@@ -4218,7 +4218,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.75,
                 "width": 0.25,
                 "curve": 0,
@@ -4231,7 +4231,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -4300,7 +4300,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -4310,11 +4310,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.0,
                 "width": 0.25,
                 "curve": 0,
@@ -4326,7 +4326,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.25,
                 "width": 0.25,
                 "curve": 0,
@@ -4339,7 +4339,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -4362,7 +4362,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -4372,11 +4372,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.5,
                 "width": 0.25,
                 "curve": 0,
@@ -4388,7 +4388,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.75,
                 "width": 0.25,
                 "curve": 0,
@@ -4401,7 +4401,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -4532,7 +4532,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -4542,11 +4542,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.0,
                 "width": 0.125,
                 "curve": 0,
@@ -4558,7 +4558,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.125,
                 "width": 0.0002,
                 "curve": 0,
@@ -4571,7 +4571,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -4594,7 +4594,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -4604,11 +4604,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.125,
                 "width": 0.0002,
                 "curve": 0,
@@ -4620,7 +4620,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.125,
                 "width": 0.125,
                 "curve": 0,
@@ -4633,7 +4633,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -4656,7 +4656,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -4666,11 +4666,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.25,
                 "width": 0.125,
                 "curve": 0,
@@ -4682,7 +4682,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.375,
                 "width": 0.0002,
                 "curve": 0,
@@ -4695,7 +4695,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -4718,7 +4718,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -4728,11 +4728,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.375,
                 "width": 0.0002,
                 "curve": 0,
@@ -4744,7 +4744,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.375,
                 "width": 0.125,
                 "curve": 0,
@@ -4757,7 +4757,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -4780,7 +4780,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -4790,11 +4790,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.5,
                 "width": 0.125,
                 "curve": 0,
@@ -4806,7 +4806,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.625,
                 "width": 0.0002,
                 "curve": 0,
@@ -4819,7 +4819,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -4842,7 +4842,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -4852,11 +4852,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.625,
                 "width": 0.0002,
                 "curve": 0,
@@ -4868,7 +4868,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.625,
                 "width": 0.125,
                 "curve": 0,
@@ -4881,7 +4881,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -4904,7 +4904,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -4914,11 +4914,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.75,
                 "width": 0.125,
                 "curve": 0,
@@ -4930,7 +4930,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.875,
                 "width": 0.0002,
                 "curve": 0,
@@ -4943,7 +4943,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -4966,7 +4966,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -4976,11 +4976,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.875,
                 "width": 0.0002,
                 "curve": 0,
@@ -4992,7 +4992,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.875,
                 "width": 0.125,
                 "curve": 0,
@@ -5005,7 +5005,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5136,7 +5136,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5146,11 +5146,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.0,
                 "width": 0.125,
                 "curve": 0,
@@ -5162,7 +5162,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.125,
                 "width": 0.0002,
                 "curve": 0,
@@ -5175,7 +5175,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5198,7 +5198,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5208,11 +5208,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.125,
                 "width": 0.0002,
                 "curve": 0,
@@ -5224,7 +5224,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.125,
                 "width": 0.125,
                 "curve": 0,
@@ -5237,7 +5237,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5260,7 +5260,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5270,11 +5270,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.25,
                 "width": 0.125,
                 "curve": 0,
@@ -5286,7 +5286,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.375,
                 "width": 0.0002,
                 "curve": 0,
@@ -5299,7 +5299,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5322,7 +5322,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5332,11 +5332,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.375,
                 "width": 0.0002,
                 "curve": 0,
@@ -5348,7 +5348,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.375,
                 "width": 0.125,
                 "curve": 0,
@@ -5361,7 +5361,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5384,7 +5384,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5394,11 +5394,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.5,
                 "width": 0.125,
                 "curve": 0,
@@ -5410,7 +5410,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.625,
                 "width": 0.0002,
                 "curve": 0,
@@ -5423,7 +5423,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5446,7 +5446,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5456,11 +5456,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.625,
                 "width": 0.0002,
                 "curve": 0,
@@ -5472,7 +5472,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.625,
                 "width": 0.125,
                 "curve": 0,
@@ -5485,7 +5485,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5508,7 +5508,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5518,11 +5518,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.75,
                 "width": 0.125,
                 "curve": 0,
@@ -5534,7 +5534,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.875,
                 "width": 0.0002,
                 "curve": 0,
@@ -5547,7 +5547,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5570,7 +5570,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5580,11 +5580,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.875,
                 "width": 0.0002,
                 "curve": 0,
@@ -5596,7 +5596,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.875,
                 "width": 0.125,
                 "curve": 0,
@@ -5609,7 +5609,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5740,7 +5740,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5750,11 +5750,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.0,
                 "width": 0.125,
                 "curve": 0,
@@ -5766,7 +5766,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.125,
                 "width": 0.0002,
                 "curve": 0,
@@ -5779,7 +5779,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5802,7 +5802,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5812,11 +5812,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.125,
                 "width": 0.0002,
                 "curve": 0,
@@ -5828,7 +5828,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.125,
                 "width": 0.125,
                 "curve": 0,
@@ -5841,7 +5841,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5864,7 +5864,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5874,11 +5874,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.25,
                 "width": 0.125,
                 "curve": 0,
@@ -5890,7 +5890,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.375,
                 "width": 0.0002,
                 "curve": 0,
@@ -5903,7 +5903,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5926,7 +5926,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5936,11 +5936,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.375,
                 "width": 0.0002,
                 "curve": 0,
@@ -5952,7 +5952,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.375,
                 "width": 0.125,
                 "curve": 0,
@@ -5965,7 +5965,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -5988,7 +5988,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -5998,11 +5998,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.5,
                 "width": 0.125,
                 "curve": 0,
@@ -6014,7 +6014,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.625,
                 "width": 0.0002,
                 "curve": 0,
@@ -6027,7 +6027,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -6050,7 +6050,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -6060,11 +6060,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.625,
                 "width": 0.0002,
                 "curve": 0,
@@ -6076,7 +6076,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.625,
                 "width": 0.125,
                 "curve": 0,
@@ -6089,7 +6089,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -6112,7 +6112,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -6122,11 +6122,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.75,
                 "width": 0.125,
                 "curve": 0,
@@ -6138,7 +6138,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.875,
                 "width": 0.0002,
                 "curve": 0,
@@ -6151,7 +6151,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -6174,7 +6174,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -6184,11 +6184,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.875,
                 "width": 0.0002,
                 "curve": 0,
@@ -6200,7 +6200,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.875,
                 "width": 0.125,
                 "curve": 0,
@@ -6213,7 +6213,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -6344,7 +6344,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -6354,11 +6354,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.0,
                 "width": 0.125,
                 "curve": 0,
@@ -6370,7 +6370,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.125,
                 "width": 0.0002,
                 "curve": 0,
@@ -6383,7 +6383,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -6406,7 +6406,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -6416,11 +6416,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.125,
                 "width": 0.0002,
                 "curve": 0,
@@ -6432,7 +6432,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.125,
                 "width": 0.125,
                 "curve": 0,
@@ -6445,7 +6445,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -6468,7 +6468,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -6478,11 +6478,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.25,
                 "width": 0.125,
                 "curve": 0,
@@ -6494,7 +6494,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.375,
                 "width": 0.0002,
                 "curve": 0,
@@ -6507,7 +6507,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -6530,7 +6530,7 @@
            "depth": 1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -6540,11 +6540,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.375,
                 "width": 0.0002,
                 "curve": 0,
@@ -6556,7 +6556,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.375,
                 "width": 0.125,
                 "curve": 0,
@@ -6569,7 +6569,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -6592,7 +6592,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -6602,11 +6602,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.5,
                 "width": 0.125,
                 "curve": 0,
@@ -6618,7 +6618,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.625,
                 "width": 0.0002,
                 "curve": 0,
@@ -6631,7 +6631,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -6654,7 +6654,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -6664,11 +6664,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.625,
                 "width": 0.0002,
                 "curve": 0,
@@ -6680,7 +6680,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.625,
                 "width": 0.125,
                 "curve": 0,
@@ -6693,7 +6693,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -6716,7 +6716,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -6726,11 +6726,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.75,
                 "width": 0.125,
                 "curve": 0,
@@ -6742,7 +6742,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.875,
                 "width": 0.0002,
                 "curve": 0,
@@ -6755,7 +6755,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
@@ -6778,7 +6778,7 @@
            "depth": -1,
            "threshold": 0,
            "width": 1,
-           "curve": 1,
+           "curve": 0,
            "invert": false,
            "on": true,
            "ripple": 0,
@@ -6788,11 +6788,11 @@
             "fn": "curtain",
             "params": {
              "offset": {
-              "base": 5.5,
+              "base": 5.75,
               "chains": [
                {
                 "source": "bar.phase",
-                "depth": -11,
+                "depth": -11.5,
                 "threshold": 0.875,
                 "width": 0.0002,
                 "curve": 0,
@@ -6804,7 +6804,7 @@
                },
                {
                 "source": "bar.phase",
-                "depth": 11,
+                "depth": 11.5,
                 "threshold": 0.875,
                 "width": 0.125,
                 "curve": 0,
@@ -6817,7 +6817,7 @@
               ]
              },
              "edge": {
-              "base": 1,
+              "base": 1.5,
               "chains": []
              },
              "turn": {
