@@ -510,10 +510,14 @@ function renderLists() {
     if (k != null && st.scene === s.id && st.track === t.id) send(JSON.stringify({ stage: k })); else playScene(s, k);
   } }, '▶');
   stageFilter = viewedStage();
+  // the playing scene and stage are lit from the start: the list is rebuilt on every edit and
+  // selection, and the loop only re-marks when what plays changes
+  const now = t.scenes.findIndex((s) => s.id === st.scene && st.track === t.id);
+  lastPlayingKey = `${now}/${st.stage ?? 0}`;
   $('#scene-list').replaceChildren(...t.scenes.flatMap((s, k) => [
-    item('scene', k, s.id, s.bars, k === si ? 'here' : '', null, go(s)),
+    item('scene', k, s.id, s.bars, (k === si ? 'here ' : '') + (k === now ? 'playing' : ''), null, go(s)),
     ...(s.stages || []).map((name, j) => el('li', {
-      class: 'stage-item' + (k === si && name === stageFilter ? ' viewed' : ''), 'data-index': k, 'data-stage': j,
+      class: 'stage-item' + (k === si && name === stageFilter ? ' viewed' : '') + (k === now && j === (st.stage ?? 0) ? ' playing' : ''), 'data-index': k, 'data-stage': j,
       onclick: () => { viewStage = name; select('scene', k); },
     }, el('span', {}, go(s, j), name), el('span', { class: 'bars' }, `${s.layers.filter((l) => l.stage === name).length}·${s.hotspots.filter((h) => h.stage === name).length}`))),
   ]));
