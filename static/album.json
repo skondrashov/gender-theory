@@ -2983,7 +2983,6 @@
      ],
      "loop": 0,
      "stages": [
-      "title",
       "foyer",
       "name 1",
       "left",
@@ -3818,36 +3817,6 @@
        "stage": "foyer"
       },
       {
-       "id": "lmwscysvatvi",
-       "name": "tap/click",
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n........#..\n...####....\n...#####...\n...........\n...........\n...........\n..........."
-       },
-       "kind": "text",
-       "params": {
-        "text": "tap/\nclick",
-        "hotspot": "",
-        "align": "left",
-        "lead": 1,
-        "width": 1.5,
-        "height": 1.5,
-        "center": true,
-        "reveal": {
-         "base": 1,
-         "chains": []
-        },
-        "brightness": {
-         "base": 1,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        }
-       },
-       "stage": "title"
-      },
-      {
        "id": "lmwsoxvghneu",
        "name": "extended lines",
        "region": {
@@ -3877,22 +3846,6 @@
       }
      ],
      "hotspots": [
-      {
-       "id": "hmwsd7gqx56h",
-       "name": "hotspot",
-       "region": {},
-       "needs": [],
-       "on": "tap",
-       "then": [
-        {
-         "unlock": "dots"
-        },
-        {
-         "stage": "foyer"
-        }
-       ],
-       "stage": "title"
-      },
       {
        "id": "e",
        "name": "glow",
@@ -6953,7 +6906,27 @@
          "op": "set",
          "base": 0,
          "chains": [],
-         "masks": []
+         "masks": [
+          {
+           "source": "position",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0,
+           "field": {
+            "fn": "along",
+            "params": {
+             "direction": {
+              "base": 0,
+              "chains": []
+             }
+            }
+           }
+          }
+         ]
         }
        },
        "stage": "bars"
@@ -6966,11 +6939,31 @@
        },
        "kind": "cells",
        "params": {
-        "brightness": {
+        "lines": {
          "op": "set",
-         "base": 1,
+         "base": 0,
          "chains": [],
-         "masks": []
+         "masks": [
+          {
+           "source": "position",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
+           "on": true,
+           "ripple": 0,
+           "field": {
+            "fn": "along",
+            "params": {
+             "direction": {
+              "base": 0,
+              "chains": []
+             }
+            }
+           }
+          }
+         ]
         }
        },
        "stage": "bars",
