@@ -75,7 +75,9 @@ pub struct Model {
 	/// through `push_command`, state goes out through `state_json`.
 	pub editor: bool,
 	/// The editor asked to play a scene from one of its bars: done once the track is decoded.
-	seek: Option<(String, usize)>,
+	/// The editor: a scene to play from a bar, landing in a stage (None: the first, or the
+	/// one we are in if it is the playing scene).
+	seek: Option<(String, usize, Option<usize>)>,
 	/// Cells the editor wants outlined.
 	highlight: Vec<(usize, usize)>,
 	/// The editor's probe: a cell whose rows the data renderer reports each frame (`probed`),
@@ -392,7 +394,7 @@ impl Model {
 		self.preload();
 		if bars_changed && self.started {
 			let bar = bar.clamp(scene.bars.start, scene.bars.end.saturating_sub(1));
-			self.seek = Some((scene.id.to_string(), bar));
+			self.seek = Some((scene.id.to_string(), bar, None));
 		}
 	}
 
@@ -407,11 +409,12 @@ impl Model {
 		if let Some(seek) = command.get("seek") {
 			let id = seek.get("scene").and_then(Value::as_str).unwrap_or("");
 			let bar = seek.get("bar").and_then(Value::as_u64).unwrap_or(0) as usize;
+			let stage = seek.get("stage").and_then(Value::as_u64).map(|s| s as usize);
 			if let Some(scene) = scenes::find(id) {
 				// Another track's scene (a song just added, a scene played from the graph):
 				// nothing else would ask for its audio.
 				self.audio.load(scene.track);
-				self.seek = Some((id.to_string(), bar));
+				self.seek = Some((id.to_string(), bar, stage));
 				self.started = true;
 				self.audio.resume();
 			}
@@ -793,14 +796,14 @@ pub fn update(app: &App, model: &mut Model, update: Update) {
 	}
 
 	// The editor: play a scene from one of its bars, as soon as its track is here.
-	if let Some((id, bar)) = model.seek.clone() {
+	if let Some((id, bar, to_stage)) = model.seek.clone() {
 		if let Some(scene) = scenes::find(&id) {
 			if model.audio.is_loaded(scene.track) {
 				model.seek = None;
 				model.pending = None;
-				let stage = if std::ptr::eq(scene, model.scene) { model.stage } else { 0 };
+				let stage = to_stage.unwrap_or(if std::ptr::eq(scene, model.scene) { model.stage } else { 0 });
 				model.enter(scene);
-				model.stage = stage;
+				model.stage = stage.min(scene.stages.len().saturating_sub(1));
 				let _ = model.audio.play_from(scene, bar, now + 0.05);
 			}
 		} else {

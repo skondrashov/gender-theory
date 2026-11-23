@@ -103,6 +103,8 @@ main { display: flex; height: 500px; flex: none; border-bottom: 1px solid var(--
 #lists li .go:hover { opacity: 1; color: var(--fg, #fff); }
 #lists li.playing .go { color: var(--accent); opacity: 1; }
 #lists li .stage { color: var(--dim); font-size: 10px; margin-left: 4px; }
+#scene-list li.stage-item { padding-left: 22px; font-size: 11px; color: var(--dim); }
+#scene-list li.stage-item.viewed { color: var(--fg, #fff); }
 .block .loop { position: absolute; top: 0; bottom: 0; right: 0; background: repeating-linear-gradient(135deg, transparent 0 4px, rgba(255,255,255,.12) 4px 6px); pointer-events: none; }
 .stages .stage-row { display: flex; gap: 6px; align-items: center; padding: 2px 0; }
 #lists li .x { margin-left: auto; color: var(--dim); font-size: 12px; padding: 0 4px; }

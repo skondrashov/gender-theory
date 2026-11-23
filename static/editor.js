@@ -33,7 +33,8 @@ let album, cat;
 let ti = 0;                // index of the track being edited
 let si = 0;                // index of the scene being edited (its layers and hotspots are shown)
 let follow = true;         // si follows the scene playing, until a scene is picked by hand
-let stageFilter = '';      // the stage on preview: the lists show only its layers and hotspots (and the stageless)
+let stageFilter = '';      // the stage on view: the lists show only its layers and hotspots (and the stageless)
+let viewStage = null;      // a stage of the edited scene picked in the scene list (by name); null: the playing one, or the first
 let lastStages = '';
 let sel = null;            // {type: 'scene'|'layer'|'hotspot'|'band', index} | {type: 'group', index: name}
 const collapsed = new Set(); // layer groups folded in the list, as "scene id|group"
@@ -153,7 +154,6 @@ async function boot() {
     decodeWave(t);
   };
   $('#play').onclick = togglePlay;
-  $('#stage-pick').onchange = () => send(JSON.stringify({ stage: +$('#stage-pick').value }));
   $('#undo').onclick = undo;
   $('#redo').onclick = redo;
   $('#save').onclick = save;
@@ -314,6 +314,12 @@ function seek(bar) {
   send(JSON.stringify({ seek: { scene: scene.id, bar } }));
 }
 
+// Play a scene from its first bar, landing in stage k (null: its first).
+function playScene(s, k = null) {
+  follow = true;
+  send(JSON.stringify({ seek: { scene: s.id, bar: s.bars[0], ...(k == null ? {} : { stage: k }) } }));
+}
+
 function keys(e) {
   const typing = /INPUT|SELECT|TEXTAREA/.test(e.target.tagName);
   if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); save(); return; }
@@ -326,21 +332,13 @@ function keys(e) {
 
 // ---- the loop: poll the app ----
 
-let lastBar = -1, lastPlayingScene = null;
+let lastBar = -1, lastPlayingScene = null, lastPlayingKey = '';
 function loop() {
   try { st = JSON.parse(readState() || '{}'); } catch { st = {}; }
   const t = track();
   $('#play').textContent = st.playing ? '❚❚' : '▶';
   $('#where').textContent = st.scene ? `${st.scene}  bar ${(st.bar ?? 0).toFixed(2)}${st.pending ? ' → ' + st.pending : ''}${st.loaded === false ? '  (loading)' : ''}` : '—';
-  const stages = JSON.stringify(st.stages || []);
-  if (stages !== lastStages) {
-    lastStages = stages;
-    const list = st.stages || [];
-    $('#stage-pick').replaceChildren(...list.map((name, k) => el('option', { value: k }, name)));
-    $('#stage-pick').hidden = list.length === 0;
-  }
-  if (document.activeElement !== $('#stage-pick')) $('#stage-pick').value = st.stage ?? 0;
-  // the lists show the stage on preview (the top bar's picker is the one control)
+  // the lists show the stage on view: the one picked in the scene list, else the playing one
   if (viewedStage() !== stageFilter) { renderLists(); renderTimeline(); }
   if (st.track && st.track === t.id) {
     $('#playhead').style.left = (GUTTER + st.bar * PPB) + 'px';
@@ -351,12 +349,13 @@ function loop() {
   // follow the music into whichever scene is playing, until a scene is picked by hand
   if (follow && st.track === t.id && !tl.drag) {
     const k = t.scenes.findIndex((s) => s.id === st.scene);
-    if (k >= 0 && k !== si) { si = k; if (sel && sel.type !== 'band') sel = sel.type === 'scene' ? { type: 'scene', index: k } : null; renderLists(); renderTimeline(); renderInspector(); renderGrid(); }
+    if (k >= 0 && k !== si) { si = k; viewStage = null; if (sel && sel.type !== 'band') sel = sel.type === 'scene' ? { type: 'scene', index: k } : null; renderLists(); renderTimeline(); renderInspector(); renderGrid(); }
   }
-  const playing = $('#scene-list li.playing');
   const now = t.scenes.findIndex((s) => s.id === st.scene && st.track === t.id);
-  if ((playing ? +playing.dataset.index : -1) !== now) {
-    for (const li of document.querySelectorAll('#scene-list li')) li.classList.toggle('playing', +li.dataset.index === now);
+  const key = `${now}/${st.stage ?? 0}`;
+  if (key !== lastPlayingKey) {
+    lastPlayingKey = key;
+    for (const li of document.querySelectorAll('#scene-list li')) li.classList.toggle('playing', +li.dataset.index === now && (li.dataset.stage == null || +li.dataset.stage === (st.stage ?? 0)));
   }
   if (st.scene !== lastPlayingScene) {
     lastPlayingScene = st.scene;
@@ -500,10 +499,24 @@ function renderLists() {
     'data-index': index,
     onclick: () => select(type, index),
   }, el('span', {}, lead, label, stage ? el('span', { class: 'stage' }, stage) : null), el('span', { class: 'bars' }, bars ? `${bars[0]}–${bars[1]}` : ''));
-  // a play button per scene: the music (and so the preview) jumps to its first bar; the playing one is lit
-  const go = (s) => el('button', { class: 'go', title: 'play this scene from its first bar', onclick: (e) => { e.stopPropagation(); seek(s.bars[0]); } }, '▶');
-  $('#scene-list').replaceChildren(...t.scenes.map((s, k) => item('scene', k, s.id, s.bars, k === si ? 'here' : '', null, go(s))));
+  // a play button per scene: the music (and so the preview) jumps to its first bar; the playing one is lit.
+  // Under each scene its stages, each with the same button: play the scene in that stage — or,
+  // if the scene is the one playing, just go to the stage (owner, 2026-11-23: "put the stages
+  // in the same browser thing as the scenes with the same play button"). Clicking a stage
+  // views it: the lists show its layers and hotspots, new ones go into it.
+  const go = (s, k = null) => el('button', { class: 'go', title: k == null ? 'play this scene from its first bar' : 'play this stage', onclick: (e) => {
+    e.stopPropagation();
+    if (k != null) { viewStage = s.stages[k]; if (sel?.type !== 'scene' || sel.index !== t.scenes.indexOf(s)) select('scene', t.scenes.indexOf(s)); }
+    if (k != null && st.scene === s.id && st.track === t.id) send(JSON.stringify({ stage: k })); else playScene(s, k);
+  } }, '▶');
   stageFilter = viewedStage();
+  $('#scene-list').replaceChildren(...t.scenes.flatMap((s, k) => [
+    item('scene', k, s.id, s.bars, k === si ? 'here' : '', null, go(s)),
+    ...(s.stages || []).map((name, j) => el('li', {
+      class: 'stage-item' + (k === si && name === stageFilter ? ' viewed' : ''), 'data-index': k, 'data-stage': j,
+      onclick: () => { viewStage = name; select('scene', k); },
+    }, el('span', {}, go(s, j), name), el('span', { class: 'bars' }, `${s.layers.filter((l) => l.stage === name).length}·${s.hotspots.filter((h) => h.stage === name).length}`))),
+  ]));
   $('#hotspot-title').textContent = s ? `hotspots of ${s.id}` : 'hotspots';
   $('#layer-title').textContent = s ? `layers of ${s.id}` : 'layers';
   $('#hotspot-list').replaceChildren(...(s?.hotspots ?? []).map((h, k) => inStage(h) ? item('hotspot', k, h.name || h.id, h.bars, '', h.stage) : null).filter(Boolean));
@@ -532,11 +545,12 @@ function renderLists() {
 
 const inStage = (item) => !stageFilter || !item.stage || item.stage === stageFilter;
 
-// The stage the lists show: the one on preview when the edited scene is the one playing, else the scene's first.
-const viewedStage = () => { const s = scene(), names = s?.stages ?? []; return (st.scene === s?.id && names[st.stage]) || names[0] || ''; };
+// The stage the lists show: the one picked in the scene list if the scene has it, else the
+// one on view when the edited scene is the one playing, else the scene's first.
+const viewedStage = () => { const s = scene(), names = s?.stages ?? []; return (viewStage && names.includes(viewStage) ? viewStage : (st.scene === s?.id && names[st.stage]) || names[0]) || ''; };
 
 function select(type, index) {
-  if (type === 'scene') { si = index; follow = false; }
+  if (type === 'scene') { if (index !== si) viewStage = null; si = index; follow = false; }
   sel = { type, index };
   renderLists(); renderInspector(); renderGrid(); renderTimeline(); renderSources();
   sendHighlight();
@@ -1125,7 +1139,6 @@ function stagesEditor(s) {
     el('span', { class: 'dim mono' }, k),
     el('input', { type: 'text', value: name, onchange: (e) => rename(k, e.target.value.trim()) }),
     el('button', { class: 'small', onclick: () => swap(k, -1) }, '↑'), el('button', { class: 'small', onclick: () => swap(k, 1) }, '↓'),
-    el('button', { class: 'small', onclick: () => send(JSON.stringify({ stage: k })) }, 'view'),
     el('span', { class: 'lbl' }, 'delay unlocks'), delayInput(name),
     el('span', { class: 'doc' }, `${s.layers.filter((l) => l.stage === name).length} layers, ${s.hotspots.filter((h) => h.stage === name).length} hotspots`),
     el('select', { title: 'copy this stage — its layers and hotspots, under a new stage name — into a scene of any track, or beside itself here', onchange: (e) => {
@@ -2243,7 +2256,7 @@ function renderGraph() {
     });
     g.append(
       svg('title', {}, [n.id, !reach.has(n.id) && n.id !== start ? 'no door leads here from the start' : null].filter(Boolean).join(' — ')),
-      svg('text', { class: 'go', x: 6, y: 16, onmousedown: (ev) => { ev.stopPropagation(); ev.preventDefault(); playScene(n); } }, '▶', svg('title', {}, 'play this scene from its first bar')),
+      svg('text', { class: 'go', x: 6, y: 16, onmousedown: (ev) => { ev.stopPropagation(); ev.preventDefault(); playNode(n); } }, '▶', svg('title', {}, 'play this scene from its first bar')),
       svg('text', { class: 'id', x: 20, y: 16 }, n.id),
       svg('text', { class: 'bars', x: n.w - 8, y: 16, 'text-anchor': 'end' }, `${n.s.bars[0]}–${n.s.bars[1]}`),
     );
@@ -2278,7 +2291,7 @@ function selectFromGraph(n, selection) {
   sendHighlight();
 }
 
-function playScene(n) {
+function playNode(n) {
   selectFromGraph(n, { type: 'scene', index: n.si });
   follow = true;
   send(JSON.stringify({ seek: { scene: n.id, bar: n.s.bars[0] } }));

@@ -831,3 +831,15 @@ rotation, fill, morph, flatness, color (editor UNLOCKS the same). Album `version
 needs and `unlock:rotation` masks -> angle (they all meant the lines); `tools/bounce.py`
 pinwheel `needs: ["angle"]`. Consequence: a painted angle shows before any unlock (lines
 unlock shows the lines as painted, not horizontal).
+
+## Stages in the scene list (2026-11-23)
+
+Owner: "let's just put the stages in the same browser thing as the scenes with the same play
+button ... and get rid of the dropdown". `#scene-list` renders each scene's stages as
+`li.stage-item` under it (`data-index`, `data-stage`; `layers.hotspots` counts at the right);
+the stage's play button sends `{stage: k}` if the scene is playing, else `{seek: {scene, bar,
+stage: k}}` - the engine's seek carries an optional stage (`Model.seek: Option<(String,
+usize, Option<usize>)>`), landing in it instead of 0. Clicking a stage sets `viewStage`
+(cleared when the edited scene changes), which `viewedStage()` prefers over the playing
+stage; `#stage-pick` and the inspector's per-stage "view" button are gone. The playing
+highlight is per scene and stage (`lastPlayingKey`).
