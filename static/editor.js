@@ -32,7 +32,6 @@ const uid = (p) => p + Date.now().toString(36) + Math.random().toString(36).slic
 let album, cat;
 let ti = 0;                // index of the track being edited
 let si = 0;                // index of the scene being edited (its layers and hotspots are shown)
-let follow = true;         // si follows the scene playing, until a scene is picked by hand
 let stageFilter = '';      // the stage on view: the lists show only its layers and hotspots (and the stageless)
 let viewStage = null;      // a stage of the edited scene picked in the scene list (by name); null: the playing one, or the first
 let lastStages = '';
@@ -310,13 +309,11 @@ function togglePlay() {
 function seek(bar) {
   const scene = sceneAt(track(), bar);
   if (!scene) { setStatus(`no scene covers bar ${bar}`); return; }
-  follow = true;
   send(JSON.stringify({ seek: { scene: scene.id, bar } }));
 }
 
 // Play a scene from its first bar, landing in stage k (null: its first).
 function playScene(s, k = null) {
-  follow = true;
   send(JSON.stringify({ seek: { scene: s.id, bar: s.bars[0], ...(k == null ? {} : { stage: k }) } }));
 }
 
@@ -346,20 +343,25 @@ function loop() {
   } else {
     $('#playhead').style.display = 'none';
   }
-  // follow the music into whichever scene is playing, until a scene is picked by hand
-  if (follow && st.track === t.id && !tl.drag) {
-    const k = t.scenes.findIndex((s) => s.id === st.scene);
-    if (k >= 0 && k !== si) { si = k; viewStage = null; if (sel && sel.type !== 'band') sel = sel.type === 'scene' ? { type: 'scene', index: k } : null; renderLists(); renderTimeline(); renderInspector(); renderGrid(); }
-  }
   const now = t.scenes.findIndex((s) => s.id === st.scene && st.track === t.id);
   const key = `${now}/${st.stage ?? 0}`;
   if (key !== lastPlayingKey) {
     lastPlayingKey = key;
     for (const li of document.querySelectorAll('#scene-list li')) li.classList.toggle('playing', +li.dataset.index === now && (li.dataset.stage == null || +li.dataset.stage === (st.stage ?? 0)));
   }
+  // A new scene starts playing (▶, a door, the stretch moving on): edit it (owner, 2026-11-23:
+  // "it should take you to the scene that starts playing when you switch"). A scene picked by
+  // hand afterwards sticks until the music changes scene again.
   if (st.scene !== lastPlayingScene) {
     lastPlayingScene = st.scene;
     for (const g of document.querySelectorAll('#graph .node')) g.classList.toggle('playing', g.dataset.scene === st.scene);
+    const w = st.scene ? findScene(st.scene) : null;
+    if (w && !tl.drag && (w.ti !== ti || w.si !== si)) {
+      viewStage = null;
+      if (sel && sel.type !== 'band') sel = sel.type === 'scene' ? { type: 'scene', index: w.si } : null;
+      if (w.ti !== ti) { ti = w.ti; si = w.si; renderAll(); }
+      else { si = w.si; renderLists(); renderTimeline(); renderInspector(); renderGrid(); }
+    }
   }
   for (const u of UNLOCKS) {
     const box = $(`#unlock-${u}`);
@@ -554,7 +556,7 @@ const inStage = (item) => !stageFilter || !item.stage || item.stage === stageFil
 const viewedStage = () => { const s = scene(), names = s?.stages ?? []; return (viewStage && names.includes(viewStage) ? viewStage : (st.scene === s?.id && names[st.stage]) || names[0]) || ''; };
 
 function select(type, index) {
-  if (type === 'scene') { if (index !== si) viewStage = null; si = index; follow = false; }
+  if (type === 'scene') { if (index !== si) viewStage = null; si = index; }
   sel = { type, index };
   renderLists(); renderInspector(); renderGrid(); renderTimeline(); renderSources();
   sendHighlight();
@@ -735,7 +737,7 @@ function copyStage(s, k, to) {
   to.stages.push(fresh);
   if (s.unlock_delays?.[name] > 0) { to.unlock_delays ??= {}; to.unlock_delays[fresh] = s.unlock_delays[name]; }
   to.layers.push(...layers); to.hotspots.push(...hotspots);
-  if (to !== s) { const w = findScene(to.id); ti = w.ti; si = w.si; sel = { type: 'scene', index: si }; follow = false; renderTopbar(); }
+  if (to !== s) { const w = findScene(to.id); ti = w.ti; si = w.si; sel = { type: 'scene', index: si }; renderTopbar(); }
   commit({ silent: true, inspector: true });
   setStatus(`copied stage "${name}"${to === s ? '' : ' to ' + to.id} as "${fresh}": ${layers.length} layer${layers.length === 1 ? '' : 's'}, ${hotspots.length} hotspot${hotspots.length === 1 ? '' : 's'}`
     + (missing.size ? ` — hotspots in it lead to ${[...missing].map((x) => '"' + x + '"').join(', ')}, which ${to.id} has no stage of` : ''));
@@ -821,7 +823,6 @@ function addScene() {
   commit({ silent: true, inspector: true });
   // Go there now, so the new scene is what's on the stage.
   clearTimeout(pushTimer);
-  follow = true;
   send(wire({ seek: { scene: id, bar: end } }));
 }
 
@@ -857,7 +858,6 @@ async function addSong(file) {
   renderTopbar();
   decodeWave(track());
   clearTimeout(pushTimer);
-  follow = true;
   send(wire({ seek: { scene: sceneId, bar: 0 } }));
   setStatus(`${file.name}: ${bpm} bpm guessed (fix it in the top bar if it's wrong) — ${bars} bars, one scene. It plays in this tab only; the album names it ${path}`);
 }
@@ -2289,7 +2289,7 @@ function renderGraph() {
 
 // Edit the node's scene (or one of its hotspots): switch track and scene, select, redraw.
 function selectFromGraph(n, selection) {
-  ti = n.ti; si = n.si; follow = false;
+  ti = n.ti; si = n.si;
   sel = selection;
   renderAll();
   sendHighlight();
@@ -2297,7 +2297,6 @@ function selectFromGraph(n, selection) {
 
 function playNode(n) {
   selectFromGraph(n, { type: 'scene', index: n.si });
-  follow = true;
   send(JSON.stringify({ seek: { scene: n.id, bar: n.s.bars[0] } }));
 }
 

@@ -843,3 +843,7 @@ usize, Option<usize>)>`), landing in it instead of 0. Clicking a stage sets `vie
 (cleared when the edited scene changes), which `viewedStage()` prefers over the playing
 stage; `#stage-pick` and the inspector's per-stage "view" button are gone. The playing
 highlight is per scene and stage (`lastPlayingKey`).
+- Follow-up: the editor jumps to whichever scene starts playing (on a change of `st.scene`:
+  across tracks too, `renderAll()` then), and a scene picked by hand sticks until the next
+  change; the `follow` flag is gone. Owner: "it should probably take you to the scene that
+  starts playing when you switch". The playing scene/stage marks are set as the list is built.
