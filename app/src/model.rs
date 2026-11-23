@@ -443,10 +443,15 @@ impl Model {
 			self.started = true;
 			self.audio.resume();
 		}
-		// the editor: a hotspot done as if drawn (its index in the scene)
+		// the editor: a hotspot done as if drawn (its index in the scene), or taken back
 		if let Some(k) = command.get("done").and_then(Value::as_u64) {
 			if let Some(hotspot) = self.scene.hotspots.get(k as usize) {
 				self.complete(hotspot);
+			}
+		}
+		if let Some(k) = command.get("undone").and_then(Value::as_u64) {
+			if let Some(slot) = self.done.get_mut(k as usize) {
+				*slot = None;
 			}
 		}
 		if let Some(cell) = command.get("probe").and_then(Value::as_array) {

@@ -363,6 +363,9 @@ function loop() {
       else { si = w.si; renderLists(); renderTimeline(); renderInspector(); renderGrid(); }
     }
   }
+  for (const box of document.querySelectorAll('#inspector input[data-done]')) {
+    if (document.activeElement !== box) box.checked = !!(st.done || [])[+box.dataset.done];
+  }
   for (const u of UNLOCKS) {
     const box = $(`#unlock-${u}`);
     if (box && document.activeElement !== box) { box.checked = (st.unlocks || []).includes(u); box.parentElement.classList.toggle('on', box.checked); }
@@ -1421,7 +1424,8 @@ function hotspotInspector(h) {
     row('after', ...scene().hotspots.filter((o) => o !== h).map((o) => el('label', {}, el('input', { type: 'checkbox', ...((h.after || []).includes(o.id) ? { checked: '' } : {}), onchange: (e) => {
       snapshotForUndo(); h.after = scene().hotspots.filter((x) => x !== h && (x === o ? e.target.checked : (h.after || []).includes(x.id))).map((x) => x.id); if (!h.after.length) delete h.after; commit({ silent: true });
     } }), o.name || o.id)),
-      el('button', { class: 'small', title: 'as if the player had just drawn or tapped it: its then happens and done:<it> starts its wave', onclick: () => send(JSON.stringify({ done: scene().hotspots.indexOf(h) })) }, 'done now'),
+      el('label', { title: 'tick: as if the player had just drawn or tapped it — its then happens and done:<it> starts its wave; untick: not done after all' },
+        el('input', { type: 'checkbox', 'data-done': scene().hotspots.indexOf(h), ...((st.done || [])[scene().hotspots.indexOf(h)] ? { checked: '' } : {}), onchange: (e) => send(JSON.stringify(e.target.checked ? { done: scene().hotspots.indexOf(h) } : { undone: scene().hotspots.indexOf(h) })) }), 'done'),
       el('span', { class: 'doc' }, 'shows once these are done, this visit of the scene')),
     el('fieldset', {}, el('legend', {}, 'then'), actions,
       el('div', { class: 'doc' }, 'an unlock never moves you; a spent unlock hotspot disappears, so a second hotspot on the same cells that needs it can be the door. Nothing here: a trigger — done when drawn, then gone; done:<it> is a wave from it, one cell per `every` beats')),
