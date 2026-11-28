@@ -222,3 +222,17 @@ button.danger { color: #ff6b6b; }
 .block .handle.r { right: 0; }
 #playhead { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--accent); pointer-events: none; }
 .lane-label { position: sticky; left: 0; display: inline-block; width: var(--gutter); padding: 0 6px; color: var(--dim); font-size: 10px; line-height: 22px; background: var(--panel); z-index: 1; border-right: 1px solid var(--line); white-space: nowrap; overflow: hidden; }
+
+/* a button that opens a menu with submenus (the sources of a sidechain or mask) */
+.menu-button { display: inline-flex; align-items: center; gap: 5px; max-width: 150px; text-align: left; }
+.menu-button > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-button > b { font-weight: normal; color: var(--dim); font-size: 10px; }
+.menu-root { position: fixed; inset: 0; z-index: 50; pointer-events: none; }
+.menu { position: fixed; pointer-events: auto; min-width: 110px; max-height: calc(100vh - 8px); overflow-y: auto; padding: 3px; font-size: 11px;
+  background: #2a2a32; border: 1px solid var(--dim); border-radius: 3px; box-shadow: 0 6px 18px rgba(0,0,0,.5); }
+.menu .item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 3px 8px; border-radius: 2px; cursor: pointer; white-space: nowrap; }
+.menu .item:hover, .menu .item.open { background: var(--sel); }
+.menu .item.on { color: var(--accent); }
+.menu .item.has > span { text-decoration: underline dotted var(--dim); text-underline-offset: 3px; }
+.menu .item.empty { opacity: .4; cursor: default; }
+.menu .item > b { font-weight: normal; color: var(--dim); font-size: 10px; }

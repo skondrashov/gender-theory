@@ -1291,33 +1291,127 @@ function paramRow(params, name, spec) {
   return row(name, el('span', { class: 'doc' }, 'unknown param type ' + spec.type));
 }
 
+// Every source a sidechain or mask can have, as a tree for the menu: leaves are {label, value,
+// text (what the button says), title}; branches are {label, items}.
+const TIME_SOURCES = ['span', 'beat', 'bar', 'pulse', 'beat.phase', 'bar.phase', 'clock', 'transition'];
+const PATTERN_SOURCES = ['noise', 'distance', 'bearing', 'around'];
+const OLD_BANDS = ['bass', 'mid', 'treble'];
+function sourceTree() {
+  const leaf = (value, text, title = '') => ({ label: text.split(' · ').at(-1), value, text, title });
+  const builtin = (s) => leaf(s, s, cat.sourceDocs[s] || '');
+  const bandName = (b) => b.name || b.id;
+  const hotspots = scene()?.hotspots || [];
+  const families = [...new Set(cat.fields.map((f) => f.family))];
+  const known = new Set([...TIME_SOURCES, ...PATTERN_SOURCES, ...OLD_BANDS, 'position']);
+  const other = cat.sources.filter((s) => !known.has(s)).map(builtin);
+  return [
+    { label: 'bands', items: album.bands.map((b) => ({ label: bandName(b), items: [
+      leaf(b.id, bandName(b), 'its level'),
+      leaf(b.id + '.pitch', bandName(b) + ' · pitch', 'the pitch of the loudest thing in its range, 0..1 lo..hi on a log scale'),
+      leaf(b.id + '.chroma', bandName(b) + ' · chroma', 'its note, C = 0 .. B'),
+    ] })) },
+    { label: 'time', items: TIME_SOURCES.filter((s) => cat.sources.includes(s)).map(builtin) },
+    { label: 'pattern', items: PATTERN_SOURCES.filter((s) => cat.sources.includes(s)).map(builtin) },
+    { label: 'position', items: families.map((fam) => ({ label: fam, items: cat.fields.filter((f) => f.family === fam).map((f) => leaf('field:' + f.name, 'position · ' + f.name, f.doc)) })) },
+    { label: 'music', items: OLD_BANDS.filter((s) => cat.sources.includes(s)).map(builtin) },
+    ...(other.length ? [{ label: 'other', items: other }] : []),
+    { label: 'hotspot', items: hotspots.map((h) => leaf('hotspot:' + h.id, 'hotspot · ' + (h.name || h.id), cat.sourceDocs.hotspot || '')) },
+    { label: 'done', items: hotspots.map((h) => leaf('done:' + h.id, 'done · ' + (h.name || h.id), cat.sourceDocs.done || 'a wave from that hotspot once its gesture is done this visit: 0 ahead, 1 behind, one cell per every beats')) },
+    { label: 'unlock', items: UNLOCKS.map((u) => leaf('unlock:' + u, 'unlock · ' + u, cat.sourceDocs.unlock || '')) },
+  ];
+}
+const findLeaf = (tree, value) => {
+  for (const item of tree) {
+    if (item.items) { const hit = findLeaf(item.items, value); if (hit) return hit; }
+    else if (item.value === value) return item;
+  }
+  return null;
+};
+
+// A button that opens a menu with submenus (hover or click a branch to unfold it beside;
+// click a leaf to pick). One menu is open at a time; outside click or Escape closes it.
+let openMenu = null;
+function closeMenu() {
+  if (!openMenu) return;
+  openMenu.remove(); openMenu = null;
+  document.removeEventListener('pointerdown', onMenuOutside, true);
+  document.removeEventListener('keydown', onMenuKey, true);
+}
+const onMenuOutside = (e) => { if (openMenu && !openMenu.contains(e.target) && !e.target.closest('.menu-button')) closeMenu(); };
+const onMenuKey = (e) => { if (e.key === 'Escape') { closeMenu(); e.stopPropagation(); } };
+function menuButton({ tree, value, title, onpick }) {
+  const leaf = findLeaf(tree, value);
+  const button = el('button', { class: 'menu-button', title }, el('span', {}, leaf ? leaf.text : value), el('b', {}, '▾'));
+  button.addEventListener('click', () => {
+    if (openMenu && openMenu.owner === button) return closeMenu();
+    closeMenu();
+    const root = el('div', { class: 'menu-root' });
+    root.owner = button;
+    document.body.append(root); openMenu = root;
+    document.addEventListener('pointerdown', onMenuOutside, true);
+    document.addEventListener('keydown', onMenuKey, true);
+    const r = button.getBoundingClientRect();
+    menuPanel(root, tree, value, onpick, r.left, r.bottom + 2, r.top - 2, 0);
+  });
+  return button;
+}
+// one panel of items; a branch opens its panel beside it (right, or left if that runs off screen)
+function menuPanel(root, items, value, onpick, x, y, yUp, depth) {
+  const panel = el('div', { class: 'menu', 'data-depth': depth });
+  let child = null;
+  const unfold = (item, row) => {
+    if (child) { child.remove(); child = null; }
+    for (const sib of panel.children) sib.classList.remove('open');
+    if (!item || !item.items) return;
+    row.classList.add('open');
+    const rr = row.getBoundingClientRect();
+    child = menuPanel(root, item.items, value, onpick, rr.right - 1, rr.top - 4, null, depth + 1);
+    child.dataset.parent = depth;
+  };
+  for (const item of items) {
+    const row = el('div', { class: 'item' + (item.items ? ' branch' : '') + (!item.items && item.value === value ? ' on' : '') + (item.items && findLeaf(item.items, value) ? ' has' : ''), title: item.title || '' },
+      el('span', {}, item.label), item.items ? el('b', {}, '▸') : null);
+    if (item.items) {
+      if (!item.items.length) row.classList.add('empty');
+      row.addEventListener('pointerenter', () => unfold(item, row));
+      row.addEventListener('click', () => unfold(item, row));
+    } else {
+      row.addEventListener('pointerenter', () => unfold(null, row));
+      row.addEventListener('click', () => { closeMenu(); onpick(item.value); });
+    }
+    panel.append(row);
+  }
+  root.append(panel);
+  // place it: below the button (or above if there is no room), or beside its parent row; keep it on screen
+  const w = panel.offsetWidth, h = panel.offsetHeight;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  let left = x, top = y;
+  if (depth > 0 && left + w > vw - 4) left = Math.max(4, x - w - (panel.previousSibling?.offsetWidth || 0) + 2);
+  if (depth === 0 && top + h > vh - 4 && yUp != null && yUp - h > 4) top = yUp - h;
+  if (left + w > vw - 4) left = Math.max(4, vw - 4 - w);
+  if (top + h > vh - 4) top = Math.max(4, vh - 4 - h);
+  panel.style.left = left + 'px'; panel.style.top = top + 'px';
+  return panel;
+}
+
 function chainRow(list, c, k, rerender, probePart = null, isMask = false) {
   const id = uid('m');
   chainRefs[id] = c;
-  const sources = [
-    ...album.bands.flatMap((b) => [
-      { value: b.id, label: b.name || b.id },
-      { value: b.id + '.pitch', label: (b.name || b.id) + ' · pitch' },
-      { value: b.id + '.chroma', label: (b.name || b.id) + ' · chroma' },
-    ]),
-    ...cat.sources.map((s) => ({ value: s, label: s })),
-    ...(scene()?.hotspots || []).map((h) => ({ value: 'hotspot:' + h.id, label: 'hotspot · ' + (h.name || h.id) })),
-    ...(scene()?.hotspots || []).map((h) => ({ value: 'done:' + h.id, label: 'done · ' + (h.name || h.id) })),
-    ...UNLOCKS.map((u) => ({ value: 'unlock:' + u, label: 'unlock · ' + u })),
-  ];
   const num = (key, step) => el('input', { type: 'number', value: c[key] ?? (key === 'every' ? 1 : 0), step, onchange: (e) => { snapshotForUndo(); c[key] = +e.target.value; commit({ silent: true }); } });
   // the source: a plain one, or a position field (then its parameters follow, each a param of its own)
   const field = c.source === 'position' && c.field ? c.field : null;
-  const families = [...new Set(cat.fields.map((f) => f.family))];
-  const source = el('select', { title: field ? cat.fields.find((f) => f.name === field.fn)?.doc : (cat.sourceDocs[c.source.split(':')[0]] || ''), onchange: (e) => {
-    snapshotForUndo();
-    const v = e.target.value;
-    if (v.startsWith('field:')) { c.source = 'position'; c.field = { fn: v.slice(6), params: {} }; } else { c.source = v; delete c.field; }
-    commit({ silent: true }); rerender();
-  } },
-    ...sources.map((o) => el('option', { value: o.value }, o.label)),
-    ...families.map((fam) => el('optgroup', { label: 'position · ' + fam }, ...cat.fields.filter((f) => f.family === fam).map((f) => el('option', { value: 'field:' + f.name, title: f.doc }, f.name)))));
-  source.value = field ? 'field:' + field.fn : c.source;
+  const current = field ? 'field:' + field.fn : c.source;
+  const source = menuButton({
+    tree: sourceTree(),
+    value: current,
+    title: field ? cat.fields.find((f) => f.name === field.fn)?.doc : (cat.sourceDocs[c.source.split(':')[0]] || ''),
+    onpick: (v) => {
+      if (v === current) return;
+      snapshotForUndo();
+      if (v.startsWith('field:')) { c.source = 'position'; c.field = { fn: v.slice(6), params: {} }; } else { c.source = v; delete c.field; }
+      commit({ silent: true }); rerender();
+    },
+  });
   const fieldBox = field ? fieldParams(field) : null;
   return el('div', { class: 'chain-and-field' }, el('div', { class: 'chain' + (c.on ? '' : ' off') },
     el('label', {}, el('input', { type: 'checkbox', ...(c.on ? { checked: '' } : {}), title: 'on', onchange: (e) => { snapshotForUndo(); c.on = e.target.checked; commit({ silent: true }); rerender(); } })),
