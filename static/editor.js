@@ -1360,7 +1360,9 @@ function menuPanel(root, items, value, onpick, x, y, yUp, depth) {
   const panel = el('div', { class: 'menu', 'data-depth': depth });
   let child = null;
   const unfold = (item, row) => {
-    if (child) { child.remove(); child = null; }
+    // fold everything deeper than this panel (the child and the child's children)
+    for (const deeper of root.querySelectorAll('.menu')) if (+deeper.dataset.depth > depth) deeper.remove();
+    child = null;
     for (const sib of panel.children) sib.classList.remove('open');
     if (!item || !item.items) return;
     row.classList.add('open');
