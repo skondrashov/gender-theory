@@ -15,7 +15,7 @@
    "id": "b-bass",
    "name": "bass",
    "lo": 45,
-   "hi": 250,
+   "hi": 223,
    "attack": 0.01,
    "release": 0.15,
    "gain": 1,
@@ -24,7 +24,7 @@
   {
    "id": "b-mids",
    "name": "mids",
-   "lo": 250,
+   "lo": 228,
    "hi": 2000,
    "attack": 0.01,
    "release": 0.15,
@@ -2984,16 +2984,52 @@
      "loop": 0,
      "stages": [
       "foyer",
-      "name 1",
+      "top",
       "left",
       "bottom"
      ],
      "layers": [
       {
-       "id": "lmwqp6p36l0u",
-       "name": "shape",
+       "id": "lmwodk5l9mzx",
+       "name": "layer",
        "region": {
-        "map": "...........\n.#########.\n.##.....##.\n.#.#...#.#.\n.#.......#.\n.#.......#.\n.#.......#.\n.#.#####.#.\n.##.#.#.##.\n.#..###..#.\n..........."
+        "rect": [
+         2,
+         8,
+         9,
+         10
+        ]
+       },
+       "kind": "text",
+       "params": {
+        "text": "",
+        "align": "left",
+        "lead": 1,
+        "width": 1.5,
+        "height": 1.5,
+        "center": true,
+        "reveal": {
+         "base": 1,
+         "chains": []
+        },
+        "brightness": {
+         "base": 1,
+         "chains": []
+        },
+        "color": {
+         "base": 0,
+         "chains": []
+        },
+        "hotspot": "hmw4rooy7v5i"
+       },
+       "stage": "foyer",
+       "muted": true
+      },
+      {
+       "id": "lmwzo9ghv9yc",
+       "name": "needs glow",
+       "region": {
+        "map": "...........\n.#########.\n..#.....#..\n...#...#...\n...........\n...........\n...........\n....###....\n....#.#....\n....###....\n..........."
        },
        "kind": "cells",
        "params": {
@@ -3005,10 +3041,34 @@
         }
        },
        "stage": "foyer",
+       "muted": false,
        "needs": [
+        "dots",
         "glow"
-       ],
-       "muted": false
+       ]
+      },
+      {
+       "id": "lmwqp6p36l0u",
+       "name": "needs lines",
+       "region": {
+        "map": "...........\n...........\n.#.......#.\n.#.......#.\n.#.......#.\n.#.......#.\n.#.......#.\n.#.#...#.#.\n.##.....##.\n.#.......#.\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        }
+       },
+       "stage": "foyer",
+       "muted": false,
+       "needs": [
+        "dots",
+        "glow",
+        "lines"
+       ]
       },
       {
        "id": "lmwlv4cz6pu1",
@@ -3025,7 +3085,10 @@
          "masks": []
         }
        },
-       "stage": "foyer"
+       "stage": "foyer",
+       "needs": [
+        "dots"
+       ]
       },
       {
        "id": "lmwlybct9oor",
@@ -3055,6 +3118,7 @@
        },
        "stage": "foyer",
        "needs": [
+        "dots",
         "glow"
        ]
       },
@@ -3102,12 +3166,6 @@
          "chains": [],
          "masks": []
         },
-        "angle": {
-         "op": "set",
-         "base": 45,
-         "chains": [],
-         "masks": []
-        },
         "length": {
          "op": "set",
          "base": 1,
@@ -3116,7 +3174,12 @@
         }
        },
        "stage": "foyer",
-       "muted": false
+       "muted": false,
+       "needs": [
+        "dots",
+        "glow",
+        "lines"
+       ]
       },
       {
        "id": "lmwqllqe0x3x",
@@ -3162,7 +3225,7 @@
        "id": "lmwmcets0juy",
        "name": "bottom",
        "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n....###....\n....###....\n....###....\n..........."
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n....###....\n....#.#....\n....###....\n..........."
        },
        "kind": "cells",
        "params": {
@@ -3182,23 +3245,6 @@
            "ripple": 0
           }
          ],
-         "masks": [
-          {
-           "source": "unlock:lines",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "ripple": 0
-          }
-         ]
-        },
-        "lines": {
-         "op": "set",
-         "base": 1,
-         "chains": [],
          "masks": []
         },
         "angle": {
@@ -3221,7 +3267,10 @@
         }
        },
        "stage": "foyer",
-       "muted": false
+       "muted": false,
+       "needs": [
+        "dots"
+       ]
       },
       {
        "id": "lmwmwo72pig6",
@@ -3280,7 +3329,12 @@
         }
        },
        "stage": "foyer",
-       "muted": false
+       "muted": false,
+       "needs": [
+        "dots",
+        "glow",
+        "lines"
+       ]
       },
       {
        "id": "l2",
@@ -3317,7 +3371,7 @@
          ]
         }
        },
-       "stage": "name 1"
+       "stage": "top"
       },
       {
        "id": "l12",
@@ -3410,15 +3464,21 @@
          "base": 1,
          "chains": [],
          "masks": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
         }
        },
-       "stage": "name 1"
+       "stage": "top"
       },
       {
-       "id": "lmwsootyfgb6",
-       "name": "layer",
+       "id": "lmwmvlhs6v3m",
+       "name": "box 2",
        "region": {
-        "map": "###########\n###########\n###########\n###########\n###########\n###....####\n###########\n###########\n###########\n###########\n###########"
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n.####......\n.####......\n.####......\n.####......\n..........."
        },
        "kind": "cells",
        "params": {
@@ -3427,153 +3487,10 @@
          "base": 1,
          "chains": [],
          "masks": []
-        },
-        "angle": {
-         "op": "set",
-         "base": {
-          "map": "→→→→→→→→→→→\n→→→→→→→→→→→\n→→→→→→→→→→→\n→→→→→→→→→→→\n→→→→→→→→→→→\n→→→→→→→→→→→\n→→→→→→→→→→→\n→→→→→→→→→→→\n→→→→→→→→→→→\n→→→→→→→→→→→\n→→→→→→→→→→→",
-          "legend": {
-           "→": 0,
-           "↗": 45,
-           "↑": 90,
-           "↖": 135,
-           "←": 180,
-           "↙": 225,
-           "↓": 270,
-           "↘": 315
-          }
-         },
-         "chains": [],
-         "masks": []
         }
        },
-       "stage": "name 1"
-      },
-      {
-       "id": "lmwmvlhs6v3m",
-       "name": "outline right",
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n....#......\n...##......\n....#......\n...........\n..........."
-       },
-       "kind": "cells",
-       "params": {
-        "angle": {
-         "op": "set",
-         "base": 270,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:angle",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "ripple": 0
-          }
-         ],
-         "spin": 0
-        }
-       },
-       "stage": "name 1",
+       "stage": "top",
        "muted": false
-      },
-      {
-       "id": "lmwmvlkey63x",
-       "name": "outline bottom",
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...#.......\n..###......\n..........."
-       },
-       "kind": "cells",
-       "params": {
-        "angle": {
-         "op": "set",
-         "base": 180,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:angle",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "ripple": 0
-          }
-         ],
-         "spin": 0
-        }
-       },
-       "stage": "name 1",
-       "muted": false
-      },
-      {
-       "id": "lmwmvlnb52sb",
-       "name": "outline left",
-       "region": {
-        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n.#.........\n.##........\n.#.........\n..........."
-       },
-       "kind": "cells",
-       "params": {
-        "angle": {
-         "op": "set",
-         "base": 90,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:angle",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": false,
-           "on": true,
-           "ripple": 0
-          }
-         ],
-         "spin": 0
-        }
-       },
-       "stage": "name 1",
-       "muted": false
-      },
-      {
-       "id": "lmwodk5l9mzx",
-       "name": "layer",
-       "region": {
-        "rect": [
-         2,
-         8,
-         9,
-         10
-        ]
-       },
-       "kind": "text",
-       "params": {
-        "text": "",
-        "align": "left",
-        "lead": 1,
-        "width": 1.5,
-        "height": 1.5,
-        "center": true,
-        "reveal": {
-         "base": 1,
-         "chains": []
-        },
-        "brightness": {
-         "base": 1,
-         "chains": []
-        },
-        "color": {
-         "base": 0,
-         "chains": []
-        },
-        "hotspot": "hmw4rooy7v5i"
-       },
-       "stage": "foyer",
-       "muted": true
       },
       {
        "id": "lmwptvld0ift",
@@ -3789,34 +3706,6 @@
        ]
       },
       {
-       "id": "lmwqq38fy1ib",
-       "name": "needs lines",
-       "region": {
-        "map": "...........\n...........\n.#.......#.\n.#.......#.\n.#.......#.\n.#.......#.\n.#.......#.\n.#.#####.#.\n.##.#.#.##.\n.#..###..#.\n..........."
-       },
-       "kind": "cells",
-       "params": {
-        "brightness": {
-         "op": "multiply",
-         "base": 0,
-         "chains": [],
-         "masks": [
-          {
-           "source": "unlock:lines",
-           "depth": 1,
-           "threshold": 0,
-           "width": 1,
-           "curve": 1,
-           "invert": true,
-           "on": true,
-           "ripple": 0
-          }
-         ]
-        }
-       },
-       "stage": "foyer"
-      },
-      {
        "id": "lmwsoxvghneu",
        "name": "extended lines",
        "region": {
@@ -3843,6 +3732,76 @@
         }
        },
        "stage": "foyer"
+      },
+      {
+       "id": "lmwzm6zoe7bt",
+       "name": "layer",
+       "region": {},
+       "kind": "cells",
+       "params": {
+        "angle": {
+         "op": "multiply",
+         "base": 0,
+         "chains": [],
+         "masks": [
+          {
+           "source": "unlock:angle",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
+           "on": true,
+           "ripple": 0,
+           "add": false
+          }
+         ]
+        }
+       },
+       "stage": "foyer"
+      },
+      {
+       "id": "lmwzntm57hlz",
+       "name": "grey out",
+       "region": {
+        "map": "...........\n.#.......#.\n.##.....##.\n.#.#...#.#.\n.#.......#.\n.#.......#.\n.#.......#.\n.#.#...#.#.\n.##.....##.\n.#.......#.\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "brightness": {
+         "op": "multiply",
+         "base": 0.2,
+         "chains": [],
+         "masks": [
+          {
+           "source": "unlock:length",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
+           "on": true,
+           "ripple": 0
+          },
+          {
+           "source": "unlock:angle",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": true,
+           "on": true,
+           "ripple": 0
+          }
+         ]
+        }
+       },
+       "stage": "foyer",
+       "needs": [
+        "dots",
+        "glow",
+        "lines"
+       ]
       }
      ],
      "hotspots": [
@@ -3881,7 +3840,7 @@
        "on": "tap",
        "then": [
         {
-         "stage": "name 1"
+         "stage": "top"
         }
        ],
        "stage": "foyer",
@@ -3916,9 +3875,7 @@
        },
        "needs": [
         "dots",
-        "glow",
-        "lines",
-        "angle"
+        "glow"
        ],
        "on": "tap",
        "then": [
@@ -3962,19 +3919,18 @@
          "unlock": "lines"
         }
        ],
-       "stage": "name 1",
+       "stage": "top",
        "label": true
       },
       {
        "id": "hmwmvo920pll",
-       "name": "outline",
+       "name": "box 2",
        "region": {
         "map": "...........\n...........\n...........\n...........\n...........\n...........\n.####......\n.####......\n.####......\n.####......\n..........."
        },
        "needs": [
         "glow",
-        "lines",
-        "angle"
+        "lines"
        ],
        "on": "tap",
        "then": [
@@ -3982,7 +3938,7 @@
          "stage": "foyer"
         }
        ],
-       "stage": "name 1",
+       "stage": "top",
        "label": true
       },
       {
@@ -4016,6 +3972,21 @@
        "stage": "left"
       },
       {
+       "id": "hmwqotkivw4x",
+       "name": "hotspot",
+       "region": {
+        "map": "...........\n.####......\n.####......\n.####......\n.####......\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "needs": [],
+       "on": "tap",
+       "then": [
+        {
+         "unlock": "angle"
+        }
+       ],
+       "stage": "bottom"
+      },
+      {
        "id": "hmwqo9iysf5b",
        "name": "hotspot",
        "region": {
@@ -4028,21 +3999,6 @@
        "then": [
         {
          "stage": "foyer"
-        }
-       ],
-       "stage": "bottom"
-      },
-      {
-       "id": "hmwqotkivw4x",
-       "name": "hotspot",
-       "region": {
-        "map": "...........\n.####......\n.####......\n.####......\n.####......\n...........\n...........\n...........\n...........\n...........\n..........."
-       },
-       "needs": [],
-       "on": "tap",
-       "then": [
-        {
-         "unlock": "length"
         }
        ],
        "stage": "bottom"
@@ -4063,7 +4019,7 @@
          "unlock": "angle"
         }
        ],
-       "stage": "name 1"
+       "stage": "top"
       }
      ],
      "unlock_delays": {
@@ -7090,7 +7046,11 @@
        },
        "needs": [],
        "on": "outline",
-       "then": [],
+       "then": [
+        {
+         "unlock": "glow"
+        }
+       ],
        "stage": "bars"
       },
       {
@@ -7117,16 +7077,16 @@
      }
     },
     {
-     "id": "sine/3",
+     "id": "sine/4",
      "bars": [
-      0,
-      16
+      32,
+      64
      ],
-     "loop": 0,
+     "loop": 32,
      "stages": [],
      "layers": [
       {
-       "id": "lmwso9pres2j",
+       "id": "lmwztt1vdyw9",
        "name": "field",
        "region": {},
        "kind": "cells",
@@ -7136,11 +7096,252 @@
          "base": 1,
          "chains": [],
          "masks": []
+        },
+        "lines": {
+         "op": "set",
+         "base": 1,
+         "chains": [],
+         "masks": []
+        },
+        "angle": {
+         "op": "add",
+         "base": 1,
+         "chains": [],
+         "masks": [
+          {
+           "source": "noise",
+           "depth": -100,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0
+          }
+         ]
+        }
+       }
+      },
+      {
+       "id": "lmwztyshxvkc",
+       "name": "layer",
+       "region": {
+        "map": "...........\n.####......\n.#..#......\n.#..#......\n.####......\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "angle": {
+         "op": "add",
+         "base": {
+          "map": "...........\n.→→→↓......\n.↑..↓......\n.↑..↓......\n.↑←←←......\n...........\n...........\n...........\n...........\n...........\n...........",
+          "legend": {
+           "→": 0,
+           "↗": 45,
+           "↑": 90,
+           "↖": 135,
+           "←": 180,
+           "↙": 225,
+           "↓": 270,
+           "↘": 315
+          }
+         },
+         "chains": [
+          {
+           "source": "b-kick",
+           "depth": 0.2,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": false,
+           "ripple": 0
+          }
+         ],
+         "masks": []
+        }
+       }
+      },
+      {
+       "id": "lmwzu0z58zvq",
+       "name": "twitch",
+       "region": {},
+       "kind": "cells",
+       "params": {
+        "angle": {
+         "op": "add",
+         "base": 0,
+         "chains": [
+          {
+           "source": "b-kick",
+           "depth": 361.2,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": false,
+           "ripple": 0,
+           "offset": -10
+          },
+          {
+           "source": "noise",
+           "depth": 200,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0
+          },
+          {
+           "source": "b-mids",
+           "depth": 5,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0
+          }
+         ],
+         "masks": []
+        }
+       },
+       "muted": true
+      },
+      {
+       "id": "lmwzubgdoa4l",
+       "name": "twitch 2",
+       "region": {},
+       "kind": "cells",
+       "params": {
+        "angle": {
+         "op": "add",
+         "base": 0,
+         "chains": [
+          {
+           "source": "b-kick",
+           "depth": 361.2,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": false,
+           "ripple": 0,
+           "offset": -10
+          },
+          {
+           "source": "noise",
+           "depth": 200,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0
+          },
+          {
+           "source": "b-mids",
+           "depth": 10,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0
+          }
+         ],
+         "masks": [
+          {
+           "source": "distance",
+           "depth": 1,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0
+          }
+         ]
+        }
+       },
+       "muted": true
+      },
+      {
+       "id": "lmwzubrb8qb0",
+       "name": "twitch 2 copy",
+       "region": {},
+       "kind": "cells",
+       "params": {
+        "angle": {
+         "op": "add",
+         "base": 0,
+         "chains": [
+          {
+           "source": "b-kick",
+           "depth": 361.2,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": false,
+           "ripple": 0,
+           "offset": -10
+          },
+          {
+           "source": "noise",
+           "depth": 200,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0
+          },
+          {
+           "source": "b-mids",
+           "depth": 20,
+           "threshold": 0,
+           "width": 1,
+           "curve": 1,
+           "invert": false,
+           "on": true,
+           "ripple": 0
+          }
+         ],
+         "masks": []
+        }
+       },
+       "muted": true
+      },
+      {
+       "id": "lmwzuhfs1a3q",
+       "name": "layer",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n.####......\n.####......\n.####......\n.####......\n..........."
+       },
+       "kind": "cells",
+       "params": {
+        "angle": {
+         "op": "set",
+         "base": 0,
+         "chains": [],
+         "masks": []
         }
        }
       }
      ],
-     "hotspots": []
+     "hotspots": [
+      {
+       "id": "hmwzuh50nfsg",
+       "name": "hotspot",
+       "region": {
+        "map": "...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n...........\n..........."
+       },
+       "needs": [],
+       "on": "tap",
+       "then": []
+      }
+     ]
     }
    ]
   },
